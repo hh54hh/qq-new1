@@ -59,7 +59,7 @@ const SystemDiagnostic = () => {
           ...prev,
           environment: {
             status: "success",
-            message: "متغيرات البيئة محددة بشكل ��حيح",
+            message: "متغير��ت البيئة محددة بشكل صحيح",
             details: `Supabase URL من المتغيرات: ${supabaseUrl.substring(0, 30)}...`,
           },
         }));
@@ -76,27 +76,54 @@ const SystemDiagnostic = () => {
       }
     }, 1000);
 
-    // Check API
+    // Check API - try both redirect and direct paths
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const response = await fetch("/api/ping", {
+      // Try the redirected API path first
+      let response = await fetch("/api/ping", {
         signal: controller.signal,
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
-      clearTimeout(timeoutId);
+      let apiWorking = false;
+      let details = "";
 
       if (response.ok) {
         const data = await response.json();
+        apiWorking = true;
+        details = `المسار المُعاد ت��جيهه يعمل: ${data.message || "تم الاتصال بنجاح"}`;
+      } else {
+        // If redirect fails, try direct Netlify function path
+        try {
+          response = await fetch("/.netlify/functions/api/ping", {
+            signal: controller.signal,
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            apiWorking = true;
+            details = `المسار المباشر يعمل: ${data.message || "تم الاتصال بنجاح"} - مشكلة في إعادة التوجيه`;
+          }
+        } catch (directError) {
+          // Both paths failed
+          details = `فشل المسارين: /api/ping (${response.status}) و /.netlify/functions/api/ping`;
+        }
+      }
+
+      clearTimeout(timeoutId);
+
+      if (apiWorking) {
         setChecks((prev) => ({
           ...prev,
           api: {
             status: "success",
             message: "API يعمل بشكل صحيح",
-            details: `الاستجابة: ${data.message || "تم الاتصال بنجاح"}, الحالة: ${response.status}`,
+            details,
           },
         }));
       } else {
@@ -108,13 +135,13 @@ const SystemDiagnostic = () => {
 
       if (error.name === "AbortError") {
         errorMessage = "انتهت مهلة الاتصال بـ API";
-        details = "المهلة المحددة: 5 ثوانٍ";
+        details = "المهلة المحددة: 5 ثوانٍ - تحقق من أن Functions تعمل";
       } else if (error.message.includes("fetch")) {
         errorMessage = "فشل في الاتصال بـ API";
-        details = "تحقق من الشبكة والإعدادات";
+        details = "تحقق من إعدادات Netlify Functions";
       } else {
         errorMessage = `خطأ في API: ${error.message}`;
-        details = error.stack || "لا توجد تفاصيل إضافية";
+        details = error.stack || "راجع إعدادات netlify.toml و Functions";
       }
 
       setChecks((prev) => ({
