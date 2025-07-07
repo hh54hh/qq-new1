@@ -94,9 +94,43 @@ export function createServer() {
   app.use(express.json({ limit: "10mb" })); // Increased limit for image uploads
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-  // Serve uploaded images statically
-  app.use("/uploads", express.static("uploads"));
+  // Serve uploaded images statically (only in non-serverless mode)
+  if (process.env.NODE_ENV !== "production" || !process.env.NETLIFY) {
+    app.use("/uploads", express.static("uploads"));
+  }
 
+  return createAppWithRoutes(app);
+}
+
+export function createServerlessServer() {
+  const app = express();
+
+  // Middleware optimized for serverless
+  app.use(
+    cors({
+      origin: "*",
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      allowedHeaders: [
+        "Origin",
+        "X-Requested-With",
+        "Content-Type",
+        "Accept",
+        "Authorization",
+      ],
+    }),
+  );
+
+  // Reduced limits for serverless environment
+  app.use(express.json({ limit: "5mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "5mb" }));
+
+  // Don't serve static files in serverless - this will be handled differently
+  // app.use("/uploads", express.static("uploads")); // Removed for serverless
+
+  return createAppWithRoutes(app);
+}
+
+function createAppWithRoutes(app: express.Application) {
   // Health check and debugging routes
   app.get("/api/ping", (_req, res) => {
     res.json({
