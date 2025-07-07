@@ -1,18 +1,37 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "./database";
 
-// معلومات قاعدة البيانات مدمجة في المشروع
-const supabaseUrl = "https://yrsvksgkxjiogjuaeyvd.supabase.co";
+// Environment variable detection for both server and client
+const isServer = typeof window === "undefined";
+const getEnvVar = (name: string) => {
+  if (isServer) {
+    return process.env[name];
+  } else {
+    return import.meta.env?.[name];
+  }
+};
+
+// Use environment variables with fallback to hardcoded values for development
+const supabaseUrl =
+  getEnvVar("VITE_SUPABASE_URL") || "https://yrsvksgkxjiogjuaeyvd.supabase.co";
+
 const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlyc3Zrc2dreGppb2dqdWFaeXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDMzMDMsImV4cCI6MjA2NzM3OTMwM30.-haPW80fiZMWYCm83TXvwZ2kHHBhcvhWAc6jPYdlUXM";
+  getEnvVar("VITE_SUPABASE_ANON_KEY") ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlyc3Zrc2dreGppb2dqdWFleXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDMzMDMsImV4cCI6MjA2NzM3OTMwM30.-haPW80fiZMWYCm83TXvwZ2kHHBhcvhWAc6jPYdlUXM";
 
 // Log connection details in development
-if (process.env.NODE_ENV !== "production") {
+const isDev = isServer
+  ? process.env.NODE_ENV !== "production"
+  : import.meta.env?.DEV;
+if (isDev) {
   console.log("Supabase configuration:", {
     url: supabaseUrl,
     keyPrefix: supabaseKey.substring(0, 20) + "...",
     hasUrl: !!supabaseUrl,
     hasKey: !!supabaseKey,
+    usingEnvUrl: !!getEnvVar("VITE_SUPABASE_URL"),
+    usingEnvKey: !!getEnvVar("VITE_SUPABASE_ANON_KEY"),
+    environment: isServer ? "server" : "client",
   });
 }
 
