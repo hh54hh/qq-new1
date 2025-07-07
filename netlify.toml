@@ -1,0 +1,25 @@
+[build]
+  command = "npm ci && npm run build"
+  functions = "netlify/functions"
+  publish = "dist/spa"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  NODE_OPTIONS = "--max-old-space-size=4096"
+  CI = "true"
+  # Ensure environment variables are available in build
+  NODE_ENV = "production"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

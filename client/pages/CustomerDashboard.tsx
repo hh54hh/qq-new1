@@ -1,0 +1,1909 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  MapPin,
+  Star,
+  Clock,
+  Heart,
+  Plus,
+  Search,
+  Filter,
+  Users,
+  Calendar,
+  User as UserIcon,
+  Settings,
+  ArrowRight,
+} from "lucide-react";
+import { User, UserRole, CreateBookingRequest } from "@shared/api";
+import { cn } from "@/lib/utils";
+import { useAppStore } from "@/lib/store";
+import apiClient from "@/lib/api";
+import BookingPage from "./BookingPage";
+
+import UserProfile from "./UserProfile";
+import RatingPage from "./RatingPage";
+import SearchPage from "./SearchPage";
+import SettingsPage from "./SettingsPage";
+import EditProfilePage from "./EditProfilePage";
+import MessagesPage from "./MessagesPage";
+import LocationBar from "@/components/LocationBar";
+import { useLocation } from "@/hooks/use-location";
+
+interface CustomerDashboardProps {
+  user: User;
+  activeTab: string;
+  onLogout?: () => void;
+}
+
+export default function CustomerDashboard({
+  user,
+  activeTab,
+  onLogout,
+}: CustomerDashboardProps) {
+  const [state, store] = useAppStore();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedBarber, setSelectedBarber] = useState<any | null>(null);
+  const [showBookingPage, setShowBookingPage] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<any | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showRating, setShowRating] = useState(false);
+  const [selectedBookingForRating, setSelectedBookingForRating] = useState<
+    any | null
+  >(null);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showFollowedBarbers, setShowFollowedBarbers] = useState(false);
+  const [showNearbyBarbers, setShowNearbyBarbers] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
+  const [messageTargetUser, setMessageTargetUser] = useState<any | null>(null);
+
+  const [allBarbers, setAllBarbers] = useState<any[]>([]);
+  const [filteredBarbers, setFilteredBarbers] = useState<any[]>([]);
+
+  // Explore page state
+  const [exploreSearchQuery, setExploreSearchQuery] = useState("");
+  const [exploreSortBy, setExploreSortBy] = useState("newest");
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [filteredPosts, setFilteredPosts] = useState<any[]>([]);
+
+  // Profile page state
+  const [profileFollowers, setProfileFollowers] = useState<any[]>([]);
+  const [profileFollowing, setProfileFollowing] = useState<any[]>([]);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
+  const [profileStats, setProfileStats] = useState({
+    bookings: 0,
+    followers: 0,
+    following: 0,
+  });
+  const {
+    location: userLocation,
+    isLoading: isLoadingLocation,
+    requestLocation,
+  } = useLocation();
+
+  // Explore posts state - loaded from real API
+  const [explorePosts, setExplorePosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      setFilteredBarbers(
+        allBarbers.filter((barber) =>
+          barber.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
+      );
+    } else {
+      setFilteredBarbers(allBarbers);
+    }
+  }, [searchQuery, allBarbers]);
+
+  // Load explore posts from API
+  useEffect(() => {
+    const loadExplorePosts = async () => {
+      console.log("=== Loading explore posts ===");
+      console.log("Active tab:", activeTab);
+
+      if (activeTab !== "search") {
+        return;
+      }
+
+      try {
+        console.log("Loading posts from API...");
+        console.log(
+          "User token available:",
+          !!localStorage.getItem("barbershop_token"),
+        );
+        const postsResponse = await apiClient.getPosts();
+        console.log("API Posts response:", postsResponse);
+        console.log("Response type:", typeof postsResponse);
+        console.log("Response keys:", Object.keys(postsResponse || {}));
+        const posts = postsResponse.posts || [];
+        console.log("API Posts data:", posts);
+        console.log("Number of posts received:", posts.length);
+        console.log("First post (if any):", posts[0]);
+
+        // Filter to show only featured posts
+        const featuredPosts = getFeaturedPosts(posts);
+        console.log(
+          `Filtered ${posts.length} posts to ${featuredPosts.length} featured posts`,
+        );
+
+        setExplorePosts(featuredPosts);
+        setFilteredPosts(featuredPosts);
+      } catch (error) {
+        console.error("Error loading explore posts:", error);
+        console.log("Creating featured fallback data due to error");
+        // Create high-quality fallback data that meets featured criteria
+        const fallbackPosts = [
+          {
+            id: "featured_1",
+            user_id: "featured_user",
+            image_url:
+              "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&h=400&fit=crop",
+            caption: "قصة شعر مميزة - أسلوب حديث",
+            created_at: new Date().toISOString(),
+            user: {
+              id: "featured_user",
+              name: "حلاق مميز",
+              level: 85,
+              avatar_url: "",
+              role: "barber",
+              is_verified: true,
+            },
+            likes: 42,
+          },
+          {
+            id: "featured_2",
+            user_id: "featured_user2",
+            image_url:
+              "https://images.unsplash.com/photo-1493256338651-d82f7acb2b38?w=400&h=400&fit=crop",
+            caption: "إبداع في التصفيف",
+            created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+            user: {
+              id: "featured_user2",
+              name: "استاذ محمد",
+              level: 95,
+              avatar_url: "",
+              role: "barber",
+              is_verified: true,
+            },
+            likes: 67,
+          },
+        ];
+        setExplorePosts(fallbackPosts);
+        setFilteredPosts(fallbackPosts);
+      }
+    };
+
+    loadExplorePosts();
+  }, [activeTab]); // Only watch activeTab
+
+  // Listen for posts updates from other components
+  useEffect(() => {
+    const handlePostsUpdate = () => {
+      if (activeTab === "explore") {
+        // Re-load explore posts when posts are updated
+        const loadExplorePosts = async () => {
+          try {
+            console.log("Refreshing explore posts due to update event...");
+            const postsResponse = await apiClient.getPosts();
+            const posts = postsResponse.posts || [];
+            setExplorePosts(posts);
+            setFilteredPosts(posts);
+          } catch (error) {
+            console.error("Error refreshing explore posts:", error);
+          }
+        };
+        loadExplorePosts();
+      }
+    };
+
+    window.addEventListener("postsUpdated", handlePostsUpdate);
+    return () => window.removeEventListener("postsUpdated", handlePostsUpdate);
+  }, [activeTab]);
+
+  // Filter featured posts for explore page
+  useEffect(() => {
+    let filtered = [...explorePosts];
+
+    // Apply search filter
+    if (exploreSearchQuery.trim()) {
+      filtered = filtered.filter((post) =>
+        post.user?.name
+          ?.toLowerCase()
+          .includes(exploreSearchQuery.toLowerCase()),
+      );
+    }
+
+    // Apply sorting (but maintain featured quality)
+    switch (exploreSortBy) {
+      case "newest":
+        filtered.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        );
+        break;
+      case "rating":
+        // Sort by barber level and engagement
+        filtered.sort((a, b) => {
+          const scoreA = (a.user?.level || 0) + (a.likes || 0) * 0.5;
+          const scoreB = (b.user?.level || 0) + (b.likes || 0) * 0.5;
+          return scoreB - scoreA;
+        });
+        break;
+      case "distance":
+        // For featured posts, maintain quality while simulating distance
+        filtered.sort((a, b) => {
+          const qualityA = (a.user?.level || 0) + (a.likes || 0);
+          const qualityB = (b.user?.level || 0) + (b.likes || 0);
+          return qualityB - qualityA + (Math.random() - 0.5) * 20;
+        });
+        break;
+    }
+
+    setFilteredPosts(filtered);
+  }, [exploreSearchQuery, exploreSortBy, explorePosts]);
+
+  // Load profile data when profile tab is active
+  useEffect(() => {
+    if (activeTab === "profile") {
+      loadProfileData();
+    }
+  }, [activeTab]);
+
+  // Load data on component mount
+  useEffect(() => {
+    loadBookings();
+    loadBarbers();
+    loadFriendRequests();
+  }, [user.id]);
+
+  const loadFriendRequests = () => {
+    // إضافة طلبات صداقة تجريبية للإشعارات
+    const friendRequests = [
+      {
+        id: "friend_req_1",
+        type: "friend_request" as const,
+        title: "طلب صداقة جديد",
+        message: "أحمد الحلاق يريد متابعتك",
+        data: {
+          senderId: "barber_1",
+          senderName: "أحمد الحلاق",
+          requiresAction: true,
+        },
+        read: false,
+        created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+      },
+      {
+        id: "friend_req_2",
+        type: "friend_request" as const,
+        title: "طلب صداقة جديد",
+        message: "محمد العلي يريد متابعتك",
+        data: {
+          senderId: "barber_2",
+          senderName: "محمد العلي",
+          requiresAction: true,
+        },
+        read: false,
+        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      },
+    ];
+
+    // إضافة طلبات الصداقة للإشعارات إذا لم تكن موج��دة
+    friendRequests.forEach((request) => {
+      const exists = state.notifications.some((n) => n.id === request.id);
+      if (!exists) {
+        store.addNotification(request);
+      }
+    });
+  };
+
+  const loadBarbers = async () => {
+    // Only load if user is logged in
+    if (!user?.id) {
+      return;
+    }
+
+    try {
+      store.setLoading(true);
+
+      // Load barbers
+      const barbersResponse = await apiClient.getBarbers();
+      const barbers = barbersResponse.barbers || [];
+
+      // Load real follow data - handle network errors gracefully
+      let followedUsers = [];
+      try {
+        const followsResponse = await apiClient.getFollows("following");
+        followedUsers =
+          followsResponse.follows?.map((f) => f.followed_id) || [];
+
+        // Update store with real follows data
+        if (followsResponse.follows) {
+          store.setFollows(followsResponse.follows);
+        }
+      } catch (error) {
+        // Silently handle network errors - use store data or empty array
+        followedUsers = state.follows?.map((f) => f.followed_id) || [];
+      }
+
+      // Enhance barbers with real data and calculated distances
+      const enhancedBarbers = await Promise.all(
+        barbers.map(async (barber) => {
+          // Calculate real distance if user location is available
+          let distance = null;
+          if (userLocation && barber.lat && barber.lng) {
+            distance = calculateDistance(
+              userLocation.lat,
+              userLocation.lng,
+              barber.lat,
+              barber.lng,
+            );
+          }
+
+          return {
+            ...barber,
+            rating: barber.rating || 0,
+            followers: barber.followers_count || 0,
+            distance: distance ? parseFloat(distance.toFixed(1)) : 2.5,
+            status: barber.status || "متاح",
+            isFollowed: followedUsers.includes(barber.id),
+            price: barber.price || 30,
+            lat: barber.lat || 0,
+            lng: barber.lng || 0,
+          };
+        }),
+      );
+
+      setAllBarbers(enhancedBarbers);
+      setFilteredBarbers(enhancedBarbers);
+    } catch (error) {
+      console.error("Error loading barbers:", error);
+      // Set empty arrays on error to prevent crashes
+      setAllBarbers([]);
+      setFilteredBarbers([]);
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const loadBookings = async () => {
+    // Only load if user is logged in
+    if (!user?.id) {
+      return;
+    }
+
+    try {
+      store.setLoading(true);
+      const bookingsData = await apiClient.getBookings();
+      store.setBookings(bookingsData.bookings || []);
+    } catch (error) {
+      console.error("Error loading bookings:", error);
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const handleBookBarber = (barber: any) => {
+    setSelectedBarber(barber);
+    setShowBookingPage(true);
+  };
+
+  const handleBooking = async (
+    bookingData: CreateBookingRequest & { message?: string },
+  ) => {
+    try {
+      store.setLoading(true);
+      const newBooking = await apiClient.createBooking(bookingData);
+      store.addBooking(newBooking);
+
+      // Add notification
+      store.addNotification({
+        id: Date.now().toString(),
+        type: "new_booking",
+        title: "تم إرسال طلب الحجز",
+        message: `تم إرسال طلب حجز إلى ${selectedBarber?.name}`,
+        data: newBooking,
+        read: false,
+        created_at: new Date().toISOString(),
+      });
+
+      setShowBookingPage(false);
+      setSelectedBarber(null);
+    } catch (error) {
+      console.error("Error creating booking:", error);
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      store.setLoading(true);
+
+      // Update booking status to cancelled
+      await apiClient.updateBooking(bookingId, { status: "cancelled" });
+
+      // Update booking in store
+      store.updateBooking(bookingId, { status: "cancelled" });
+
+      // Add notification
+      store.addNotification({
+        id: Date.now().toString(),
+        type: "booking_rejected",
+        title: "تم إلغاء الحجز",
+        message: "تم إلغاء حجزك بنجاح",
+        data: { bookingId },
+        read: false,
+        created_at: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error canceling booking:", error);
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const handleToggleFollow = async (barberId: string, isFollowed: boolean) => {
+    try {
+      // Update UI immediately for better user experience
+      const updateBarberFollow = (barbers: any[]) =>
+        barbers.map((barber) =>
+          barber.id === barberId
+            ? { ...barber, isFollowed: !isFollowed }
+            : barber,
+        );
+
+      setFilteredBarbers(updateBarberFollow);
+      setAllBarbers(updateBarberFollow);
+
+      // Make the API call to update database
+      let followResult;
+      if (isFollowed) {
+        await apiClient.unfollowUser(barberId);
+        // Remove from store follows
+        const followToRemove = state.follows.find(
+          (f) => f.followed_id === barberId,
+        );
+        if (followToRemove) {
+          store.removeFollow(followToRemove.id);
+        }
+      } else {
+        followResult = await apiClient.followUser(barberId);
+        // Add to store follows
+        const newFollow = followResult || {
+          id: Date.now().toString(),
+          follower_id: user.id,
+          followed_id: barberId,
+          created_at: new Date().toISOString(),
+        };
+        store.addFollow(newFollow);
+      }
+
+      // Add notification for successful follow/unfollow
+      store.addNotification({
+        id: Date.now().toString(),
+        type: isFollowed ? "friend_request" : "new_follower",
+        title: isFollowed ? "إلغاء المتابعة" : "متابعة جديدة",
+        message: isFollowed
+          ? `تم إلغاء متابعة ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`
+          : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`,
+        data: { barberId },
+        read: false,
+        created_at: new Date().toISOString(),
+      });
+
+      // Reload barbers to get updated follow status from server
+      setTimeout(() => {
+        loadBarbers();
+      }, 500);
+    } catch (error) {
+      // Handle 409 conflict gracefully - data already exists/doesn't exist
+      if (
+        error instanceof Error &&
+        (error.message.includes("البيانات موجودة بالفعل") ||
+          error.message.includes("تتابع هذا المستخدم بالفع��") ||
+          error.message.includes("Already following") ||
+          error.message.includes("409"))
+      ) {
+        // Conflict error - state is already correct, no need to revert
+        console.log("Follow state already correct on server");
+      } else {
+        console.error("Error toggling follow:", error);
+
+        // Revert the UI state since API call failed
+        const revertBarberFollow = (barbers: any[]) =>
+          barbers.map((barber) =>
+            barber.id === barberId
+              ? { ...barber, isFollowed: isFollowed } // Revert to original state
+              : barber,
+          );
+
+        setFilteredBarbers(revertBarberFollow);
+        setAllBarbers(revertBarberFollow);
+
+        // Show error notification
+        store.addNotification({
+          id: Date.now().toString(),
+          type: "friend_request",
+          title: "خطأ في المتابعة",
+          message: "حدث خطأ أثناء تحديث حالة المتابعة، يرجى المحاولة مرة أخرى",
+          data: { barberId },
+          read: false,
+          created_at: new Date().toISOString(),
+        });
+      }
+    }
+  };
+
+  const handleViewProfile = (barber: any) => {
+    setSelectedProfile({
+      ...barber,
+      role: "barber",
+      status: "active",
+      is_verified: true,
+      created_at: new Date().toISOString(),
+    });
+    setShowProfile(true);
+  };
+
+  const handleRateBooking = (booking: any) => {
+    setSelectedBookingForRating(booking);
+    setShowRating(true);
+  };
+
+  const handleAdvancedSearch = () => {
+    setShowAdvancedSearch(true);
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const postDate = new Date(dateString);
+    const diffInHours = Math.floor(
+      (now.getTime() - postDate.getTime()) / (1000 * 60 * 60),
+    );
+
+    if (diffInHours < 24) {
+      return `منذ ${diffInHours} ساعة`;
+    } else {
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `��نذ ${diffInDays} ${diffInDays === 1 ? "يوم" : "أيام"}`;
+    }
+  };
+
+  const handleBookNow = (barber: any) => {
+    setSelectedPost(null);
+    handleBookBarber({
+      ...barber,
+      rating: barber.level / 20,
+      distance: userLocation ? 2.5 : null,
+      price: 30,
+      status: "متاح",
+      isFollowed: false,
+    });
+  };
+
+  const loadProfileData = async () => {
+    try {
+      // تحميل الإحصائيات
+      const bookingsData = await apiClient.getBookings();
+
+      // تحميل المتابعين والمتابعين
+      const [followersResponse, followingResponse] = await Promise.all([
+        apiClient.getFollows("followers"),
+        apiClient.getFollows("following"),
+      ]);
+
+      const followersData = followersResponse.follows || [];
+      const followingData = followingResponse.follows || [];
+
+      setProfileFollowers(followersData);
+      setProfileFollowing(followingData);
+      setProfileStats({
+        bookings: bookingsData.bookings?.length || 0,
+        followers: followersData.length,
+        following: followingData.length,
+      });
+    } catch (error) {
+      console.error("Error loading profile data:", error);
+      setProfileStats({
+        bookings: state.bookings.length,
+        followers: 0,
+        following: 0,
+      });
+    }
+  };
+
+  const handleUnfollowFromProfile = async (userId: string) => {
+    try {
+      await apiClient.unfollowUser(userId);
+
+      // إزالة من Store
+      const followToRemove = state.follows.find(
+        (f) => f.followed_id === userId,
+      );
+      if (followToRemove) {
+        store.removeFollow(followToRemove.id);
+      }
+
+      // تحديث القائمة المحلية
+      setProfileFollowing((prev) =>
+        prev.filter((f) => f.followed_id !== userId),
+      );
+      setProfileStats((prev) => ({ ...prev, following: prev.following - 1 }));
+
+      store.addNotification({
+        id: Date.now().toString(),
+        type: "friend_request",
+        title: "إلغاء المتابعة",
+        message: "تم إلغاء المتابعة بنجاح",
+        data: { userId },
+        read: false,
+        created_at: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("Error unfollowing:", error);
+    }
+  };
+
+  // Utility functions
+  const calculateDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number,
+  ): number => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in kilometers
+  };
+
+  const getLevelIcon = (level: number) => {
+    if (level >= 100) return "����";
+    if (level >= 51) return "🟡";
+    if (level >= 21) return "🔹";
+    return "🔸";
+  };
+
+  const getLevelLabel = (level: number) => {
+    if (level >= 100) return "VIP";
+    if (level >= 51) return "ذهبي";
+    if (level >= 21) return "محترف";
+    return "مبتدئ";
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "متاح":
+        return "bg-green-500/10 text-green-500 border-green-500/20";
+      case "مشغول":
+        return "bg-red-500/10 text-red-500 border-red-500/20";
+      default:
+        return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
+  };
+
+  const getBookingStatusColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+      case "accepted":
+        return "bg-green-500/10 text-green-500 border-green-500/20";
+      case "rejected":
+        return "bg-red-500/10 text-red-500 border-red-500/20";
+      case "cancelled":
+        return "bg-destructive/10 text-destructive border-destructive/20";
+      default:
+        return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
+  };
+
+  const getBookingStatusLabel = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "با����تظار";
+      case "accepted":
+        return "مق��ول";
+      case "rejected":
+        return "مرفوض";
+      case "cancelled":
+        return "ملغي";
+      default:
+        return status;
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ar-SA", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Show all followed barbers
+  if (showFollowedBarbers) {
+    const followedBarbers = filteredBarbers.filter(
+      (barber) => barber.isFollowed,
+    );
+
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border/50 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowFollowedBarbers(false)}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <h1 className="text-base sm:text-lg font-bold text-foreground">
+              الحلاقين المتابعين ({followedBarbers.length})
+            </h1>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {followedBarbers.map((barber) => (
+            <Card
+              key={`all-followed-${barber.id}`}
+              className="border-border/50 bg-card/50"
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <Avatar
+                    className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+                    onClick={() => {
+                      setShowFollowedBarbers(false);
+                      handleViewProfile(barber);
+                    }}
+                  >
+                    <AvatarImage src={barber.avatar_url} />
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {barber.name ? barber.name.charAt(0) : "ح"}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4
+                        className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors truncate"
+                        onClick={() => {
+                          setShowFollowedBarbers(false);
+                          handleViewProfile(barber);
+                        }}
+                      >
+                        {barber.name}
+                      </h4>
+                      <span className="text-sm">
+                        {getLevelIcon(barber.level)}
+                      </span>
+                      <Badge variant="outline" className="text-xs shrink-0">
+                        {getLevelLabel(barber.level)}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span>{barber.rating}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        <span>{barber.distance} كم</span>
+                      </div>
+                      <Badge
+                        className={cn("text-xs", getStatusColor(barber.status))}
+                      >
+                        {barber.status}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleToggleFollow(barber.id, barber.isFollowed)
+                      }
+                    >
+                      إلغاء المتابعة
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90"
+                      onClick={() => {
+                        setShowFollowedBarbers(false);
+                        handleBookBarber(barber);
+                      }}
+                    >
+                      ح��ز
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {followedBarbers.length === 0 && (
+            <Card className="border-border/50 bg-card/50">
+              <CardContent className="p-8 text-center">
+                <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  لا تت��بع أي حلاق
+                </h3>
+                <p className="text-muted-foreground">
+                  ابدأ بمتابعة الحلاقين لرؤ��تهم ه��ا
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Show all nearby barbers
+  if (showNearbyBarbers) {
+    const nearbyBarbers = filteredBarbers.filter(
+      (barber) => !barber.isFollowed,
+    );
+
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border/50 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowNearbyBarbers(false)}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <h1 className="text-base sm:text-lg font-bold text-foreground">
+              الحلاقين القريبين ({nearbyBarbers.length})
+            </h1>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {nearbyBarbers.map((barber) => (
+            <Card
+              key={`all-nearby-${barber.id}`}
+              className="border-border/50 bg-card/50"
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <Avatar
+                    className="h-12 w-12 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+                    onClick={() => {
+                      setShowNearbyBarbers(false);
+                      handleViewProfile(barber);
+                    }}
+                  >
+                    <AvatarImage src={barber.avatar_url} />
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {barber.name ? barber.name.charAt(0) : "ح"}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4
+                        className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors truncate"
+                        onClick={() => {
+                          setShowNearbyBarbers(false);
+                          handleViewProfile(barber);
+                        }}
+                      >
+                        {barber.name}
+                      </h4>
+                      <span className="text-sm">
+                        {getLevelIcon(barber.level)}
+                      </span>
+                      <Badge variant="outline" className="text-xs shrink-0">
+                        {getLevelLabel(barber.level)}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span>{barber.rating}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        <span>{barber.distance} كم</span>
+                      </div>
+                      <Badge
+                        className={cn("text-xs", getStatusColor(barber.status))}
+                      >
+                        {barber.status}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        handleToggleFollow(barber.id, barber.isFollowed)
+                      }
+                    >
+                      متابعة
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90"
+                      onClick={() => {
+                        setShowNearbyBarbers(false);
+                        handleBookBarber(barber);
+                      }}
+                    >
+                      حجز
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {nearbyBarbers.length === 0 && (
+            <Card className="border-border/50 bg-card/50">
+              <CardContent className="p-8 text-center">
+                <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  ��ا توجد ح��اقين قريبين
+                </h3>
+                <p className="text-muted-foreground">
+                  جاري ��لبحث عن حلاقين في منطقت��
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Show booking page
+  if (showBookingPage && selectedBarber) {
+    return (
+      <BookingPage
+        barber={selectedBarber}
+        onBook={handleBooking}
+        onBack={() => {
+          setShowBookingPage(false);
+          setSelectedBarber(null);
+        }}
+      />
+    );
+  }
+
+  // Show profile page
+  if (showProfile && selectedProfile) {
+    return (
+      <UserProfile
+        profileUser={selectedProfile}
+        currentUser={user}
+        onBack={() => {
+          setShowProfile(false);
+          setSelectedProfile(null);
+        }}
+        onBooking={() => {
+          setShowProfile(false);
+          setSelectedBarber(selectedProfile);
+          setShowBookingPage(true);
+        }}
+        onFollow={() => {
+          // Reload barbers to reflect follow status changes
+          setTimeout(() => {
+            loadBarbers();
+          }, 500);
+        }}
+        onUnfollow={() => {
+          // Reload barbers to reflect follow status changes
+          setTimeout(() => {
+            loadBarbers();
+          }, 500);
+        }}
+        onMessage={() => {
+          setShowProfile(false);
+          setMessageTargetUser(selectedProfile);
+          setShowMessages(true);
+        }}
+      />
+    );
+  }
+
+  // Show rating page
+  if (showRating && selectedBookingForRating) {
+    return (
+      <RatingPage
+        user={user}
+        booking={selectedBookingForRating}
+        onBack={() => {
+          setShowRating(false);
+          setSelectedBookingForRating(null);
+        }}
+        onComplete={() => {
+          // Refresh bookings to update status
+          loadBookings();
+        }}
+      />
+    );
+  }
+
+  // Show advanced search
+  if (showAdvancedSearch) {
+    return (
+      <SearchPage
+        user={user}
+        onBack={() => setShowAdvancedSearch(false)}
+        onSelectBarber={(barber) => {
+          setShowAdvancedSearch(false);
+          handleViewProfile(barber);
+        }}
+      />
+    );
+  }
+
+  // Show settings
+  if (showSettings) {
+    return <SettingsPage user={user} onBack={() => setShowSettings(false)} />;
+  }
+
+  // Show edit profile
+  if (showEditProfile) {
+    return (
+      <EditProfilePage
+        user={user}
+        onBack={() => setShowEditProfile(false)}
+        onSave={(updatedUser) => {
+          // User is already updated in store by EditProfilePage
+          setShowEditProfile(false);
+        }}
+      />
+    );
+  }
+
+  // Show messages
+  if (showMessages) {
+    return (
+      <MessagesPage
+        user={user}
+        targetUser={messageTargetUser}
+        onBack={() => {
+          setShowMessages(false);
+          setMessageTargetUser(null);
+        }}
+      />
+    );
+  }
+
+  const renderHome = () => {
+    const followedBarbers = filteredBarbers.filter(
+      (barber) => barber.isFollowed,
+    );
+    const nearbyBarbers = filteredBarbers.filter(
+      (barber) => !barber.isFollowed,
+    );
+
+    return (
+      <div className="p-4 space-y-4 sm:space-y-6">
+        {/* Location & Welcome Section */}
+        <div className="space-y-4">
+          {/* Location Bar */}
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-3 border border-primary/20">
+            <div className="flex items-center justify-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" />
+              {isLoadingLocation ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin h-3 w-3 border border-primary border-t-transparent rounded-full"></div>
+                  <span className="text-sm text-primary">
+                    جاري تحديد الموقع...
+                  </span>
+                </div>
+              ) : userLocation ? (
+                <div className="text-center">
+                  <span className="text-sm font-medium text-primary">
+                    {userLocation.address}
+                  </span>
+                  <div className="text-xs text-primary/80 mt-0.5">
+                    موقعك الحالي • دقة عالية
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center">
+                  <span className="text-sm text-muted-foreground">
+                    لم يتم تحديد الموقع
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-primary p-0 h-auto ml-2"
+                    onClick={requestLocation}
+                  >
+                    إعادة ����لمحاولة
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Welcome */}
+          <div className="text-center py-4 sm:py-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+              مرحباً {user.name}
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              ابحث عن أفضل الحلاقين واحجز موعدك
+            </p>
+          </div>
+        </div>
+
+        {/* Followed Barbers Section */}
+        {followedBarbers.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                الحلاقين المتابعين
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs sm:text-sm"
+                onClick={() => setShowFollowedBarbers(true)}
+              >
+                عرض الكل ({followedBarbers.length})
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {followedBarbers.slice(0, 4).map((barber) => (
+                <Card
+                  key={`followed-${barber.id}`}
+                  className="border-border/50 bg-card/50"
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+                        onClick={() => handleViewProfile(barber)}
+                      >
+                        <AvatarImage src={barber.avatar_url} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                          {barber.name ? barber.name.charAt(0) : "ح"}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4
+                            className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm truncate"
+                            onClick={() => handleViewProfile(barber)}
+                          >
+                            {barber.name}
+                          </h4>
+                          <span className="text-xs">
+                            {getLevelIcon(barber.level)}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <span>{barber.rating}</span>
+                          </div>
+                          <Badge
+                            className={cn(
+                              "text-xs",
+                              getStatusColor(barber.status),
+                            )}
+                          >
+                            {barber.status}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90 text-xs shrink-0"
+                        onClick={() => handleBookBarber(barber)}
+                      >
+                        حجز
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Nearby Barbers Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base sm:text-lg font-semibold text-foreground">
+              الحلاقين القريبين
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs sm:text-sm"
+              onClick={() => setShowNearbyBarbers(true)}
+            >
+              عرض ����كل
+            </Button>
+          </div>
+
+          {nearbyBarbers.slice(0, 3).map((barber) => (
+            <Card key={barber.id} className="border-border/50 bg-card/50">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <Avatar
+                    className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+                    onClick={() => handleViewProfile(barber)}
+                  >
+                    <AvatarImage src={barber.avatar_url} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm sm:text-base">
+                      {barber.name ? barber.name.charAt(0) : "ح"}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4
+                        className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm sm:text-base truncate"
+                        onClick={() => handleViewProfile(barber)}
+                      >
+                        {barber.name}
+                      </h4>
+                      <span className="text-xs sm:text-sm">
+                        {getLevelIcon(barber.level)}
+                      </span>
+                      <Badge variant="outline" className="text-xs shrink-0">
+                        {getLevelLabel(barber.level)}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground flex-wrap">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <span>{barber.rating}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        <span className="whitespace-nowrap">
+                          {barber.distance} كم
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        <span>{barber.followers}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 shrink-0">
+                    <Badge
+                      className={cn("text-xs", getStatusColor(barber.status))}
+                    >
+                      {barber.status}
+                    </Badge>
+                    <Button
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90 text-xs sm:text-sm"
+                      onClick={() => handleBookBarber(barber)}
+                    >
+                      حجز
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Suggestions Section */}
+        {nearbyBarbers.length > 3 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground">
+                اقتراحات مميزة
+              </h3>
+              <Badge variant="outline" className="text-xs">
+                جديد
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {nearbyBarbers.slice(3, 6).map((barber) => (
+                <Card
+                  key={`suggested-${barber.id}`}
+                  className="border-border/50 bg-gradient-to-br from-primary/5 to-primary/10 relative overflow-hidden"
+                >
+                  <div className="absolute top-2 right-2">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs bg-primary/20 text-primary"
+                    >
+                      مُقترح
+                    </Badge>
+                  </div>
+                  <CardContent className="p-4">
+                    <div className="text-center space-y-3">
+                      <Avatar
+                        className="h-12 w-12 mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => handleViewProfile(barber)}
+                      >
+                        <AvatarImage src={barber.avatar_url} />
+                        <AvatarFallback className="bg-primary/10 text-primary">
+                          {barber.name ? barber.name.charAt(0) : "ح"}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div>
+                        <h4
+                          className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm truncate"
+                          onClick={() => handleViewProfile(barber)}
+                        >
+                          {barber.name}
+                        </h4>
+                        <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{barber.rating}</span>
+                          <span>•</span>
+                          <span>{barber.distance} كم</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 text-xs"
+                          onClick={() =>
+                            handleToggleFollow(barber.id, barber.isFollowed)
+                          }
+                        >
+                          متابعة
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="flex-1 bg-primary hover:bg-primary/90 text-xs"
+                          onClick={() => handleBookBarber(barber)}
+                        >
+                          حجز
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {filteredBarbers.length === 0 && (
+          <Card className="border-border/50 bg-card/50">
+            <CardContent className="p-8 text-center">
+              <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
+                لا توجد حلا��ين قريبين
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                سنعرض لك الحلاقين ا��متاحين في منطقتك قريباً
+              </p>
+              <Button className="bg-primary hover:bg-primary/90">
+                تحديث الموقع
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  };
+
+  // Filter posts to show only featured content
+  const getFeaturedPosts = (posts: any[]) => {
+    return posts
+      .filter((post) => {
+        // Featured criteria:
+        // 1. Posts with high engagement (likes > 15)
+        // 2. Posts from high-level barbers (level > 60)
+        // 3. Posts from verified barbers
+        const isHighEngagement = (post.likes || 0) > 15;
+        const isHighLevelBarber = (post.user?.level || 0) > 60;
+        const isVerifiedBarber =
+          post.user?.is_verified || (post.user?.level || 0) > 80;
+
+        return isHighEngagement || isHighLevelBarber || isVerifiedBarber;
+      })
+      .sort((a, b) => {
+        // Sort by engagement score (combination of likes and barber level)
+        const scoreA = (a.likes || 0) + (a.user?.level || 0) * 0.5;
+        const scoreB = (b.likes || 0) + (b.user?.level || 0) * 0.5;
+        return scoreB - scoreA;
+      })
+      .slice(0, 20); // Limit to top 20 featured posts
+  };
+
+  const renderSearch = () => (
+    <div className="p-4 space-y-4">
+      {/* شريط البحث */}
+      <div className="relative">
+        <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          value={exploreSearchQuery}
+          onChange={(e) => setExploreSearchQuery(e.target.value)}
+          placeholder="ابحث عن حلاق..."
+          className="pr-10 text-right"
+        />
+      </div>
+
+      {/* فلتر الترتيب */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">ترتيب حسب:</span>
+        <Select value={exploreSortBy} onValueChange={setExploreSortBy}>
+          <SelectTrigger className="w-auto">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">⏱ الأحدث</SelectItem>
+            <SelectItem value="rating">⭐ الأفض��</SelectItem>
+            <SelectItem value="distance">📍 الأقرب</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* شبكة المنشورات */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
+        {filteredPosts.map((post) => (
+          <div
+            key={post.id}
+            className="aspect-square relative group cursor-pointer overflow-hidden rounded-lg bg-card/50 border border-border/50"
+            onClick={() => setSelectedPost(post)}
+          >
+            <img
+              src={post.image_url}
+              alt={post.caption}
+              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="flex items-center gap-4 text-white">
+                <div className="flex items-center gap-1">
+                  <Heart className="h-4 w-4 fill-white" />
+                  <span className="text-sm font-medium">{post.likes || 0}</span>
+                </div>
+              </div>
+            </div>
+            <div className="absolute top-2 right-2">
+              <Badge
+                variant="secondary"
+                className="text-xs bg-black/50 text-white border-none"
+              >
+                {getLevelIcon(post.user?.level || 1)}
+              </Badge>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* رسالة عدم وجود نتائج */}
+      {filteredPosts.length === 0 && (
+        <div className="text-center py-12">
+          <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">
+            لا توجد منشورات مميزة
+          </h3>
+          <p className="text-muted-foreground">
+            {exploreSearchQuery
+              ? "جرب البحث بكلمة أخرى من المنشورات المميزة"
+              : "لا توجد منشورات مميزة متاحة حالياً"}
+          </p>
+        </div>
+      )}
+
+      {/* Modal تفاصيل المنشور */}
+      <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
+        <DialogContent className="max-w-md mx-auto">
+          {selectedPost && (
+            <div className="space-y-4">
+              <DialogHeader>
+                <DialogTitle className="sr-only">تفاصيل المنشور</DialogTitle>
+              </DialogHeader>
+
+              <div className="aspect-square rounded-lg overflow-hidden">
+                <img
+                  src={selectedPost.image_url}
+                  alt={selectedPost.caption}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={selectedPost.user.avatar_url} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {selectedPost.user.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-foreground">
+                      {selectedPost.user.name}
+                    </h4>
+                    <span>{getLevelIcon(selectedPost.user.level)}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      موثق
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {formatTimeAgo(selectedPost.created_at)}
+                  </p>
+                </div>
+              </div>
+
+              {selectedPost.caption && (
+                <p className="text-sm text-foreground">
+                  {selectedPost.caption}
+                </p>
+              )}
+
+              <div className="flex items-center gap-2">
+                <Heart className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {selectedPost.likes} إعجاب
+                </span>
+              </div>
+
+              <Button
+                onClick={() => handleBookNow(selectedPost.user)}
+                className="w-full bg-primary hover:bg-primary/90"
+                size="lg"
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                احجز الآن
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+
+  const renderBookings = () => (
+    <div className="p-4 space-y-6">
+      <h2 className="text-xl font-bold text-foreground">حجوزاتي</h2>
+
+      <div className="space-y-4">
+        {state.bookings.map((booking) => (
+          <Card key={booking.id} className="border-border/50 bg-card/50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-foreground">
+                    {booking.barber?.name || "الحلاق"}
+                  </h4>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(booking.datetime)}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2">
+                  <Badge
+                    className={cn(
+                      "text-xs",
+                      getBookingStatusColor(booking.status),
+                    )}
+                  >
+                    {getBookingStatusLabel(booking.status)}
+                  </Badge>
+                  {booking.status === "pending" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCancelBooking(booking.id)}
+                    >
+                      إلغاء
+                    </Button>
+                  )}
+                  {booking.status === "cancelled" && (
+                    <Badge className="text-xs bg-destructive/10 text-destructive border-destructive/20">
+                      ملغي
+                    </Badge>
+                  )}
+                  {booking.status === "completed" && (
+                    <Button
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90"
+                      onClick={() => handleRateBooking(booking)}
+                    >
+                      <Star className="h-3 w-3 mr-1" />
+                      تقييم
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+
+        {state.bookings.length === 0 && (
+          <Card className="border-border/50 bg-card/50">
+            <CardContent className="p-8 text-center">
+              <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
+                لا توجد حجوزات
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                احجز موعدك الأ��ل مع أحد الحل��قين
+              </p>
+              <Button className="bg-primary hover:bg-primary/90">
+                احجز الآن
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderProfile = () => {
+    if (showFollowers) {
+      return (
+        <div className="p-4 space-y-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowFollowers(false)}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <h2 className="text-lg font-bold">
+              ال��تابعين ({profileFollowers.length})
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {profileFollowers.map((follower) => (
+              <Card
+                key={follower.follower_id}
+                className="border-border/50 bg-card/50"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={follower.follower?.avatar_url} />
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {follower.follower?.name?.charAt(0) || "م"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h4 className="font-medium">
+                        {follower.follower?.name ||
+                          `مستخدم ${follower.follower_id.slice(-4)}`}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {follower.follower?.role === "barber" ? "حلاق" : "زبون"}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="outline">
+                      ��رض الملف
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            {profileFollowers.length === 0 && (
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">لا يوجد متا��عين حالياً</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    if (showFollowing) {
+      return (
+        <div className="p-4 space-y-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowFollowing(false)}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <h2 className="text-lg font-bold">
+              المتابَعين ({profileFollowing.length})
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {profileFollowing.map((follow) => (
+              <Card
+                key={follow.followed_id}
+                className="border-border/50 bg-card/50"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={follow.followed?.avatar_url} />
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {follow.followed?.name?.charAt(0) || "ح"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h4 className="font-medium">
+                        {follow.followed?.name ||
+                          `مستخدم ${follow.followed_id.slice(-4)}`}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {follow.followed?.role === "barber" ? "حلاق" : "زبون"}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        handleUnfollowFromProfile(follow.followed_id)
+                      }
+                    >
+                      إلغاء المتابعة
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            {profileFollowing.length === 0 && (
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">لا تتابع أحداً حالياً</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="p-4 space-y-6">
+        <Card className="border-border/50 bg-card/50">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={user.avatar_url} />
+                <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                  {user.name ? user.name.charAt(0) : "م"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-foreground">
+                  {user.name}
+                </h3>
+                <p className="text-muted-foreground">{user.email}</p>
+                <Badge variant="outline">زبون</Badge>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-2xl font-bold text-primary">
+                  {profileStats.bookings}
+                </p>
+                <p className="text-sm text-muted-foreground">حجوزات</p>
+              </div>
+              <div
+                className="cursor-pointer"
+                onClick={() => setShowFollowers(true)}
+              >
+                <p className="text-2xl font-bold text-primary">
+                  {profileStats.followers}
+                </p>
+                <p className="text-sm text-muted-foreground">متابعين</p>
+              </div>
+              <div
+                className="cursor-pointer"
+                onClick={() => setShowFollowing(true)}
+              >
+                <p className="text-2xl font-bold text-primary">
+                  {profileStats.following}
+                </p>
+                <p className="text-sm text-muted-foreground">متابع</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-2">
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3"
+            onClick={() => setShowSettings(true)}
+          >
+            <Settings className="h-4 w-4" />
+            الإعدا��ا��
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3"
+            onClick={handleAdvancedSearch}
+          >
+            <Search className="h-4 w-4" />
+            البحث المتقدم
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3"
+            onClick={() => setShowEditProfile(true)}
+          >
+            <UserIcon className="h-4 w-4" />
+            تع��يل الملف الشخصي
+          </Button>
+          <Button
+            variant="destructive"
+            className="w-full justify-start gap-3"
+            onClick={onLogout}
+          >
+            تسجيل خروج
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  switch (activeTab) {
+    case "home":
+      return renderHome();
+    case "search":
+      return renderSearch();
+    case "bookings":
+      return renderBookings();
+    case "profile":
+      return renderProfile();
+    default:
+      return renderHome();
+  }
+}
