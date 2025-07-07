@@ -213,35 +213,62 @@ const SystemDiagnostic = () => {
       }));
     }
 
-    // Check auth system
+    // Check auth system - try both API paths
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      const response = await fetch("/api/auth/profile", {
+      // Try the redirected API path first
+      let response = await fetch("/api/auth/profile", {
         signal: controller.signal,
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
-      clearTimeout(timeoutId);
+      let authWorking = false;
+      let authMessage = "";
+      let details = "";
 
       if (response.status === 401) {
-        setChecks((prev) => ({
-          ...prev,
-          auth: {
-            status: "success",
-            message: "نظام المصادقة يعمل (غير مسجل دخول)",
-            details: "الاستجابة الصحيحة للمستخدم غير المسجل",
-          },
-        }));
+        authWorking = true;
+        authMessage = "نظام المصادقة يعمل (غير مسجل دخول)";
+        details = "المسار المُعاد توجيهه - استجابة صحيحة للمستخدم غير المسجل";
       } else if (response.ok) {
+        authWorking = true;
+        authMessage = "نظام المصادقة يعمل (مسجل دخول)";
+        details = "المسار المُعاد توجيهه - تم العثور على جلسة صالحة";
+      } else if (response.status === 404) {
+        // Try direct Netlify function path
+        try {
+          response = await fetch("/.netlify/functions/api/auth/profile", {
+            signal: controller.signal,
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.status === 401) {
+            authWorking = true;
+            authMessage = "نظام المصادقة يعمل (غير مسجل دخول)";
+            details = "المسار المباشر - مشكلة في إعادة التوجيه";
+          } else if (response.ok) {
+            authWorking = true;
+            authMessage = "نظام المصادقة يعمل (مسجل دخول)";
+            details = "المسار المباشر - مشكلة في إعادة التوجيه";
+          }
+        } catch (directError) {
+          details = `فشل المسارين: ${response.status}`;
+        }
+      }
+
+      clearTimeout(timeoutId);
+
+      if (authWorking) {
         setChecks((prev) => ({
           ...prev,
           auth: {
             status: "success",
-            message: "نظام المصادقة يعمل (مسجل دخول)",
-            details: "تم العثور على جلسة صالحة",
+            message: authMessage,
+            details,
           },
         }));
       } else {
@@ -253,7 +280,7 @@ const SystemDiagnostic = () => {
         auth: {
           status: "error",
           message: "خطأ في نظام المصادقة",
-          details: error.message || "خطأ غير محدد",
+          details: `${error.message || "خطأ غير محدد"} - تحقق من Netlify Functions`,
         },
       }));
     }
