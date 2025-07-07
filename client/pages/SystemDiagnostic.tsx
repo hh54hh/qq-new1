@@ -59,7 +59,7 @@ const SystemDiagnostic = () => {
           ...prev,
           environment: {
             status: "success",
-            message: "متغيرات البيئة محددة بشكل صحيح",
+            message: "متغيرات البيئة محددة بشكل ��حيح",
             details: `Supabase URL من المتغيرات: ${supabaseUrl.substring(0, 30)}...`,
           },
         }));
@@ -341,6 +341,59 @@ const SystemDiagnostic = () => {
               <div>
                 • <code>fetch('/api/ping')</code> - اختبار API
               </div>
+              <div>
+                • <code>fetch('/.netlify/functions/api/ping')</code> - اختبار
+                Functions
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Deployment Troubleshooting */}
+        <Card>
+          <CardHeader>
+            <CardTitle>إرشادات إصلاح مشاكل Netlify</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <div>
+              <strong className="text-destructive">خطأ HTTP 404 في API:</strong>
+              <ul className="list-disc list-inside mt-2 space-y-1 text-muted-foreground">
+                <li>تأكد من أن Netlify Functions تم بنائها ونشرها بشكل صحيح</li>
+                <li>راجع سجلات الوظائف في Netlify Dashboard</li>
+                <li>
+                  تحقق من أن المسار /api/* يُوجه إلى /.netlify/functions/api
+                </li>
+                <li>تأكد من وجود ملف netlify/functions/api.ts</li>
+              </ul>
+            </div>
+
+            <div>
+              <strong className="text-amber-600">خطوات الإصلاح:</strong>
+              <ol className="list-decimal list-inside mt-2 space-y-1 text-muted-foreground">
+                <li>
+                  في Netlify Dashboard، انتقل إلى Site Settings → Functions
+                </li>
+                <li>
+                  تحقق من أن Functions Directory محدد إلى netlify/functions
+                </li>
+                <li>راجع سجلات البناء للتأكد من عدم وجود أخطاء</li>
+                <li>اختبر المسار المباشر: /.netlify/functions/api/ping</li>
+                <li>إذا كان يعمل، فالمشكلة في إعادة التوجيه</li>
+              </ol>
+            </div>
+
+            <div>
+              <strong className="text-blue-600">متغيرات البيئة:</strong>
+              <p className="mt-2 text-muted-foreground">
+                البرنامج يستخدم قيم افتراضية مضمنة، لذلك عدم وجود متغيرات البيئة
+                عادة لا يسبب مشكلة. إذا كنت تريد استخدام قاعدة بيانات مختلفة،
+                أضف:
+              </p>
+              <div className="mt-2 bg-muted p-2 rounded font-mono text-xs">
+                VITE_SUPABASE_URL=your_url
+                <br />
+                VITE_SUPABASE_ANON_KEY=your_key
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -348,5 +401,48 @@ const SystemDiagnostic = () => {
     </div>
   );
 };
+
+// Global diagnostic functions for console
+if (typeof window !== "undefined") {
+  (window as any).diagnoseNetlify = async () => {
+    console.group("🔧 Netlify Deployment Diagnosis");
+
+    console.log("📍 Current URL:", window.location.href);
+    console.log("🌍 Environment:", {
+      hostname: window.location.hostname,
+      isNetlify: window.location.hostname.includes("netlify.app"),
+      isLocalhost: window.location.hostname === "localhost",
+    });
+
+    // Test different API endpoints
+    const tests = [
+      { name: "API via redirect", url: "/api/ping" },
+      { name: "Direct Netlify Function", url: "/.netlify/functions/api/ping" },
+      { name: "Netlify Function root", url: "/.netlify/functions/api" },
+    ];
+
+    for (const test of tests) {
+      try {
+        console.log(`🧪 Testing ${test.name}:`, test.url);
+        const response = await fetch(test.url);
+        console.log(
+          `✅ ${test.name}: ${response.status} ${response.statusText}`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`📦 Response:`, data);
+        }
+      } catch (error) {
+        console.error(`❌ ${test.name} failed:`, error);
+      }
+    }
+
+    console.groupEnd();
+  };
+
+  (window as any).openDebug = () => {
+    window.location.href = "/system-diagnostic";
+  };
+}
 
 export default SystemDiagnostic;
