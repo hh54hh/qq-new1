@@ -59,7 +59,7 @@ const SystemDiagnostic = () => {
           ...prev,
           environment: {
             status: "success",
-            message: "متغير��ت البيئة محددة بشكل صحيح",
+            message: "متغيرات البيئة محددة بشكل صحيح",
             details: `Supabase URL من المتغيرات: ${supabaseUrl.substring(0, 30)}...`,
           },
         }));
@@ -94,7 +94,7 @@ const SystemDiagnostic = () => {
       if (response.ok) {
         const data = await response.json();
         apiWorking = true;
-        details = `المسار المُعاد ت��جيهه يعمل: ${data.message || "تم الاتصال بنجاح"}`;
+        details = `المسار المُعاد توجيهه يعمل: ${data.message || "تم الاتصال بنجاح"}`;
       } else {
         // If redirect fails, try direct Netlify function path
         try {
@@ -150,27 +150,53 @@ const SystemDiagnostic = () => {
       }));
     }
 
-    // Check database
+    // Check database - try both API paths
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const response = await fetch("/api/demo", {
+      // Try the redirected API path first
+      let response = await fetch("/api/demo", {
         signal: controller.signal,
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
-      clearTimeout(timeoutId);
+      let dbWorking = false;
+      let details = "";
 
       if (response.ok) {
         const data = await response.json();
+        dbWorking = true;
+        details = `المسار المُعاد توجيهه يعمل: ${data.message || "اتصال ناجح"}`;
+      } else {
+        // If redirect fails, try direct Netlify function path
+        try {
+          response = await fetch("/.netlify/functions/api/demo", {
+            signal: controller.signal,
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            dbWorking = true;
+            details = `المسار المباشر يعمل: ${data.message || "اتصال ناجح"} - مشكلة في إعادة التوجيه`;
+          }
+        } catch (directError) {
+          details = `فشل المسارين: ${response.status}`;
+        }
+      }
+
+      clearTimeout(timeoutId);
+
+      if (dbWorking) {
         setChecks((prev) => ({
           ...prev,
           database: {
             status: "success",
             message: "قاعدة البيانات متصلة",
-            details: `نوع البيانات: ${typeof data}, الحالة: ${response.status}`,
+            details,
           },
         }));
       } else {
@@ -182,7 +208,7 @@ const SystemDiagnostic = () => {
         database: {
           status: "error",
           message: "خطأ في قاعدة البيانات",
-          details: error.message || "خطأ غير محدد",
+          details: `${error.message || "خطأ غير محدد"} - راجع Functions logs`,
         },
       }));
     }
