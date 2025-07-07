@@ -1,9 +1,9 @@
 import type { Handler } from "@netlify/functions";
 import serverless from "serverless-http";
-import { createServer } from "../../server/index";
+import { createServerlessServer } from "../../server/index";
 
-// Create the Express app
-const app = createServer();
+// Create the Express app optimized for serverless
+const app = createServerlessServer();
 
 // Convert Express app to serverless function
 const serverlessHandler = serverless(app, {
@@ -33,10 +33,16 @@ export const handler: Handler = async (event, context) => {
     console.log(`[Netlify Function] ${event.httpMethod} ${event.path}`, {
       headers: Object.keys(event.headers),
       timestamp: new Date().toISOString(),
+      query: event.queryStringParameters,
     });
+
+    // Ensure we have the proper context for serverless
+    context.callbackWaitsForEmptyEventLoop = false;
 
     // Use the serverless handler
     const response = await serverlessHandler(event, context);
+
+    console.log(`[Netlify Function] Response ${response.statusCode}`);
 
     // Add CORS headers to the response
     return {
@@ -48,6 +54,10 @@ export const handler: Handler = async (event, context) => {
     };
   } catch (error) {
     console.error("Netlify Function Error:", error);
+    console.error(
+      "Error stack:",
+      error instanceof Error ? error.stack : "No stack",
+    );
 
     return {
       statusCode: 500,
@@ -60,6 +70,8 @@ export const handler: Handler = async (event, context) => {
         message: error instanceof Error ? error.message : "خطأ غير معروف",
         timestamp: new Date().toISOString(),
         environment: "netlify-function",
+        path: event.path,
+        method: event.httpMethod,
       }),
     };
   }

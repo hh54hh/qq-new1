@@ -9,10 +9,11 @@
   NODE_OPTIONS = "--max-old-space-size=4096"
   CI = "true"
   NODE_ENV = "production"
+  NETLIFY = "true"
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@supabase/supabase-js", "pg", "bcryptjs", "jsonwebtoken"]
+  external_node_modules = ["@supabase/supabase-js", "pg", "bcryptjs", "jsonwebtoken", "serverless-http"]
   included_files = ["shared/**/*", "server/**/*"]
 
 [[redirects]]

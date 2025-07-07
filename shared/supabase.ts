@@ -5,8 +5,10 @@ import { Database } from "./database";
 const isServer = typeof window === "undefined";
 const getEnvVar = (name: string) => {
   if (isServer) {
+    // In serverless environments like Netlify, prefer process.env
     return process.env[name];
   } else {
+    // In client, use Vite's import.meta.env
     return import.meta.env?.[name];
   }
 };
