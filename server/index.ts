@@ -2,6 +2,11 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { join } from "path";
+
+// Environment variable helper function
+const getEnvVar = (name: string) => {
+  return process.env[name];
+};
 import { handleDemo } from "./routes/demo";
 import {
   handleLogin,
@@ -308,7 +313,7 @@ function createAppWithRoutes(app: express.Application) {
       res.status(501).json({
         error: "رفع الملفات غير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
-        suggestion: "استخدم خدمة رفع ملفات خار��ية مثل Cloudinary أو AWS S3",
+        suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
       });
     });
 
