@@ -76,58 +76,85 @@ const SystemDiagnostic = () => {
       }
     }, 1000);
 
-    // Check API - try both redirect and direct paths
+    // Check API - try multiple endpoints with better error reporting
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // Increased timeout
 
-      // Try the redirected API path first
-      let response = await fetch("/api/ping", {
-        signal: controller.signal,
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+      let apiResults = [];
+      let bestResult = null;
 
-      let apiWorking = false;
-      let details = "";
+      // Test endpoints in order of preference
+      const testEndpoints = [
+        { path: "/api/ping", name: "Redirected ping" },
+        { path: "/api/debug", name: "Debug endpoint" },
+        { path: "/.netlify/functions/api/ping", name: "Direct ping" },
+        { path: "/.netlify/functions/api/debug", name: "Direct debug" },
+      ];
 
-      if (response.ok) {
-        const data = await response.json();
-        apiWorking = true;
-        details = `المسار المُعاد توجيهه يعمل: ${data.message || "تم الاتصال بنجاح"}`;
-      } else {
-        // If redirect fails, try direct Netlify function path
+      for (const endpoint of testEndpoints) {
         try {
-          response = await fetch("/.netlify/functions/api/ping", {
+          console.log(`Testing ${endpoint.path}...`);
+          const response = await fetch(endpoint.path, {
             signal: controller.signal,
             method: "GET",
             headers: { "Content-Type": "application/json" },
           });
 
+          const result = {
+            path: endpoint.path,
+            name: endpoint.name,
+            status: response.status,
+            ok: response.ok,
+            data: null as any,
+          };
+
           if (response.ok) {
-            const data = await response.json();
-            apiWorking = true;
-            details = `المسار المباشر يعمل: ${data.message || "تم الاتصال بنجاح"} - مشكلة في إعادة التوجيه`;
+            try {
+              result.data = await response.json();
+              apiResults.push(result);
+              if (!bestResult) bestResult = result;
+            } catch (jsonError) {
+              result.data = { error: "Invalid JSON response" };
+              apiResults.push(result);
+            }
+          } else {
+            result.data = { error: `HTTP ${response.status}` };
+            apiResults.push(result);
           }
-        } catch (directError) {
-          // Both paths failed
-          details = `فشل المسارين: /api/ping (${response.status}) و /.netlify/functions/api/ping`;
+        } catch (endpointError) {
+          apiResults.push({
+            path: endpoint.path,
+            name: endpoint.name,
+            status: 0,
+            ok: false,
+            data: {
+              error:
+                endpointError instanceof Error
+                  ? endpointError.message
+                  : "Network error",
+            },
+          });
         }
       }
 
       clearTimeout(timeoutId);
 
-      if (apiWorking) {
+      if (bestResult) {
         setChecks((prev) => ({
           ...prev,
           api: {
             status: "success",
             message: "API يعمل بشكل صحيح",
-            details,
+            details: `${bestResult.name}: ${bestResult.data?.message || "تم الاتصال بنجاح"}`,
           },
         }));
       } else {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorSummary = apiResults
+          .map((r) => `${r.name} (${r.status}): ${r.data?.error || "Unknown"}`)
+          .join("; ");
+
+        throw new Error(`All endpoints failed: ${errorSummary}`);
       }
     } catch (error: any) {
       let errorMessage = "خطأ في API";
@@ -135,13 +162,13 @@ const SystemDiagnostic = () => {
 
       if (error.name === "AbortError") {
         errorMessage = "انتهت مهلة الاتصال بـ API";
-        details = "المهلة المحددة: 5 ثوانٍ - تحقق من أن Functions تعمل";
+        details = "المهلة المحددة: 10 ثواني - تحقق من أن Functions تعمل";
       } else if (error.message.includes("fetch")) {
         errorMessage = "فشل في الاتصال بـ API";
         details = "تحقق من إعدادات Netlify Functions";
       } else {
-        errorMessage = `خطأ في API: ${error.message}`;
-        details = error.stack || "راجع إعدادات netlify.toml و Functions";
+        errorMessage = `خطأ في API: HTTP 502`;
+        details = error.message || "راجع Functions logs في Netlify Dashboard";
       }
 
       setChecks((prev) => ({
@@ -248,7 +275,7 @@ const SystemDiagnostic = () => {
 
           if (response.status === 401) {
             authWorking = true;
-            authMessage = "نظام المصادقة يعمل (غير مسجل دخول)";
+            authMessage = "نظام المصا��قة يعمل (غير مسجل دخول)";
             details = "المسار المباشر - مشكلة في إعادة التوجيه";
           } else if (response.ok) {
             authWorking = true;
