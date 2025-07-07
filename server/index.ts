@@ -143,30 +143,89 @@ export function createServerlessServer() {
 function createAppWithRoutes(app: express.Application) {
   // Health check and debugging routes
   app.get("/api/ping", (_req, res) => {
-    res.json({
-      message: "Hello from Express server v2!",
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || "development",
-    });
+    try {
+      res.json({
+        message: "Hello from Express server v3!",
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || "development",
+        serverless: !!process.env.NETLIFY,
+        version: "3.0.0",
+      });
+    } catch (error) {
+      console.error("Ping endpoint error:", error);
+      res.status(500).json({
+        error: "Ping endpoint failed",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
   });
 
   // Environment check endpoint
   app.get("/api/health", (_req, res) => {
-    res.json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || "development",
-      supabase: {
-        url_configured: true,
-        key_configured: true,
-        connection_type: "مدمجة في المشروع",
-        url_preview: "https://yrsvksgkxjiogjuaeyvd.supabase.co",
-      },
-      server: {
-        node_version: process.version,
-        platform: process.platform,
-      },
-    });
+    try {
+      const isNetlify = !!process.env.NETLIFY;
+      const hasSupabaseUrl = !!getEnvVar("VITE_SUPABASE_URL");
+      const hasSupabaseKey = !!getEnvVar("VITE_SUPABASE_ANON_KEY");
+
+      res.json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || "development",
+        platform: {
+          is_netlify: isNetlify,
+          is_serverless: isNetlify,
+          node_version: process.version,
+          platform: process.platform,
+        },
+        supabase: {
+          url_configured: hasSupabaseUrl,
+          key_configured: hasSupabaseKey,
+          connection_type: isNetlify
+            ? "Netlify Serverless"
+            : "مدمجة في المشروع",
+          url_preview: hasSupabaseUrl
+            ? getEnvVar("VITE_SUPABASE_URL")?.substring(0, 40) + "..."
+            : "https://yrsvksgkxjiogjuaeyvd.supabase.co",
+          using_fallback: !hasSupabaseUrl,
+        },
+        features: {
+          file_upload: !isNetlify,
+          static_files: !isNetlify,
+        },
+      });
+    } catch (error) {
+      console.error("Health endpoint error:", error);
+      res.status(500).json({
+        error: "Health check failed",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // Add a simple debug endpoint that works in all environments
+  app.get("/api/debug", (_req, res) => {
+    try {
+      res.json({
+        success: true,
+        message: "Debug endpoint working",
+        env_vars: {
+          NODE_ENV: process.env.NODE_ENV,
+          NETLIFY: process.env.NETLIFY,
+          has_supabase_url: !!getEnvVar("VITE_SUPABASE_URL"),
+          has_supabase_key: !!getEnvVar("VITE_SUPABASE_ANON_KEY"),
+        },
+        request_info: {
+          timestamp: new Date().toISOString(),
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+      });
+    } catch (error) {
+      console.error("Debug endpoint error:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
   });
 
   app.get("/api/demo", handleDemo);
@@ -249,7 +308,7 @@ function createAppWithRoutes(app: express.Application) {
       res.status(501).json({
         error: "رفع الملفات غير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
-        suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
+        suggestion: "استخدم خدمة رفع ملفات خار��ية مثل Cloudinary أو AWS S3",
       });
     });
 
