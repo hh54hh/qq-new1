@@ -232,22 +232,42 @@ function createAppWithRoutes(app: express.Application) {
   // Analytics routes
   app.get("/api/analytics/barber", getBarberAnalytics);
 
-  // Upload routes
-  app.post("/api/upload/image", upload.single("image"), (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: "لم يتم رفع ملف" });
+  // Upload routes - handle differently in serverless vs regular mode
+  if (process.env.NETLIFY) {
+    // Serverless mode - disable file uploads or handle them differently
+    app.post("/api/upload/image", (req, res) => {
+      res.status(501).json({
+        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        message: "File uploads are not supported in serverless environment",
+        suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
+      });
+    });
+
+    app.post("/api/upload/profile", (req, res) => {
+      res.status(501).json({
+        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        message: "File uploads are not supported in serverless environment",
+        suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
+      });
+    });
+  } else {
+    // Regular server mode with file upload support
+    app.post("/api/upload/image", upload.single("image"), (req, res) => {
+      try {
+        if (!req.file) {
+          return res.status(400).json({ error: "لم يتم رفع ملف" });
+        }
+
+        const fileUrl = `/uploads/${req.file.filename}`;
+        res.json({ url: fileUrl });
+      } catch (error) {
+        console.error("Upload error:", error);
+        res.status(500).json({ error: "خطأ في رفع الملف" });
       }
+    });
 
-      const fileUrl = `/uploads/${req.file.filename}`;
-      res.json({ url: fileUrl });
-    } catch (error) {
-      console.error("Upload error:", error);
-      res.status(500).json({ error: "خطأ في رفع الملف" });
-    }
-  });
-
-  app.post("/api/upload/profile", upload.single("image"), uploadProfileImage);
+    app.post("/api/upload/profile", upload.single("image"), uploadProfileImage);
+  }
 
   // Messages routes
   app.get("/api/messages/conversations", getConversations);
