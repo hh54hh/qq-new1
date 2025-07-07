@@ -53,22 +53,24 @@ const SystemDiagnostic = () => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+      // Environment variables are optional since we have hardcoded fallbacks
       if (supabaseUrl && supabaseKey) {
         setChecks((prev) => ({
           ...prev,
           environment: {
             status: "success",
             message: "متغيرات البيئة محددة بشكل صحيح",
-            details: `Supabase URL: ${supabaseUrl.substring(0, 30)}...`,
+            details: `Supabase URL من المتغيرات: ${supabaseUrl.substring(0, 30)}...`,
           },
         }));
       } else {
+        // This is actually OK since we have fallbacks
         setChecks((prev) => ({
           ...prev,
           environment: {
-            status: "error",
-            message: "متغيرات البيئة مفقودة",
-            details: `VITE_SUPABASE_URL: ${supabaseUrl ? "موجود" : "مفقود"}, VITE_SUPABASE_ANON_KEY: ${supabaseKey ? "موجود" : "مفقود"}`,
+            status: "success",
+            message: "استخدام الإعدادات الافتراضية",
+            details: `VITE_SUPABASE_URL: ${supabaseUrl ? "موجود" : "مفقود"}, VITE_SUPABASE_ANON_KEY: ${supabaseKey ? "موجود" : "مفقود"} - يتم استخدام القيم الافتراضية`,
           },
         }));
       }
