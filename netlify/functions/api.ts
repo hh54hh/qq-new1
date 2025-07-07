@@ -1,11 +1,18 @@
 import type { Handler } from "@netlify/functions";
+import serverless from "serverless-http";
+import { createServer } from "../../server/index.js";
 
-// Minimal serverless function that handles basic API requests
+// Create Express app
+const app = createServer();
+
+// Convert Express app to serverless function
+const serverlessHandler = serverless(app, {
+  binary: false,
+});
+
 export const handler: Handler = async (event, context) => {
-  const { httpMethod, path, body, headers } = event;
-
   // Handle CORS preflight
-  if (httpMethod === "OPTIONS") {
+  if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
       headers: {
@@ -19,96 +26,39 @@ export const handler: Handler = async (event, context) => {
     };
   }
 
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-    "Access-Control-Allow-Headers":
-      "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    "Content-Type": "application/json",
-  };
-
   try {
-    // Extract API path
-    const apiPath = path.replace(/^\/\.netlify\/functions\/api/, "") || "/";
+    // Pass the event to the serverless Express handler
+    const result = await serverlessHandler(event, context);
 
-    // Handle basic routes
-    if (apiPath === "/ping" || apiPath === "/") {
-      return {
-        statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify({
-          message: "Hello from Express server v2!",
-          timestamp: new Date().toISOString(),
-          environment: "netlify-function",
-        }),
-      };
-    }
+    // Ensure CORS headers are always present
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    };
 
-    if (apiPath === "/health") {
-      return {
-        statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify({
-          status: "ok",
-          timestamp: new Date().toISOString(),
-          environment: "netlify-function",
-          supabase: {
-            url_configured: true,
-            key_configured: true,
-            connection_type: "مدمجة في المشروع",
-          },
-        }),
-      };
-    }
-
-    if (apiPath === "/demo") {
-      return {
-        statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify({
-          message: "Demo endpoint working",
-          timestamp: new Date().toISOString(),
-        }),
-      };
-    }
-
-    if (apiPath.startsWith("/auth/profile")) {
-      const authHeader = headers.authorization;
-
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return {
-          statusCode: 401,
-          headers: corsHeaders,
-          body: JSON.stringify({ error: "غير مصرح" }),
-        };
-      }
-
-      return {
-        statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify({ message: "خدمة المصادقة تستجيب" }),
-      };
-    }
-
-    // Handle other routes
     return {
-      statusCode: 404,
-      headers: corsHeaders,
-      body: JSON.stringify({
-        error: "الصفحة غير موجودة",
-        path: apiPath,
-        timestamp: new Date().toISOString(),
-      }),
+      ...result,
+      headers: {
+        ...result.headers,
+        ...corsHeaders,
+      },
     };
   } catch (error) {
-    console.error("API Error:", error);
+    console.error("Netlify Function Error:", error);
 
     return {
       statusCode: 500,
-      headers: corsHeaders,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         error: "خطأ داخلي في الخادم",
+        message: error instanceof Error ? error.message : "خطأ غير معروف",
         timestamp: new Date().toISOString(),
+        environment: "netlify-function",
       }),
     };
   }
