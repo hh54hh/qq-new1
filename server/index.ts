@@ -59,32 +59,42 @@ import {
 } from "./routes/search";
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    const userId =
-      req.headers.authorization?.split(" ")[1]?.replace("supabase_", "") ||
-      "unknown";
-    const timestamp = Date.now();
-    const fileExtension = file.originalname.split(".").pop();
-    cb(null, `${userId}_${timestamp}.${fileExtension}`);
-  },
-});
+// Configure multer for file uploads (only for non-serverless environments)
+let upload: multer.Multer;
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("يجب أن يكون الملف صورة"));
-    }
-  },
-});
+if (!process.env.NETLIFY) {
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "uploads/");
+    },
+    filename: (req, file, cb) => {
+      const userId =
+        req.headers.authorization?.split(" ")[1]?.replace("supabase_", "") ||
+        "unknown";
+      const timestamp = Date.now();
+      const fileExtension = file.originalname.split(".").pop();
+      cb(null, `${userId}_${timestamp}.${fileExtension}`);
+    },
+  });
+
+  upload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype.startsWith("image/")) {
+        cb(null, true);
+      } else {
+        cb(new Error("يجب أن يكون الملف صورة"));
+      }
+    },
+  });
+} else {
+  // Dummy multer for serverless environment
+  upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 1024 }, // Very small limit since we don't support uploads
+  });
+}
 
 export function createServer() {
   const app = express();
