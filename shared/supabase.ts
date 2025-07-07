@@ -1,10 +1,20 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "./database";
 
-// معلومات قاعدة البيانات مدمجة في المشروع
-const supabaseUrl = "https://yrsvksgkxjiogjuaeyvd.supabase.co";
+// Use environment variables with fallback to hardcoded values for development
+const supabaseUrl =
+  process.env.VITE_SUPABASE_URL ||
+  (typeof window !== "undefined"
+    ? import.meta.env?.VITE_SUPABASE_URL
+    : undefined) ||
+  "https://yrsvksgkxjiogjuaeyvd.supabase.co";
+
 const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlyc3Zrc2dreGppb2dqdWFaeXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDMzMDMsImV4cCI6MjA2NzM3OTMwM30.-haPW80fiZMWYCm83TXvwZ2kHHBhcvhWAc6jPYdlUXM";
+  process.env.VITE_SUPABASE_ANON_KEY ||
+  (typeof window !== "undefined"
+    ? import.meta.env?.VITE_SUPABASE_ANON_KEY
+    : undefined) ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlyc3Zrc2dreGppb2dqdWFleXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDMzMDMsImV4cCI6MjA2NzM3OTMwM30.-haPW80fiZMWYCm83TXvwZ2kHHBhcvhWAc6jPYdlUXM";
 
 // Log connection details in development
 if (process.env.NODE_ENV !== "production") {
@@ -13,6 +23,8 @@ if (process.env.NODE_ENV !== "production") {
     keyPrefix: supabaseKey.substring(0, 20) + "...",
     hasUrl: !!supabaseUrl,
     hasKey: !!supabaseKey,
+    usingEnvUrl: !!process.env.VITE_SUPABASE_URL,
+    usingEnvKey: !!process.env.VITE_SUPABASE_ANON_KEY,
   });
 }
 
