@@ -53,48 +53,77 @@ const SystemDiagnostic = () => {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+      // Environment variables are optional since we have hardcoded fallbacks
       if (supabaseUrl && supabaseKey) {
         setChecks((prev) => ({
           ...prev,
           environment: {
             status: "success",
             message: "متغيرات البيئة محددة بشكل صحيح",
-            details: `Supabase URL: ${supabaseUrl.substring(0, 30)}...`,
+            details: `Supabase URL من المتغيرات: ${supabaseUrl.substring(0, 30)}...`,
           },
         }));
       } else {
+        // This is actually OK since we have fallbacks
         setChecks((prev) => ({
           ...prev,
           environment: {
-            status: "error",
-            message: "متغيرات البيئة مفقودة",
-            details: `VITE_SUPABASE_URL: ${supabaseUrl ? "موجود" : "مفقود"}, VITE_SUPABASE_ANON_KEY: ${supabaseKey ? "موجود" : "مفقود"}`,
+            status: "success",
+            message: "استخدام الإعدادات الافتراضية",
+            details: `VITE_SUPABASE_URL: ${supabaseUrl ? "موجود" : "مفقود"}, VITE_SUPABASE_ANON_KEY: ${supabaseKey ? "موجود" : "مفقود"} - يتم استخدام القيم الافتراضية`,
           },
         }));
       }
     }, 1000);
 
-    // Check API
+    // Check API - try both redirect and direct paths
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const response = await fetch("/api/ping", {
+      // Try the redirected API path first
+      let response = await fetch("/api/ping", {
         signal: controller.signal,
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
-      clearTimeout(timeoutId);
+      let apiWorking = false;
+      let details = "";
 
       if (response.ok) {
         const data = await response.json();
+        apiWorking = true;
+        details = `المسار المُعاد توجيهه يعمل: ${data.message || "تم الاتصال بنجاح"}`;
+      } else {
+        // If redirect fails, try direct Netlify function path
+        try {
+          response = await fetch("/.netlify/functions/api/ping", {
+            signal: controller.signal,
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            apiWorking = true;
+            details = `المسار المباشر يعمل: ${data.message || "تم الاتصال بنجاح"} - مشكلة في إعادة التوجيه`;
+          }
+        } catch (directError) {
+          // Both paths failed
+          details = `فشل المسارين: /api/ping (${response.status}) و /.netlify/functions/api/ping`;
+        }
+      }
+
+      clearTimeout(timeoutId);
+
+      if (apiWorking) {
         setChecks((prev) => ({
           ...prev,
           api: {
             status: "success",
             message: "API يعمل بشكل صحيح",
-            details: `الاستجابة: ${data.message || "تم الاتصال بنجاح"}, الحالة: ${response.status}`,
+            details,
           },
         }));
       } else {
@@ -106,13 +135,13 @@ const SystemDiagnostic = () => {
 
       if (error.name === "AbortError") {
         errorMessage = "انتهت مهلة الاتصال بـ API";
-        details = "المهلة المحددة: 5 ثوانٍ";
+        details = "المهلة المحددة: 5 ثوانٍ - تحقق من أن Functions تعمل";
       } else if (error.message.includes("fetch")) {
         errorMessage = "فشل في الاتصال بـ API";
-        details = "تحقق من الشبكة والإعدادات";
+        details = "تحقق من إعدادات Netlify Functions";
       } else {
         errorMessage = `خطأ في API: ${error.message}`;
-        details = error.stack || "لا توجد تفاصيل إضافية";
+        details = error.stack || "راجع إعدادات netlify.toml و Functions";
       }
 
       setChecks((prev) => ({
@@ -121,27 +150,53 @@ const SystemDiagnostic = () => {
       }));
     }
 
-    // Check database
+    // Check database - try both API paths
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const response = await fetch("/api/demo", {
+      // Try the redirected API path first
+      let response = await fetch("/api/demo", {
         signal: controller.signal,
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
-      clearTimeout(timeoutId);
+      let dbWorking = false;
+      let details = "";
 
       if (response.ok) {
         const data = await response.json();
+        dbWorking = true;
+        details = `المسار المُعاد توجيهه يعمل: ${data.message || "اتصال ناجح"}`;
+      } else {
+        // If redirect fails, try direct Netlify function path
+        try {
+          response = await fetch("/.netlify/functions/api/demo", {
+            signal: controller.signal,
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            dbWorking = true;
+            details = `المسار المباشر يعمل: ${data.message || "اتصال ناجح"} - مشكلة في إعادة التوجيه`;
+          }
+        } catch (directError) {
+          details = `فشل المسارين: ${response.status}`;
+        }
+      }
+
+      clearTimeout(timeoutId);
+
+      if (dbWorking) {
         setChecks((prev) => ({
           ...prev,
           database: {
             status: "success",
             message: "قاعدة البيانات متصلة",
-            details: `نوع البيانات: ${typeof data}, الحالة: ${response.status}`,
+            details,
           },
         }));
       } else {
@@ -153,40 +208,67 @@ const SystemDiagnostic = () => {
         database: {
           status: "error",
           message: "خطأ في قاعدة البيانات",
-          details: error.message || "خطأ غير محدد",
+          details: `${error.message || "خطأ غير محدد"} - راجع Functions logs`,
         },
       }));
     }
 
-    // Check auth system
+    // Check auth system - try both API paths
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      const response = await fetch("/api/auth/profile", {
+      // Try the redirected API path first
+      let response = await fetch("/api/auth/profile", {
         signal: controller.signal,
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
 
-      clearTimeout(timeoutId);
+      let authWorking = false;
+      let authMessage = "";
+      let details = "";
 
       if (response.status === 401) {
-        setChecks((prev) => ({
-          ...prev,
-          auth: {
-            status: "success",
-            message: "نظام المصادقة يعمل (غير مسجل دخول)",
-            details: "الاستجابة الصحيحة للمستخدم غير المسجل",
-          },
-        }));
+        authWorking = true;
+        authMessage = "نظام المصادقة يعمل (غير مسجل دخول)";
+        details = "المسار المُعاد توجيهه - استجابة صحيحة للمستخدم غير المسجل";
       } else if (response.ok) {
+        authWorking = true;
+        authMessage = "نظام المصادقة يعمل (مسجل دخول)";
+        details = "المسار المُعاد توجيهه - تم العثور على جلسة صالحة";
+      } else if (response.status === 404) {
+        // Try direct Netlify function path
+        try {
+          response = await fetch("/.netlify/functions/api/auth/profile", {
+            signal: controller.signal,
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          if (response.status === 401) {
+            authWorking = true;
+            authMessage = "نظام المصادقة يعمل (غير مسجل دخول)";
+            details = "المسار المباشر - مشكلة في إعادة التوجيه";
+          } else if (response.ok) {
+            authWorking = true;
+            authMessage = "نظام المصادقة يعمل (مسجل دخول)";
+            details = "المسار المباشر - مشكلة في إعادة التوجيه";
+          }
+        } catch (directError) {
+          details = `فشل المسارين: ${response.status}`;
+        }
+      }
+
+      clearTimeout(timeoutId);
+
+      if (authWorking) {
         setChecks((prev) => ({
           ...prev,
           auth: {
             status: "success",
-            message: "نظام المصادقة يعمل (مسجل دخول)",
-            details: "تم العثور على جلسة صالحة",
+            message: authMessage,
+            details,
           },
         }));
       } else {
@@ -198,7 +280,7 @@ const SystemDiagnostic = () => {
         auth: {
           status: "error",
           message: "خطأ في نظام المصادقة",
-          details: error.message || "خطأ غير محدد",
+          details: `${error.message || "خطأ غير محدد"} - تحقق من Netlify Functions`,
         },
       }));
     }
@@ -339,6 +421,59 @@ const SystemDiagnostic = () => {
               <div>
                 • <code>fetch('/api/ping')</code> - اختبار API
               </div>
+              <div>
+                • <code>fetch('/.netlify/functions/api/ping')</code> - اختبار
+                Functions
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Deployment Troubleshooting */}
+        <Card>
+          <CardHeader>
+            <CardTitle>إرشادات إصلاح مشاكل Netlify</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <div>
+              <strong className="text-destructive">خطأ HTTP 404 في API:</strong>
+              <ul className="list-disc list-inside mt-2 space-y-1 text-muted-foreground">
+                <li>تأكد من أن Netlify Functions تم بنائها ونشرها بشكل صحيح</li>
+                <li>راجع سجلات الوظائف في Netlify Dashboard</li>
+                <li>
+                  تحقق من أن المسار /api/* يُوجه إلى /.netlify/functions/api
+                </li>
+                <li>تأكد من وجود ملف netlify/functions/api.ts</li>
+              </ul>
+            </div>
+
+            <div>
+              <strong className="text-amber-600">خطوات الإصلاح:</strong>
+              <ol className="list-decimal list-inside mt-2 space-y-1 text-muted-foreground">
+                <li>
+                  في Netlify Dashboard، انتقل إلى Site Settings → Functions
+                </li>
+                <li>
+                  تحقق من أن Functions Directory محدد إلى netlify/functions
+                </li>
+                <li>راجع سجلات البناء للتأكد من عدم وجود أخطاء</li>
+                <li>اختبر المسار المباشر: /.netlify/functions/api/ping</li>
+                <li>إذا كان يعمل، فالمشكلة في إعادة التوجيه</li>
+              </ol>
+            </div>
+
+            <div>
+              <strong className="text-blue-600">متغيرات البيئة:</strong>
+              <p className="mt-2 text-muted-foreground">
+                البرنامج يستخدم قيم افتراضية مضمنة، لذلك عدم وجود متغيرات البيئة
+                عادة لا يسبب مشكلة. إذا كنت تريد استخدام قاعدة بيانات مختلفة،
+                أضف:
+              </p>
+              <div className="mt-2 bg-muted p-2 rounded font-mono text-xs">
+                VITE_SUPABASE_URL=your_url
+                <br />
+                VITE_SUPABASE_ANON_KEY=your_key
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -346,5 +481,48 @@ const SystemDiagnostic = () => {
     </div>
   );
 };
+
+// Global diagnostic functions for console
+if (typeof window !== "undefined") {
+  (window as any).diagnoseNetlify = async () => {
+    console.group("🔧 Netlify Deployment Diagnosis");
+
+    console.log("📍 Current URL:", window.location.href);
+    console.log("🌍 Environment:", {
+      hostname: window.location.hostname,
+      isNetlify: window.location.hostname.includes("netlify.app"),
+      isLocalhost: window.location.hostname === "localhost",
+    });
+
+    // Test different API endpoints
+    const tests = [
+      { name: "API via redirect", url: "/api/ping" },
+      { name: "Direct Netlify Function", url: "/.netlify/functions/api/ping" },
+      { name: "Netlify Function root", url: "/.netlify/functions/api" },
+    ];
+
+    for (const test of tests) {
+      try {
+        console.log(`🧪 Testing ${test.name}:`, test.url);
+        const response = await fetch(test.url);
+        console.log(
+          `✅ ${test.name}: ${response.status} ${response.statusText}`,
+        );
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`📦 Response:`, data);
+        }
+      } catch (error) {
+        console.error(`❌ ${test.name} failed:`, error);
+      }
+    }
+
+    console.groupEnd();
+  };
+
+  (window as any).openDebug = () => {
+    window.location.href = "/system-diagnostic";
+  };
+}
 
 export default SystemDiagnostic;
