@@ -13,8 +13,8 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@supabase/supabase-js", "pg", "bcryptjs", "jsonwebtoken", "serverless-http"]
-  included_files = ["shared/**/*", "server/**/*"]
+  external_node_modules = ["@supabase/supabase-js", "pg", "bcryptjs", "jsonwebtoken", "serverless-http", "express", "cors", "multer"]
+  included_files = ["shared/**/*", "server/**/*", "node_modules/@supabase/**/*"]
 
 [[redirects]]
   from = "/api/*"
