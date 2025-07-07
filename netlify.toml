@@ -8,16 +8,18 @@
   NPM_VERSION = "9"
   NODE_OPTIONS = "--max-old-space-size=4096"
   CI = "true"
-  # Ensure environment variables are available in build
   NODE_ENV = "production"
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["@supabase/supabase-js", "pg", "bcryptjs", "jsonwebtoken"]
+  included_files = ["shared/**/*", "server/**/*"]
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api"
+  to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
