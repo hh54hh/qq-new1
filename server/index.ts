@@ -138,14 +138,11 @@ export function createServer() {
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // Serve uploaded images statically (only in non-serverless mode)
-  if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  if (!isServerless) {
     try {
       app.use("/uploads", express.static("uploads"));
     } catch (err) {
-      console.warn(
-        "Cannot serve static uploads in serverless environment:",
-        err,
-      );
+      console.warn("Cannot serve static uploads:", err);
     }
   }
 
