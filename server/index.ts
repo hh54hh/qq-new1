@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { join } from "path";
+import fs from "fs";
+import path from "path";
 
 // Environment variable helper function
 const getEnvVar = (name: string) => {
