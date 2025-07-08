@@ -248,7 +248,7 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/api/health", handleHealth);
 
   // Add a simple debug endpoint that works in all environments
-  app.get("/api/debug", (_req, res) => {
+  const handleDebug = (_req: express.Request, res: express.Response) => {
     try {
       res.json({
         success: true,
@@ -262,6 +262,9 @@ function createAppWithRoutes(app: express.Application) {
         request_info: {
           timestamp: new Date().toISOString(),
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          path: _req.path,
+          url: _req.url,
+          method: _req.method,
         },
       });
     } catch (error) {
@@ -271,7 +274,10 @@ function createAppWithRoutes(app: express.Application) {
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  });
+  };
+
+  app.get("/debug", handleDebug);
+  app.get("/api/debug", handleDebug);
 
   app.get("/api/demo", handleDemo);
 
