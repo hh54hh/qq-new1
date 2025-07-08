@@ -1,3 +1,4 @@
+# Updated: Force fresh deploy
 [build]
     command = "npm ci && node scripts/netlify-build.cjs"
   functions = "netlify/functions"
