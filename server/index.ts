@@ -67,13 +67,25 @@ import {
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 import { getSystemDiagnostic } from "./routes/system-diagnostic";
 
-// Configure multer for file uploads (only for non-serverless environments)
+// Configure multer for file uploads
 let upload: multer.Multer;
 
+// Check if we're in a serverless environment
+const isServerless = !!(process.env.NETLIFY || process.env.VERCEL);
+
 try {
-  if (!process.env.NETLIFY) {
-    // Only try to create storage in non-serverless environment
+  if (isServerless) {
+    // Serverless environment - use memory storage only
+    console.log("Serverless environment detected - using memory storage");
+    upload = multer({
+      storage: multer.memoryStorage(),
+      limits: { fileSize: 1 * 1024 * 1024 }, // 1MB limit for serverless
+    });
+  } else {
+    // Local/traditional server environment
+    console.log("Traditional server environment - using disk storage");
     const uploadsDir = path.join(process.cwd(), "uploads");
+
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
@@ -103,12 +115,6 @@ try {
         }
       },
     });
-  } else {
-    // Serverless environment - use memory storage only
-    upload = multer({
-      storage: multer.memoryStorage(),
-      limits: { fileSize: 1024 }, // Very small limit since we don't support uploads
-    });
   }
 } catch (error) {
   console.error("Multer configuration error:", error);
@@ -122,14 +128,21 @@ try {
 export function createServer() {
   const app = express();
 
+  // Check if we're in a serverless environment
+  const isServerless = !!(process.env.NETLIFY || process.env.VERCEL);
+
   // Middleware
   app.use(cors());
   app.use(express.json({ limit: "10mb" })); // Increased limit for image uploads
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // Serve uploaded images statically (only in non-serverless mode)
-  if (process.env.NODE_ENV !== "production" || !process.env.NETLIFY) {
-    app.use("/uploads", express.static("uploads"));
+  if (!isServerless) {
+    try {
+      app.use("/uploads", express.static("uploads"));
+    } catch (err) {
+      console.warn("Cannot serve static uploads:", err);
+    }
   }
 
   return createAppWithRoutes(app);
@@ -179,7 +192,7 @@ function createAppWithRoutes(app: express.Application) {
       }
 
       res.status(500).json({
-        error: "خطأ داخلي في الخادم",
+        error: "خطأ داخ��ي في الخادم",
         message: err instanceof Error ? err.message : "خطأ غير معروف",
         timestamp: new Date().toISOString(),
         path: req.path,
@@ -303,68 +316,105 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/demo", handleDemo);
   app.get("/api/demo", handleDemo);
 
-  // Authentication routes
+  // Authentication routes - both /api and direct paths for Netlify compatibility
   app.post("/api/auth/login", handleLogin);
+  app.post("/auth/login", handleLogin);
   app.post("/api/auth/register", handleRegister);
+  app.post("/auth/register", handleRegister);
   app.get("/api/auth/profile", handleGetProfile);
+  app.get("/auth/profile", handleGetProfile);
   app.put("/api/auth/profile", handleUpdateProfile);
+  app.put("/auth/profile", handleUpdateProfile);
 
-  // Test routes (for development)
+  // Test routes (for development) - both /api and direct paths
   app.get("/api/create-test-user", createTestUser);
+  app.get("/create-test-user", createTestUser);
   app.post("/api/debug-login", debugLogin);
+  app.post("/debug-login", debugLogin);
   app.get("/api/reset-test-password", resetTestPassword);
+  app.get("/reset-test-password", resetTestPassword);
 
-  // Barbers routes
+  // Barbers routes - both /api and direct paths for Netlify compatibility
   app.get("/api/barbers", getBarbers);
+  app.get("/barbers", getBarbers);
   app.get("/api/barbers/search", searchBarbers);
+  app.get("/barbers/search", searchBarbers);
   app.get("/api/barbers/search/advanced", advancedSearchBarbers);
+  app.get("/barbers/search/advanced", advancedSearchBarbers);
   app.get("/api/barbers/recommendations", getRecommendations);
+  app.get("/barbers/recommendations", getRecommendations);
 
-  // Bookings routes
+  // Bookings routes - both paths
   app.get("/api/bookings", getBookings);
+  app.get("/bookings", getBookings);
   app.post("/api/bookings", createBooking);
+  app.post("/bookings", createBooking);
   app.patch("/api/bookings/:id", updateBooking);
+  app.patch("/bookings/:id", updateBooking);
 
-  // Posts routes
+  // Posts routes - both paths
   app.get("/api/posts", getPosts);
+  app.get("/posts", getPosts);
   app.post("/api/posts", createPost);
+  app.post("/posts", createPost);
 
-  // Follows routes
+  // Follows routes - both paths
   app.get("/api/follows", getFollows);
+  app.get("/follows", getFollows);
   app.post("/api/follows", createFollow);
+  app.post("/follows", createFollow);
   app.delete("/api/follows/:id", deleteFollow);
+  app.delete("/follows/:id", deleteFollow);
 
-  // Friend requests routes
+  // Friend requests routes - both paths
   app.get("/api/friend-requests", getFriendRequests);
+  app.get("/friend-requests", getFriendRequests);
   app.post("/api/friend-requests", createFriendRequest);
+  app.post("/friend-requests", createFriendRequest);
   app.patch("/api/friend-requests/:id", updateFriendRequest);
+  app.patch("/friend-requests/:id", updateFriendRequest);
 
-  // Post likes routes
+  // Post likes routes - both paths
   app.post("/api/posts/:id/like", likePost);
+  app.post("/posts/:id/like", likePost);
   app.delete("/api/posts/:id/like", unlikePost);
+  app.delete("/posts/:id/like", unlikePost);
 
-  // Post comments routes
+  // Post comments routes - both paths
   app.get("/api/posts/:id/comments", getPostComments);
+  app.get("/posts/:id/comments", getPostComments);
   app.post("/api/posts/:id/comments", createPostComment);
+  app.post("/posts/:id/comments", createPostComment);
 
-  // Ratings routes
+  // Ratings routes - both paths
   app.get("/api/barbers/:id/ratings", getBarberRatings);
+  app.get("/barbers/:id/ratings", getBarberRatings);
   app.post("/api/ratings", createRating);
+  app.post("/ratings", createRating);
 
-  // Services routes
+  // Services routes - both paths
   app.get("/api/barbers/:id/services", getBarberServices);
+  app.get("/barbers/:id/services", getBarberServices);
   app.post("/api/services", createService);
+  app.post("/services", createService);
   app.put("/api/services/:id", updateService);
+  app.put("/services/:id", updateService);
   app.delete("/api/services/:id", deleteService);
+  app.delete("/services/:id", deleteService);
 
-  // Working hours routes
+  // Working hours routes - both paths
   app.get("/api/working-hours", getWorkingHours);
+  app.get("/working-hours", getWorkingHours);
   app.put("/api/working-hours", saveWorkingHours);
+  app.put("/working-hours", saveWorkingHours);
 
-  // Notifications routes
+  // Notifications routes - both paths
   app.get("/api/notifications", getNotifications);
+  app.get("/notifications", getNotifications);
   app.patch("/api/notifications/:id/read", markNotificationAsRead);
+  app.patch("/notifications/:id/read", markNotificationAsRead);
   app.patch("/api/notifications/read-all", markAllNotificationsAsRead);
+  app.patch("/notifications/read-all", markAllNotificationsAsRead);
 
   // Admin routes
   app.get("/api/admin/stats", getAdminStats);
@@ -379,7 +429,7 @@ function createAppWithRoutes(app: express.Application) {
     // Serverless mode - disable file uploads or handle them differently
     app.post("/api/upload/image", (req, res) => {
       res.status(501).json({
-        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        error: "��فع الملفات غير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
         suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
       });

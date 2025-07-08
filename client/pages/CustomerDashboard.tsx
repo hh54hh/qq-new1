@@ -103,6 +103,16 @@ export default function CustomerDashboard({
   // Explore posts state - loaded from real API
   const [explorePosts, setExplorePosts] = useState<any[]>([]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log("🏠 CustomerDashboard mounted", {
+      userId: user?.id,
+      userRole: user?.role,
+      activeTab,
+      barbersCount: allBarbers.length,
+    });
+  }, []);
+
   useEffect(() => {
     if (searchQuery) {
       setFilteredBarbers(
@@ -317,16 +327,21 @@ export default function CustomerDashboard({
   };
 
   const loadBarbers = async () => {
+    console.log("💇‍♂️ loadBarbers called", { userId: user?.id, hasUser: !!user });
+
     // Only load if user is logged in
     if (!user?.id) {
+      console.log("❌ No user ID, skipping barbers load");
       return;
     }
 
     try {
       store.setLoading(true);
+      console.log("📡 Fetching barbers from API...");
 
       // Load barbers
       const barbersResponse = await apiClient.getBarbers();
+      console.log("📋 Barbers response:", barbersResponse);
       const barbers = barbersResponse.barbers || [];
 
       // Load real follow data - handle network errors gracefully
@@ -373,10 +388,17 @@ export default function CustomerDashboard({
         }),
       );
 
+      console.log(
+        "✅ Enhanced barbers ready:",
+        enhancedBarbers.length,
+        "barbers",
+      );
+      console.log("First barber:", enhancedBarbers[0]);
+
       setAllBarbers(enhancedBarbers);
       setFilteredBarbers(enhancedBarbers);
     } catch (error) {
-      console.error("Error loading barbers:", error);
+      console.error("❌ Error loading barbers:", error);
       // Set empty arrays on error to prevent crashes
       setAllBarbers([]);
       setFilteredBarbers([]);
@@ -1534,7 +1556,7 @@ export default function CustomerDashboard({
           <p className="text-muted-foreground">
             {exploreSearchQuery
               ? "جرب البحث بكلمة أخرى من المنشورات المميزة"
-              : "لا توجد منشورات مميزة متاحة حالياً"}
+              : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
       )}
@@ -1880,7 +1902,7 @@ export default function CustomerDashboard({
             onClick={() => setShowEditProfile(true)}
           >
             <UserIcon className="h-4 w-4" />
-            تع��يل الملف الشخصي
+            تع��يل ��لملف الشخصي
           </Button>
           <Button
             variant="destructive"

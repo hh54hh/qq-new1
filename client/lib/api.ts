@@ -58,10 +58,10 @@ class ApiClient {
         hostname.includes("netlify")
       ) {
         console.log("🌐 Detected Netlify deployment, using Functions path");
-        return window.location.origin + "/.netlify/functions/api";
+        return window.location.origin + "/.netlify/functions";
       }
 
-      // لجميع البيئات الأخرى (fly.dev وغيرها) استخدم /api العادي
+      // لجميع البيئات الأخ��ى (fly.dev وغيرها) استخدم /api العادي
       return window.location.origin + "/api";
     }
     // للخادم أو SSR
@@ -79,13 +79,13 @@ class ApiClient {
 
     // إذا كان على Netlify، استخدم مسار Functions مباشرة دون اختبار
     if (hostname.includes("netlify")) {
-      this.baseUrl = window.location.origin + "/.netlify/functions/api";
+      this.baseUrl = window.location.origin + "/.netlify/functions";
       this.apiUrlVerified = true;
       console.log("✅ Netlify detected - using functions path directly");
       return;
     }
 
-    // للبيئات الأخرى، اختبر المسارات المختلفة
+    // للبيئات الأخرى، اختبر ال��سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -117,9 +117,9 @@ class ApiClient {
       }
     }
 
-    console.warn("⚠️ لم يتم العثور على API على أي من المسارات المتوقعة");
+    console.warn("⚠️ لم يتم العثور على API على أي من المسارات المت��قعة");
     // في حالة عدم العثور على API، استخدم المسار الافتراضي
-    console.log("🔄 استخدام المسار الافتراضي:", this.baseUrl);
+    console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
 
   setAuthToken(token: string) {
@@ -156,7 +156,7 @@ class ApiClient {
       "/messages",
       "/barbers",
       "/notifications",
-      "/auth/profile",
+      "/api/auth/profile",
       "/posts",
       "/follows",
       "/ratings",
@@ -246,17 +246,17 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة، يرجى التحقق من جميع الحقول";
+                "البيانات المد��لة غير صحيحة، يرجى الت��قق من جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
-              if (endpoint.includes("/auth/login")) {
+              if (endpoint.includes("/api/auth/login")) {
                 errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من صحة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
+                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
-                errorMessage = "انتهت صلاحية جلسة المستخدم";
+                errorMessage = "انتهت صلاحية ج��سة المستخدم";
                 errorType = "SESSION_EXPIRED";
                 suggestion = "يرجى تسجيل الدخول مرة أخرى";
 
@@ -271,7 +271,7 @@ class ApiClient {
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
-              errorMessage = "خ��مة API غير متوفرة - مشكلة في إعدادات الخادم";
+              errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم الفني على: 07800657822";
@@ -302,7 +302,7 @@ class ApiClient {
               suggestion = "يرجى المحاولة خلال بضع دقائق";
               break;
             case 504:
-              errorMessage = "انتهت مهلة الاتصال، يرجى المحاولة مرة أخرى";
+              errorMessage = "انتهت مهلة الاتصا��، يرجى المحاولة مرة أخرى";
               errorType = "TIMEOUT_ERROR";
               break;
             default:
@@ -401,7 +401,7 @@ class ApiClient {
     });
 
     try {
-      const result = await this.request<AuthResponse>("/auth/login", {
+      const result = await this.request<AuthResponse>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password } as LoginRequest),
       });
@@ -410,7 +410,7 @@ class ApiClient {
     } catch (error) {
       console.error("Login failed:", error);
       console.error("Login attempt details:", {
-        endpoint: "/auth/login",
+        endpoint: "/api/auth/login",
         email,
         emailTrimmed: email.trim(),
         passwordProvided: !!password,
@@ -421,14 +421,14 @@ class ApiClient {
   }
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    return this.request<AuthResponse>("/auth/register", {
+    return this.request<AuthResponse>("/api/auth/register", {
       method: "POST",
       body: JSON.stringify(userData),
     });
   }
 
   async getProfile(): Promise<{ user: User }> {
-    return this.request<{ user: User }>("/auth/profile");
+    return this.request<{ user: User }>("/api/auth/profile");
   }
 
   async updateProfile(profileData: {
@@ -436,7 +436,7 @@ class ApiClient {
     name?: string;
     email?: string;
   }): Promise<{ user: User }> {
-    return this.request<{ user: User }>("/auth/profile", {
+    return this.request<{ user: User }>("/api/auth/profile", {
       method: "PUT",
       body: JSON.stringify(profileData),
     });

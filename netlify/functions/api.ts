@@ -11,6 +11,10 @@ const initializeApp = () => {
   if (!app) {
     try {
       console.log("Initializing serverless app...");
+
+      // Set environment variables for serverless detection
+      process.env.NETLIFY = "true";
+
       app = createServerlessServer();
 
       // Create serverless handler with proper configuration
@@ -33,6 +37,15 @@ const initializeApp = () => {
       console.log("App initialized successfully");
     } catch (error) {
       console.error("App initialization failed:", error);
+      console.error("Error details:", {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        environment: {
+          NODE_ENV: process.env.NODE_ENV,
+          NETLIFY: process.env.NETLIFY,
+          AWS_LAMBDA_FUNCTION_NAME: process.env.AWS_LAMBDA_FUNCTION_NAME,
+        },
+      });
       throw error;
     }
   }

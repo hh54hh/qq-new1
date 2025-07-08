@@ -145,36 +145,44 @@ class AppStore {
   }
 
   // Initialize auth from localStorage
-  initializeAuth() {
-    const savedUser = localStorage.getItem("barbershop_user");
-    const savedToken = localStorage.getItem("barbershop_token");
-
-    console.log("Initializing auth from localStorage:", {
-      hasSavedUser: !!savedUser,
-      hasSavedToken: !!savedToken,
-      tokenPrefix: savedToken?.substring(0, 10) + "...",
-    });
-
-    if (savedUser && savedToken) {
+  async initializeAuth(): Promise<void> {
+    return new Promise((resolve) => {
       try {
-        const user = JSON.parse(savedUser);
-        apiClient.setAuthToken(savedToken);
-        this.setUser(user);
+        const savedUser = localStorage.getItem("barbershop_user");
+        const savedToken = localStorage.getItem("barbershop_token");
 
-        console.log("Auth initialized successfully:", {
-          userName: user.name,
-          userRole: user.role,
-          tokenSet: true,
+        console.log("Initializing auth from localStorage:", {
+          hasSavedUser: !!savedUser,
+          hasSavedToken: !!savedToken,
+          tokenPrefix: savedToken?.substring(0, 10) + "...",
         });
+
+        if (savedUser && savedToken) {
+          try {
+            const user = JSON.parse(savedUser);
+            apiClient.setAuthToken(savedToken);
+            this.setUser(user);
+
+            console.log("Auth initialized successfully:", {
+              userName: user.name,
+              userRole: user.role,
+              tokenSet: true,
+            });
+          } catch (error) {
+            console.error("Error parsing saved user:", error);
+            localStorage.removeItem("barbershop_user");
+            localStorage.removeItem("barbershop_token");
+            apiClient.clearAuthToken();
+          }
+        } else {
+          console.log("No saved auth data found");
+        }
       } catch (error) {
-        console.error("Error parsing saved user:", error);
-        localStorage.removeItem("barbershop_user");
-        localStorage.removeItem("barbershop_token");
-        apiClient.clearAuthToken();
+        console.error("Auth initialization error:", error);
+      } finally {
+        resolve();
       }
-    } else {
-      console.log("No saved auth data found");
-    }
+    });
   }
 
   // Barbers Actions

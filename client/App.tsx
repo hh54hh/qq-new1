@@ -36,6 +36,7 @@ const AppContent = () => {
   const [state, store] = useAppStore();
   const [activeTab, setActiveTab] = useState("home");
   const [showLocationDialog, setShowLocationDialog] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const { isPermissionRequested } = useLocation();
 
   // Enable message notifications
@@ -43,7 +44,17 @@ const AppContent = () => {
 
   // Initialize authentication on app start
   useEffect(() => {
-    store.initializeAuth();
+    const initAuth = async () => {
+      try {
+        await store.initializeAuth();
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    initAuth();
 
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
@@ -86,6 +97,18 @@ const AppContent = () => {
   const handleLocationDialogComplete = () => {
     setShowLocationDialog(false);
   };
+
+  // Show loading while checking authentication
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-500 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">جارٍ التحميل...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Redirect to login if not authenticated
   if (!state.user) {
@@ -183,13 +206,14 @@ const DebugRoute = () => {
 
 const AuthRoute = () => {
   const [state] = useAppStore();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   // If already logged in, redirect to dashboard
-  if (state.user) {
+  if (state.user || shouldRedirect) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <Auth onAuth={() => (window.location.href = "/dashboard")} />;
+  return <Auth onAuth={() => setShouldRedirect(true)} />;
 };
 
 const IndexRoute = () => {
@@ -200,10 +224,8 @@ const IndexRoute = () => {
 const App = () => {
   const [state, store] = useAppStore();
 
-  // Initialize authentication on app start
+  // Initialize global functions
   useEffect(() => {
-    store.initializeAuth();
-
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";

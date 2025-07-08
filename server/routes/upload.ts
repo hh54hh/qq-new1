@@ -3,12 +3,19 @@ import { createWriteStream, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { getCurrentUserId } from "../../shared/supabase";
 
+// Check if we're in a serverless environment
+const isServerless = !!(process.env.NETLIFY || process.env.VERCEL);
+
 // Only create uploads directory in non-serverless environment
 let uploadsDir: string;
-if (!process.env.NETLIFY) {
+if (!isServerless) {
   uploadsDir = join(process.cwd(), "uploads");
-  if (!existsSync(uploadsDir)) {
-    mkdirSync(uploadsDir, { recursive: true });
+  try {
+    if (!existsSync(uploadsDir)) {
+      mkdirSync(uploadsDir, { recursive: true });
+    }
+  } catch (err) {
+    console.warn("Cannot create uploads directory:", err);
   }
 } else {
   // In serverless, just set a dummy path
@@ -17,6 +24,14 @@ if (!process.env.NETLIFY) {
 
 export const uploadImage: RequestHandler = async (req, res) => {
   try {
+    // Block uploads in serverless environment
+    if (isServerless) {
+      return res.status(501).json({
+        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        message: "File uploads are not supported in serverless environment",
+      });
+    }
+
     const userId = getCurrentUserId(req.headers.authorization);
     if (!userId) {
       return res.status(401).json({ error: "المصادقة مطلوبة" });
