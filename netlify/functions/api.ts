@@ -2,21 +2,51 @@ import type { Handler } from "@netlify/functions";
 import serverless from "serverless-http";
 import { createServerlessServer } from "../../server/index";
 
-// Create the Express app optimized for serverless
-const app = createServerlessServer();
+// Initialize the Express app
+let app: any = null;
+let serverlessHandler: any = null;
 
-// Convert Express app to serverless function
-const serverlessHandler = serverless(app, {
-  basePath: "/api",
-});
+// Initialize app and handler on first request
+const initializeApp = () => {
+  if (!app) {
+    try {
+      console.log("Initializing serverless app...");
+      app = createServerlessServer();
+
+      // Create serverless handler with proper configuration
+      serverlessHandler = serverless(app, {
+        basePath: "",
+        request: (request: any, event: any) => {
+          // Fix path to remove the function base path
+          const originalPath = event.path || event.rawPath || "";
+          const cleanPath =
+            originalPath.replace(/^\/\.netlify\/functions\/api/, "") || "/";
+
+          console.log(`Path transformation: ${originalPath} -> ${cleanPath}`);
+
+          // Update the request with the cleaned path
+          request.url =
+            cleanPath + (event.rawQuery ? `?${event.rawQuery}` : "");
+        },
+      });
+
+      console.log("App initialized successfully");
+    } catch (error) {
+      console.error("App initialization failed:", error);
+      throw error;
+    }
+  }
+  return { app, serverlessHandler };
+};
 
 export const handler: Handler = async (event, context) => {
-  // Add CORS headers for all requests
+  // CORS headers
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
     "Access-Control-Allow-Headers":
       "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    "Access-Control-Max-Age": "86400",
   };
 
   // Handle CORS preflight
@@ -29,53 +59,59 @@ export const handler: Handler = async (event, context) => {
   }
 
   try {
-    // Log the request for debugging
-    console.log(`[Netlify Function] ${event.httpMethod} ${event.path}`, {
-      headers: Object.keys(event.headers),
-      timestamp: new Date().toISOString(),
-      query: event.queryStringParameters,
-      nodeVersion: process.version,
-      platform: process.platform,
-    });
-
-    // Ensure we have the proper context for serverless
+    // Set serverless context
     context.callbackWaitsForEmptyEventLoop = false;
 
-    // Validate basic requirements
-    if (!app) {
-      throw new Error("Express app not initialized");
-    }
+    // Initialize app if needed
+    const { serverlessHandler } = initializeApp();
 
-    // Use the serverless handler
-    const response = await serverlessHandler(event, context);
+    console.log(
+      `[${new Date().toISOString()}] ${event.httpMethod} ${event.path}`,
+      {
+        rawPath: event.rawPath,
+        rawQuery: event.rawQuery,
+        headers: event.headers ? Object.keys(event.headers).join(", ") : "none",
+      },
+    );
 
-    console.log(`[Netlify Function] Response ${response.statusCode}`, {
-      headers: response.headers ? Object.keys(response.headers) : [],
-      bodyLength: response.body?.length || 0,
+    // Call the serverless handler
+    const result = await serverlessHandler(event, context);
+
+    console.log(`Response: ${result.statusCode}`, {
+      hasBody: !!result.body,
+      bodyLength: result.body ? result.body.length : 0,
     });
 
-    // Add CORS headers to the response
+    // Ensure response has CORS headers
     return {
-      ...response,
+      ...result,
       headers: {
-        ...response.headers,
+        ...result.headers,
         ...corsHeaders,
       },
     };
   } catch (error) {
-    console.error("Netlify Function Error:", error);
-    console.error("Error details:", {
+    console.error("Function execution error:", error);
+
+    // More detailed error logging
+    const errorDetails = {
       message: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : "No stack",
-      nodeVersion: process.version,
-      platform: process.platform,
-      env: {
+      stack: error instanceof Error ? error.stack : "No stack available",
+      timestamp: new Date().toISOString(),
+      path: event.path,
+      rawPath: event.rawPath,
+      method: event.httpMethod,
+      environment: {
         NODE_ENV: process.env.NODE_ENV,
         NETLIFY: process.env.NETLIFY,
+        nodeVersion: process.version,
       },
-      path: event.path,
-      method: event.httpMethod,
-    });
+    };
+
+    console.error(
+      "Detailed error info:",
+      JSON.stringify(errorDetails, null, 2),
+    );
 
     return {
       statusCode: 500,
@@ -87,14 +123,7 @@ export const handler: Handler = async (event, context) => {
         error: "خطأ داخلي في الخادم",
         message: error instanceof Error ? error.message : "خطأ غير معروف",
         timestamp: new Date().toISOString(),
-        environment: "netlify-function",
-        path: event.path,
-        method: event.httpMethod,
-        debug: {
-          nodeVersion: process.version,
-          platform: process.platform,
-          hasApp: !!app,
-        },
+        details: errorDetails,
       }),
     };
   }

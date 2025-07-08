@@ -171,17 +171,19 @@ function createAppWithRoutes(app: express.Application) {
     },
   );
 
-  // Health check and debugging routes
-  app.get("/api/ping", (_req, res) => {
+  // Health check and debugging routes - handle both /api and root paths
+  const handlePing = (_req: express.Request, res: express.Response) => {
     try {
       res.json({
-        message: "Hello from Express server v4!",
+        message: "Hello from Express server v5!",
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || "development",
         serverless: !!process.env.NETLIFY,
-        version: "4.0.0",
+        version: "5.0.0",
         supabase_configured: true,
         auto_config: true,
+        path: _req.path,
+        url: _req.url,
       });
     } catch (error) {
       console.error("Ping endpoint error:", error);
@@ -190,10 +192,13 @@ function createAppWithRoutes(app: express.Application) {
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  });
+  };
+
+  app.get("/ping", handlePing);
+  app.get("/api/ping", handlePing);
 
   // Environment check endpoint
-  app.get("/api/health", (_req, res) => {
+  const handleHealth = (_req: express.Request, res: express.Response) => {
     try {
       const isNetlify = !!process.env.NETLIFY;
       const hasSupabaseUrl = !!getEnvVar("VITE_SUPABASE_URL");
@@ -224,6 +229,11 @@ function createAppWithRoutes(app: express.Application) {
           file_upload: !isNetlify,
           static_files: !isNetlify,
         },
+        request_info: {
+          path: _req.path,
+          url: _req.url,
+          method: _req.method,
+        },
       });
     } catch (error) {
       console.error("Health endpoint error:", error);
@@ -232,10 +242,13 @@ function createAppWithRoutes(app: express.Application) {
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  });
+  };
+
+  app.get("/health", handleHealth);
+  app.get("/api/health", handleHealth);
 
   // Add a simple debug endpoint that works in all environments
-  app.get("/api/debug", (_req, res) => {
+  const handleDebug = (_req: express.Request, res: express.Response) => {
     try {
       res.json({
         success: true,
@@ -249,6 +262,9 @@ function createAppWithRoutes(app: express.Application) {
         request_info: {
           timestamp: new Date().toISOString(),
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          path: _req.path,
+          url: _req.url,
+          method: _req.method,
         },
       });
     } catch (error) {
@@ -258,8 +274,12 @@ function createAppWithRoutes(app: express.Application) {
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  });
+  };
 
+  app.get("/debug", handleDebug);
+  app.get("/api/debug", handleDebug);
+
+  app.get("/demo", handleDemo);
   app.get("/api/demo", handleDemo);
 
   // Authentication routes
