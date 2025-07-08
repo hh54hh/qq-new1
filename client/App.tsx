@@ -216,7 +216,7 @@ const App = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكون��ول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
     console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -234,6 +234,10 @@ const App = () => {
             <Route path="/diagnostic" element={<DiagnosticPage />} />
             <Route path="/system-diagnostic" element={<SystemDiagnostic />} />
             <Route path="/network-diagnostic" element={<NetworkDiagnostic />} />
+            <Route
+              path="/network-diagnostic-test"
+              element={<NetworkDiagnosticTest />}
+            />
 
             {/* Authenticated routes */}
             <Route path="/dashboard" element={<AppContent />} />
