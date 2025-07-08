@@ -57,7 +57,7 @@ class ApiClient {
         hostname.includes("netlify.com") ||
         hostname.includes("netlify")
       ) {
-        console.log("🌐 Detected Netlify deployment, using Functions path");
+        console.log("��� Detected Netlify deployment, using Functions path");
         return window.location.origin + "/.netlify/functions/api";
       }
 
@@ -250,11 +250,11 @@ class ApiClient {
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
-              if (endpoint.includes("/auth/login")) {
+              if (endpoint.includes("/api/auth/login")) {
                 errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن ل��يك حساب";
+                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
                 errorMessage = "انتهت صلاحية جلسة المستخدم";
                 errorType = "SESSION_EXPIRED";
