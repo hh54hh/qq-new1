@@ -386,24 +386,35 @@ function createAppWithRoutes(app: express.Application) {
   app.post("/api/posts/:id/comments", createPostComment);
   app.post("/posts/:id/comments", createPostComment);
 
-  // Ratings routes
+  // Ratings routes - both paths
   app.get("/api/barbers/:id/ratings", getBarberRatings);
+  app.get("/barbers/:id/ratings", getBarberRatings);
   app.post("/api/ratings", createRating);
+  app.post("/ratings", createRating);
 
-  // Services routes
+  // Services routes - both paths
   app.get("/api/barbers/:id/services", getBarberServices);
+  app.get("/barbers/:id/services", getBarberServices);
   app.post("/api/services", createService);
+  app.post("/services", createService);
   app.put("/api/services/:id", updateService);
+  app.put("/services/:id", updateService);
   app.delete("/api/services/:id", deleteService);
+  app.delete("/services/:id", deleteService);
 
-  // Working hours routes
+  // Working hours routes - both paths
   app.get("/api/working-hours", getWorkingHours);
+  app.get("/working-hours", getWorkingHours);
   app.put("/api/working-hours", saveWorkingHours);
+  app.put("/working-hours", saveWorkingHours);
 
-  // Notifications routes
+  // Notifications routes - both paths
   app.get("/api/notifications", getNotifications);
+  app.get("/notifications", getNotifications);
   app.patch("/api/notifications/:id/read", markNotificationAsRead);
+  app.patch("/notifications/:id/read", markNotificationAsRead);
   app.patch("/api/notifications/read-all", markAllNotificationsAsRead);
+  app.patch("/notifications/read-all", markAllNotificationsAsRead);
 
   // Admin routes
   app.get("/api/admin/stats", getAdminStats);
