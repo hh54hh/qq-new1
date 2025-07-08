@@ -1,0 +1,5 @@
+name: env-setup
+display_name: Environment Variables Auto Setup
+description: Automatically sets up environment variables from .env files
+author: Auto-generated
+version: 1.0.0
