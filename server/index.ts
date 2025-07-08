@@ -146,15 +146,42 @@ export function createServerlessServer() {
 }
 
 function createAppWithRoutes(app: express.Application) {
+  // Global error handler middleware
+  app.use(
+    (
+      err: any,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => {
+      console.error("Global error handler:", err);
+
+      if (res.headersSent) {
+        return next(err);
+      }
+
+      res.status(500).json({
+        error: "خطأ داخلي في الخادم",
+        message: err instanceof Error ? err.message : "خطأ غير معروف",
+        timestamp: new Date().toISOString(),
+        path: req.path,
+        method: req.method,
+        serverless: !!process.env.NETLIFY,
+      });
+    },
+  );
+
   // Health check and debugging routes
   app.get("/api/ping", (_req, res) => {
     try {
       res.json({
-        message: "Hello from Express server v3!",
+        message: "Hello from Express server v4!",
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || "development",
         serverless: !!process.env.NETLIFY,
-        version: "3.0.0",
+        version: "4.0.0",
+        supabase_configured: true,
+        auto_config: true,
       });
     } catch (error) {
       console.error("Ping endpoint error:", error);
@@ -336,7 +363,7 @@ function createAppWithRoutes(app: express.Application) {
         res.json({ url: fileUrl });
       } catch (error) {
         console.error("Upload error:", error);
-        res.status(500).json({ error: "خطأ في رفع الملف" });
+        res.status(500).json({ error: "خطأ في رفع ��لملف" });
       }
     });
 

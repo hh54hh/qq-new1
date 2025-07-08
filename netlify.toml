@@ -10,6 +10,9 @@
   CI = "true"
   NODE_ENV = "production"
   NETLIFY = "true"
+  # Auto-configured Supabase environment variables
+  VITE_SUPABASE_URL = "https://yrsvksgkxjiogjuaeyvd.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlyc3Zrc2dreGppb2dqdWFleXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDMzMDMsImV4cCI6MjA2NzM3OTMwM30.-haPW80fiZMWYCm83TXvwZ2kHHBhcvhWAc6jPYdlUXM"
 
 [functions]
   node_bundler = "esbuild"
@@ -27,6 +30,27 @@
   to = "/.netlify/functions/api"
   status = 200
   force = true
+
+# Static files redirects
+[[redirects]]
+  from = "/manifest.json"
+  to = "/public/manifest.json"
+  status = 200
+
+[[redirects]]
+  from = "/sw.js"
+  to = "/public/sw.js"
+  status = 200
+
+[[redirects]]
+  from = "/icon-192.png"
+  to = "/public/icon.svg"
+  status = 200
+
+[[redirects]]
+  from = "/icon-512.png"
+  to = "/public/icon.svg"
+  status = 200
 
 [[redirects]]
   from = "/*"

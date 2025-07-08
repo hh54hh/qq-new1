@@ -1011,7 +1011,20 @@ export const uploadImage: RequestHandler = async (req, res) => {
     const randomId = Math.random().toString(36).substring(2);
     const fileName = `${userId}_${timestamp}_${randomId}.jpg`;
 
-    // Create uploads directory if it doesn't exist
+    // Handle file uploads differently in serverless vs regular environments
+    if (process.env.NETLIFY) {
+      // In serverless environment, we can't save files to disk
+      // For now, return a placeholder or handle with external service
+      console.log("File upload attempted in serverless environment");
+      res.status(501).json({
+        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        message: "File uploads are not supported in serverless environment",
+        suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
+      });
+      return;
+    }
+
+    // Create uploads directory if it doesn't exist (only in non-serverless environments)
     const uploadDir = "./uploads";
     const fs = require("fs");
     const path = require("path");
