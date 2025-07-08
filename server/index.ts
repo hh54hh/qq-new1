@@ -71,11 +71,7 @@ import { getSystemDiagnostic } from "./routes/system-diagnostic";
 let upload: multer.Multer;
 
 // Check if we're in a serverless environment
-const isServerless = !!(
-  process.env.NETLIFY ||
-  process.env.AWS_LAMBDA_FUNCTION_NAME ||
-  process.env.VERCEL
-);
+const isServerless = !!(process.env.NETLIFY || process.env.VERCEL);
 
 try {
   if (isServerless) {
@@ -196,7 +192,7 @@ function createAppWithRoutes(app: express.Application) {
       }
 
       res.status(500).json({
-        error: "خطأ داخلي في الخادم",
+        error: "خطأ داخ��ي في الخادم",
         message: err instanceof Error ? err.message : "خطأ غير معروف",
         timestamp: new Date().toISOString(),
         path: req.path,
