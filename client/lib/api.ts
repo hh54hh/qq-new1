@@ -254,7 +254,7 @@ class ApiClient {
                 errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من صحة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
+                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
                 errorMessage = "انتهت صلاحية جلسة المستخدم";
                 errorType = "SESSION_EXPIRED";
@@ -302,7 +302,7 @@ class ApiClient {
               suggestion = "يرجى المحاولة خلال بضع دقائق";
               break;
             case 504:
-              errorMessage = "انتهت مهلة الاتصال، يرجى المحاولة مرة أخرى";
+              errorMessage = "انتهت مهلة الاتصا��، يرجى المحاولة مرة أخرى";
               errorType = "TIMEOUT_ERROR";
               break;
             default:
@@ -421,7 +421,7 @@ class ApiClient {
   }
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    return this.request<AuthResponse>("/auth/register", {
+    return this.request<AuthResponse>("/api/auth/register", {
       method: "POST",
       body: JSON.stringify(userData),
     });
