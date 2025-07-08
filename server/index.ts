@@ -297,6 +297,9 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/debug", handleDebug);
   app.get("/api/debug", handleDebug);
 
+  // System diagnostic endpoint
+  app.get("/api/system-diagnostic", getSystemDiagnostic);
+
   app.get("/demo", handleDemo);
   app.get("/api/demo", handleDemo);
 
