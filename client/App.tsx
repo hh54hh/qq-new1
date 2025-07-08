@@ -164,7 +164,7 @@ const DebugRoute = () => {
           onClick={() => window.history.back()}
           className="mb-4"
         >
-          ← العودة للتطبيق
+          ← ال��ودة للتطبيق
         </Button>
       </div>
       <DebugPage />
@@ -218,6 +218,7 @@ const App = () => {
             <Route path="/debug" element={<DebugRoute />} />
             <Route path="/diagnostic" element={<DiagnosticPage />} />
             <Route path="/system-diagnostic" element={<SystemDiagnostic />} />
+            <Route path="/network-diagnostic" element={<NetworkDiagnostic />} />
 
             {/* Authenticated routes */}
             <Route path="/dashboard" element={<AppContent />} />
