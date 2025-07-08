@@ -112,6 +112,7 @@ try {
     });
   } else {
     // Serverless environment - use memory storage only
+    console.log("Using memory storage for serverless environment");
     upload = multer({
       storage: multer.memoryStorage(),
       limits: { fileSize: 1024 }, // Very small limit since we don't support uploads
