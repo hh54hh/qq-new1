@@ -234,7 +234,14 @@ const App = () => {
             <Route path="/debug" element={<DebugRoute />} />
             <Route path="/diagnostic" element={<DiagnosticPage />} />
             <Route path="/system-diagnostic" element={<SystemDiagnostic />} />
-            <Route path="/network-diagnostic" element={<NetworkDiagnostic />} />
+            <Route
+              path="/network-diagnostic"
+              element={<NetworkDiagnosticSimple />}
+            />
+            <Route
+              path="/network-diagnostic-complex"
+              element={<NetworkDiagnostic />}
+            />
             <Route
               path="/network-diagnostic-test"
               element={<NetworkDiagnosticTest />}
