@@ -327,16 +327,21 @@ export default function CustomerDashboard({
   };
 
   const loadBarbers = async () => {
+    console.log("💇‍♂️ loadBarbers called", { userId: user?.id, hasUser: !!user });
+
     // Only load if user is logged in
     if (!user?.id) {
+      console.log("❌ No user ID, skipping barbers load");
       return;
     }
 
     try {
       store.setLoading(true);
+      console.log("📡 Fetching barbers from API...");
 
       // Load barbers
       const barbersResponse = await apiClient.getBarbers();
+      console.log("📋 Barbers response:", barbersResponse);
       const barbers = barbersResponse.barbers || [];
 
       // Load real follow data - handle network errors gracefully
@@ -1395,7 +1400,7 @@ export default function CustomerDashboard({
                         <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-1">
                           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                           <span>{barber.rating}</span>
-                          <span>��</span>
+                          <span>•</span>
                           <span>{barber.distance} كم</span>
                         </div>
                       </div>
@@ -1544,7 +1549,7 @@ export default function CustomerDashboard({
           <p className="text-muted-foreground">
             {exploreSearchQuery
               ? "جرب البحث بكلمة أخرى من المنشورات المميزة"
-              : "لا توجد منشورات مميزة متاحة حالياً"}
+              : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
       )}
