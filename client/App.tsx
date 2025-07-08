@@ -224,10 +224,8 @@ const IndexRoute = () => {
 const App = () => {
   const [state, store] = useAppStore();
 
-  // Initialize authentication on app start
+  // Initialize global functions
   useEffect(() => {
-    store.initializeAuth();
-
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
