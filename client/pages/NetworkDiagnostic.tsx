@@ -41,6 +41,79 @@ interface DiagnosticResult {
   timing?: number;
 }
 
+interface SystemDiagnostic {
+  status: string;
+  timestamp: string;
+  timing: {
+    total: number;
+    supabase: number;
+  };
+  environment: {
+    isServer: boolean;
+    isNetlify: boolean;
+    isProduction: boolean;
+  };
+  system: {
+    node_version: string;
+    platform: string;
+    arch: string;
+    memory: any;
+    uptime: number;
+    timestamp: string;
+    timezone: string;
+  };
+  env_analysis: {
+    supabase: {
+      url: { exists: boolean; value: string; source: string; length: number };
+      key: { exists: boolean; value: string; source: string; length: number };
+    };
+    build: any;
+    all_env_keys: string[];
+  };
+  supabase_test: {
+    connection: string;
+    error: string | null;
+    timing: number;
+    details: any;
+  };
+  filesystem: {
+    current_directory: string;
+    env_files: Record<string, boolean>;
+    package_json: boolean;
+  };
+  network: any;
+  auto_config: any;
+  summary: {
+    critical_issues: string[];
+    warnings: string[];
+    status: string;
+  };
+}
+
+interface BrowserInfo {
+  userAgent: string;
+  language: string;
+  platform: string;
+  cookieEnabled: boolean;
+  onLine: boolean;
+  connection?: any;
+  location: {
+    origin: string;
+    protocol: string;
+    host: string;
+    pathname: string;
+  };
+  screen: {
+    width: number;
+    height: number;
+    colorDepth: number;
+  };
+  viewport: {
+    width: number;
+    height: number;
+  };
+}
+
 const NetworkDiagnostic: React.FC = () => {
   const [diagnostics, setDiagnostics] = useState<DiagnosticResult[]>([
     {
@@ -191,7 +264,7 @@ const NetworkDiagnostic: React.FC = () => {
         VITE_SUPABASE_ANON_KEY: import.meta.env?.VITE_SUPABASE_ANON_KEY
           ? "موجود"
           : "غير موجود",
-        MODE: import.meta.env?.MODE || "��ير محدد",
+        MODE: import.meta.env?.MODE || "غير محدد",
         DEV: import.meta.env?.DEV || false,
         PROD: import.meta.env?.PROD || false,
       };
@@ -230,7 +303,7 @@ const NetworkDiagnostic: React.FC = () => {
     } catch (error) {
       updateDiagnostic(index, {
         status: "error",
-        message: "فشل فحص متغيرات الب��ئة",
+        message: "فشل فحص متغيرات البيئة",
         details: error instanceof Error ? error.message : "خطأ غير معروف",
       });
     }
@@ -251,7 +324,7 @@ const NetworkDiagnostic: React.FC = () => {
       if (response.ok) {
         updateDiagnostic(index, {
           status: "success",
-          message: `وظائف الخادم تعمل (${timing}ms)`,
+          message: `وظائف الخاد�� تعمل (${timing}ms)`,
           details: data,
           timing,
         });
@@ -414,7 +487,7 @@ const NetworkDiagnostic: React.FC = () => {
             {import.meta.env?.MODE || "غير محدد"}
           </p>
           <p>
-            <strong>وضع التطوير:</strong> {import.meta.env?.DEV ? "نعم" : "لا"}
+            <strong>و��ع التطوير:</strong> {import.meta.env?.DEV ? "نعم" : "لا"}
           </p>
           <p>
             <strong>وضع الإنتاج:</strong> {import.meta.env?.PROD ? "نعم" : "لا"}
