@@ -316,11 +316,15 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/demo", handleDemo);
   app.get("/api/demo", handleDemo);
 
-  // Authentication routes
+  // Authentication routes - both /api and direct paths for Netlify compatibility
   app.post("/api/auth/login", handleLogin);
+  app.post("/auth/login", handleLogin);
   app.post("/api/auth/register", handleRegister);
+  app.post("/auth/register", handleRegister);
   app.get("/api/auth/profile", handleGetProfile);
+  app.get("/auth/profile", handleGetProfile);
   app.put("/api/auth/profile", handleUpdateProfile);
+  app.put("/auth/profile", handleUpdateProfile);
 
   // Test routes (for development)
   app.get("/api/create-test-user", createTestUser);
