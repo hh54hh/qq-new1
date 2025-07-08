@@ -60,6 +60,4 @@
   to = "/index.html"
   status = 200
 
-# Auto environment setup plugin
-[[plugins]]
-  package = "./netlify/plugins/env-setup"
+# Environment variables are configured directly in [build.environment] section above
