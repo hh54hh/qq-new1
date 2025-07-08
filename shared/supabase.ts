@@ -1,45 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "./database";
+import { getValidatedConfig } from "./auto-config";
 
-// Environment variable detection for both server and client
-const isServer = typeof window === "undefined";
-const getEnvVar = (name: string) => {
-  if (isServer) {
-    // In serverless environments like Netlify, prefer process.env
-    return process.env[name];
-  } else {
-    // In client, use Vite's import.meta.env
-    return import.meta.env?.[name];
-  }
-};
+// Get auto-configured Supabase settings
+const config = getValidatedConfig();
 
-// Auto-configured Supabase settings - no manual setup needed
-const FALLBACK_SUPABASE_URL = "https://yrsvksgkxjiogjuaeyvd.supabase.co";
-const FALLBACK_SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlyc3Zrc2dreGppb2dqdWFleXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDMzMDMsImV4cCI6MjA2NzM3OTMwM30.-haPW80fiZMWYCm83TXvwZ2kHHBhcvhWAc6jPYdlUXM";
-
-// Use environment variables with automatic fallback to pre-configured values
-const supabaseUrl = getEnvVar("VITE_SUPABASE_URL") || FALLBACK_SUPABASE_URL;
-const supabaseKey =
-  getEnvVar("VITE_SUPABASE_ANON_KEY") || FALLBACK_SUPABASE_KEY;
-
-// Log connection details in development
-const isDev = isServer
-  ? process.env.NODE_ENV !== "production"
-  : import.meta.env?.DEV;
-if (isDev) {
-  console.log("Supabase configuration:", {
-    url: supabaseUrl,
-    keyPrefix: supabaseKey.substring(0, 20) + "...",
-    hasUrl: !!supabaseUrl,
-    hasKey: !!supabaseKey,
-    usingEnvUrl: !!getEnvVar("VITE_SUPABASE_URL"),
-    usingEnvKey: !!getEnvVar("VITE_SUPABASE_ANON_KEY"),
-    environment: isServer ? "server" : "client",
-  });
-}
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+export const supabase = createClient<Database>(
+  config.supabaseUrl,
+  config.supabaseKey,
+);
 
 // Helper function to get current user from token
 export function getCurrentUserId(authHeader?: string): string | null {
