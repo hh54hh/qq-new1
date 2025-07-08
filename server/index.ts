@@ -198,7 +198,7 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/api/ping", handlePing);
 
   // Environment check endpoint
-  app.get("/api/health", (_req, res) => {
+  const handleHealth = (_req: express.Request, res: express.Response) => {
     try {
       const isNetlify = !!process.env.NETLIFY;
       const hasSupabaseUrl = !!getEnvVar("VITE_SUPABASE_URL");
@@ -229,6 +229,11 @@ function createAppWithRoutes(app: express.Application) {
           file_upload: !isNetlify,
           static_files: !isNetlify,
         },
+        request_info: {
+          path: _req.path,
+          url: _req.url,
+          method: _req.method,
+        },
       });
     } catch (error) {
       console.error("Health endpoint error:", error);
@@ -237,7 +242,10 @@ function createAppWithRoutes(app: express.Application) {
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  });
+  };
+
+  app.get("/health", handleHealth);
+  app.get("/api/health", handleHealth);
 
   // Add a simple debug endpoint that works in all environments
   app.get("/api/debug", (_req, res) => {
