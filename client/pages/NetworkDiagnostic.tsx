@@ -8,12 +8,29 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import {
   AlertTriangle,
   CheckCircle,
   XCircle,
   Loader2,
   RefreshCw,
+  Info,
+  Server,
+  Database,
+  Globe,
+  Settings,
+  Monitor,
+  Network,
+  Clock,
+  HardDrive,
+  Cpu,
+  Eye,
+  FileText,
+  Zap,
 } from "lucide-react";
 
 interface DiagnosticResult {
@@ -174,7 +191,7 @@ const NetworkDiagnostic: React.FC = () => {
         VITE_SUPABASE_ANON_KEY: import.meta.env?.VITE_SUPABASE_ANON_KEY
           ? "موجود"
           : "غير موجود",
-        MODE: import.meta.env?.MODE || "غير محدد",
+        MODE: import.meta.env?.MODE || "��ير محدد",
         DEV: import.meta.env?.DEV || false,
         PROD: import.meta.env?.PROD || false,
       };
@@ -213,7 +230,7 @@ const NetworkDiagnostic: React.FC = () => {
     } catch (error) {
       updateDiagnostic(index, {
         status: "error",
-        message: "فشل فحص متغيرات البيئة",
+        message: "فشل فحص متغيرات الب��ئة",
         details: error instanceof Error ? error.message : "خطأ غير معروف",
       });
     }
