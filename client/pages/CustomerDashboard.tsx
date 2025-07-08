@@ -388,10 +388,17 @@ export default function CustomerDashboard({
         }),
       );
 
+      console.log(
+        "✅ Enhanced barbers ready:",
+        enhancedBarbers.length,
+        "barbers",
+      );
+      console.log("First barber:", enhancedBarbers[0]);
+
       setAllBarbers(enhancedBarbers);
       setFilteredBarbers(enhancedBarbers);
     } catch (error) {
-      console.error("Error loading barbers:", error);
+      console.error("❌ Error loading barbers:", error);
       // Set empty arrays on error to prevent crashes
       setAllBarbers([]);
       setFilteredBarbers([]);
@@ -1895,7 +1902,7 @@ export default function CustomerDashboard({
             onClick={() => setShowEditProfile(true)}
           >
             <UserIcon className="h-4 w-4" />
-            تع��يل الملف الشخصي
+            تع��يل ��لملف الشخصي
           </Button>
           <Button
             variant="destructive"
