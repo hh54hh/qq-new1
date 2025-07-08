@@ -129,7 +129,14 @@ const NetworkDiagnostic: React.FC = () => {
     { name: "نظام المصادقة", status: "pending", message: "في انتظار الفحص" },
     { name: "متغيرات البيئة", status: "pending", message: "في انتظار الفحص" },
     { name: "وظائف الخادم", status: "pending", message: "في انتظار الفحص" },
+    { name: "التشخيص الشامل", status: "pending", message: "في انتظار الفحص" },
   ]);
+
+  const [systemDiagnostic, setSystemDiagnostic] =
+    useState<SystemDiagnostic | null>(null);
+  const [browserInfo, setBrowserInfo] = useState<BrowserInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const updateDiagnostic = (
     index: number,
@@ -324,7 +331,7 @@ const NetworkDiagnostic: React.FC = () => {
       if (response.ok) {
         updateDiagnostic(index, {
           status: "success",
-          message: `وظائف الخاد�� تعمل (${timing}ms)`,
+          message: `وظائف الخادم تعمل (${timing}ms)`,
           details: data,
           timing,
         });
@@ -487,7 +494,7 @@ const NetworkDiagnostic: React.FC = () => {
             {import.meta.env?.MODE || "غير محدد"}
           </p>
           <p>
-            <strong>و��ع التطوير:</strong> {import.meta.env?.DEV ? "نعم" : "لا"}
+            <strong>وضع التطوير:</strong> {import.meta.env?.DEV ? "نعم" : "لا"}
           </p>
           <p>
             <strong>وضع الإنتاج:</strong> {import.meta.env?.PROD ? "نعم" : "لا"}
