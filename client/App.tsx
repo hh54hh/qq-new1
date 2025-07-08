@@ -21,6 +21,7 @@ import DebugPage from "./pages/DebugPage";
 import DiagnosticPage from "./pages/DiagnosticPage";
 import SystemDiagnostic from "./pages/SystemDiagnostic";
 import NetworkDiagnostic from "./pages/NetworkDiagnostic";
+import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import { Button } from "@/components/ui/button";
 import { User } from "@shared/api";
 import { useAppStore } from "./lib/store";
@@ -215,7 +216,7 @@ const App = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكون��ول لفتح صفحة التشخيص");
     console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
