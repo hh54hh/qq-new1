@@ -334,38 +334,57 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/api/reset-test-password", resetTestPassword);
   app.get("/reset-test-password", resetTestPassword);
 
-  // Barbers routes
+  // Barbers routes - both /api and direct paths for Netlify compatibility
   app.get("/api/barbers", getBarbers);
+  app.get("/barbers", getBarbers);
   app.get("/api/barbers/search", searchBarbers);
+  app.get("/barbers/search", searchBarbers);
   app.get("/api/barbers/search/advanced", advancedSearchBarbers);
+  app.get("/barbers/search/advanced", advancedSearchBarbers);
   app.get("/api/barbers/recommendations", getRecommendations);
+  app.get("/barbers/recommendations", getRecommendations);
 
-  // Bookings routes
+  // Bookings routes - both paths
   app.get("/api/bookings", getBookings);
+  app.get("/bookings", getBookings);
   app.post("/api/bookings", createBooking);
+  app.post("/bookings", createBooking);
   app.patch("/api/bookings/:id", updateBooking);
+  app.patch("/bookings/:id", updateBooking);
 
-  // Posts routes
+  // Posts routes - both paths
   app.get("/api/posts", getPosts);
+  app.get("/posts", getPosts);
   app.post("/api/posts", createPost);
+  app.post("/posts", createPost);
 
-  // Follows routes
+  // Follows routes - both paths
   app.get("/api/follows", getFollows);
+  app.get("/follows", getFollows);
   app.post("/api/follows", createFollow);
+  app.post("/follows", createFollow);
   app.delete("/api/follows/:id", deleteFollow);
+  app.delete("/follows/:id", deleteFollow);
 
-  // Friend requests routes
+  // Friend requests routes - both paths
   app.get("/api/friend-requests", getFriendRequests);
+  app.get("/friend-requests", getFriendRequests);
   app.post("/api/friend-requests", createFriendRequest);
+  app.post("/friend-requests", createFriendRequest);
   app.patch("/api/friend-requests/:id", updateFriendRequest);
+  app.patch("/friend-requests/:id", updateFriendRequest);
 
-  // Post likes routes
+  // Post likes routes - both paths
   app.post("/api/posts/:id/like", likePost);
+  app.post("/posts/:id/like", likePost);
   app.delete("/api/posts/:id/like", unlikePost);
+  app.delete("/posts/:id/like", unlikePost);
 
-  // Post comments routes
+  // Post comments routes - both paths
   app.get("/api/posts/:id/comments", getPostComments);
+  app.get("/posts/:id/comments", getPostComments);
   app.post("/api/posts/:id/comments", createPostComment);
+  app.post("/posts/:id/comments", createPostComment);
 
   // Ratings routes
   app.get("/api/barbers/:id/ratings", getBarberRatings);
