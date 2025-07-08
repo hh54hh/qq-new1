@@ -57,13 +57,7 @@ import {
   getUnreadCount,
   deleteConversation,
 } from "./routes/messages";
-// Import upload routes conditionally
-let uploadImage: any, uploadProfileImage: any;
-if (!process.env.NETLIFY) {
-  const uploadRoutes = require("./routes/upload");
-  uploadImage = uploadRoutes.uploadImage;
-  uploadProfileImage = uploadRoutes.uploadProfileImage;
-}
+import { uploadImage, uploadProfileImage } from "./routes/upload";
 import {
   searchBarbers as advancedSearchBarbers,
   getRecommendations,
