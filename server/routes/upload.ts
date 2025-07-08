@@ -3,10 +3,16 @@ import { createWriteStream, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 import { getCurrentUserId } from "../../shared/supabase";
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = join(process.cwd(), "uploads");
-if (!existsSync(uploadsDir)) {
-  mkdirSync(uploadsDir, { recursive: true });
+// Only create uploads directory in non-serverless environment
+let uploadsDir: string;
+if (!process.env.NETLIFY) {
+  uploadsDir = join(process.cwd(), "uploads");
+  if (!existsSync(uploadsDir)) {
+    mkdirSync(uploadsDir, { recursive: true });
+  }
+} else {
+  // In serverless, just set a dummy path
+  uploadsDir = "/tmp";
 }
 
 export const uploadImage: RequestHandler = async (req, res) => {
