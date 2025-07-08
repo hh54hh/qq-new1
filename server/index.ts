@@ -65,6 +65,7 @@ import {
   getRecommendations,
 } from "./routes/search";
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
+import { getSystemDiagnostic } from "./routes/system-diagnostic";
 
 // Configure multer for file uploads (only for non-serverless environments)
 let upload: multer.Multer;
