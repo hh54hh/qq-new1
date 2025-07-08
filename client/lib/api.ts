@@ -57,11 +57,11 @@ class ApiClient {
         hostname.includes("netlify.com") ||
         hostname.includes("netlify")
       ) {
-        console.log("��� Detected Netlify deployment, using Functions path");
+        console.log("🌐 Detected Netlify deployment, using Functions path");
         return window.location.origin + "/.netlify/functions/api";
       }
 
-      // لجميع البيئات الأخرى (fly.dev وغيرها) استخدم /api العادي
+      // لجميع البيئات الأخ��ى (fly.dev وغيرها) استخدم /api العادي
       return window.location.origin + "/api";
     }
     // للخادم أو SSR
@@ -256,7 +256,7 @@ class ApiClient {
                 suggestion =
                   "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
-                errorMessage = "انتهت صلاحية جلسة المستخدم";
+                errorMessage = "انتهت صلاحية ج��سة المستخدم";
                 errorType = "SESSION_EXPIRED";
                 suggestion = "يرجى تسجيل الدخول مرة أخرى";
 
@@ -410,7 +410,7 @@ class ApiClient {
     } catch (error) {
       console.error("Login failed:", error);
       console.error("Login attempt details:", {
-        endpoint: "/auth/login",
+        endpoint: "/api/auth/login",
         email,
         emailTrimmed: email.trim(),
         passwordProvided: !!password,
