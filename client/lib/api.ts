@@ -156,7 +156,7 @@ class ApiClient {
       "/messages",
       "/barbers",
       "/notifications",
-      "/auth/profile",
+      "/api/auth/profile",
       "/posts",
       "/follows",
       "/ratings",
@@ -254,7 +254,7 @@ class ApiClient {
                 errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
+                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن ل��يك حساب";
               } else {
                 errorMessage = "انتهت صلاحية جلسة المستخدم";
                 errorType = "SESSION_EXPIRED";
