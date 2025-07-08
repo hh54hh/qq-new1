@@ -24,6 +24,14 @@ if (!isServerless) {
 
 export const uploadImage: RequestHandler = async (req, res) => {
   try {
+    // Block uploads in serverless environment
+    if (isServerless) {
+      return res.status(501).json({
+        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        message: "File uploads are not supported in serverless environment",
+      });
+    }
+
     const userId = getCurrentUserId(req.headers.authorization);
     if (!userId) {
       return res.status(401).json({ error: "المصادقة مطلوبة" });
