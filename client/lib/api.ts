@@ -58,7 +58,7 @@ class ApiClient {
         hostname.includes("netlify")
       ) {
         console.log("🌐 Detected Netlify deployment, using Functions path");
-        return window.location.origin + "/.netlify/functions/api";
+        return window.location.origin + "/.netlify/functions";
       }
 
       // لجميع البيئات الأخ��ى (fly.dev وغيرها) استخدم /api العادي
