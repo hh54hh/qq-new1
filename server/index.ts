@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { join } from "path";
+import fs from "fs";
+import path from "path";
 
 // Environment variable helper function
 const getEnvVar = (name: string) => {
@@ -63,6 +65,7 @@ import {
   getRecommendations,
 } from "./routes/search";
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
+import { getSystemDiagnostic } from "./routes/system-diagnostic";
 
 // Configure multer for file uploads (only for non-serverless environments)
 let upload: multer.Multer;
@@ -70,9 +73,6 @@ let upload: multer.Multer;
 try {
   if (!process.env.NETLIFY) {
     // Only try to create storage in non-serverless environment
-    const fs = require("fs");
-    const path = require("path");
-
     const uploadsDir = path.join(process.cwd(), "uploads");
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
@@ -296,6 +296,9 @@ function createAppWithRoutes(app: express.Application) {
 
   app.get("/debug", handleDebug);
   app.get("/api/debug", handleDebug);
+
+  // System diagnostic endpoint
+  app.get("/api/system-diagnostic", getSystemDiagnostic);
 
   app.get("/demo", handleDemo);
   app.get("/api/demo", handleDemo);

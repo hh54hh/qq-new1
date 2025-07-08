@@ -20,6 +20,9 @@ import LocationPermissionDialog from "./components/LocationPermissionDialog";
 import DebugPage from "./pages/DebugPage";
 import DiagnosticPage from "./pages/DiagnosticPage";
 import SystemDiagnostic from "./pages/SystemDiagnostic";
+import NetworkDiagnostic from "./pages/NetworkDiagnostic";
+import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
+import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import { Button } from "@/components/ui/button";
 import { User } from "@shared/api";
 import { useAppStore } from "./lib/store";
@@ -48,8 +51,15 @@ const AppContent = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
+    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
+    (window as any).openDiagnostic = () => {
+      window.location.href = "/network-diagnostic";
+      console.log("🔍 تم فتح صفحة التشخيص الشامل");
+    };
+
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
   // Check if we need to show location dialog for existing customers
@@ -163,7 +173,7 @@ const DebugRoute = () => {
           onClick={() => window.history.back()}
           className="mb-4"
         >
-          ← العودة للتطبيق
+          ← ال��ودة للتطبيق
         </Button>
       </div>
       <DebugPage />
@@ -200,8 +210,15 @@ const App = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
+    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
+    (window as any).openDiagnostic = () => {
+      window.location.href = "/network-diagnostic";
+      console.log("🔍 تم فتح صفحة التشخيص الشامل");
+    };
+
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
   return (
@@ -217,6 +234,18 @@ const App = () => {
             <Route path="/debug" element={<DebugRoute />} />
             <Route path="/diagnostic" element={<DiagnosticPage />} />
             <Route path="/system-diagnostic" element={<SystemDiagnostic />} />
+            <Route
+              path="/network-diagnostic"
+              element={<NetworkDiagnosticSimple />}
+            />
+            <Route
+              path="/network-diagnostic-complex"
+              element={<NetworkDiagnostic />}
+            />
+            <Route
+              path="/network-diagnostic-test"
+              element={<NetworkDiagnosticTest />}
+            />
 
             {/* Authenticated routes */}
             <Route path="/dashboard" element={<AppContent />} />
