@@ -67,37 +67,55 @@ import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 // Configure multer for file uploads (only for non-serverless environments)
 let upload: multer.Multer;
 
-if (!process.env.NETLIFY) {
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, "uploads/");
-    },
-    filename: (req, file, cb) => {
-      const userId =
-        req.headers.authorization?.split(" ")[1]?.replace("supabase_", "") ||
-        "unknown";
-      const timestamp = Date.now();
-      const fileExtension = file.originalname.split(".").pop();
-      cb(null, `${userId}_${timestamp}.${fileExtension}`);
-    },
-  });
+try {
+  if (!process.env.NETLIFY) {
+    // Only try to create storage in non-serverless environment
+    const fs = require("fs");
+    const path = require("path");
 
-  upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-    fileFilter: (req, file, cb) => {
-      if (file.mimetype.startsWith("image/")) {
-        cb(null, true);
-      } else {
-        cb(new Error("يجب أن يكون الملف صورة"));
-      }
-    },
-  });
-} else {
-  // Dummy multer for serverless environment
+    const uploadsDir = path.join(process.cwd(), "uploads");
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const storage = multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, "uploads/");
+      },
+      filename: (req, file, cb) => {
+        const userId =
+          req.headers.authorization?.split(" ")[1]?.replace("supabase_", "") ||
+          "unknown";
+        const timestamp = Date.now();
+        const fileExtension = file.originalname.split(".").pop();
+        cb(null, `${userId}_${timestamp}.${fileExtension}`);
+      },
+    });
+
+    upload = multer({
+      storage,
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith("image/")) {
+          cb(null, true);
+        } else {
+          cb(new Error("يجب أن يكون الملف صورة"));
+        }
+      },
+    });
+  } else {
+    // Serverless environment - use memory storage only
+    upload = multer({
+      storage: multer.memoryStorage(),
+      limits: { fileSize: 1024 }, // Very small limit since we don't support uploads
+    });
+  }
+} catch (error) {
+  console.error("Multer configuration error:", error);
+  // Fallback to memory storage if any error occurs
   upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 1024 }, // Very small limit since we don't support uploads
+    limits: { fileSize: 1024 },
   });
 }
 
