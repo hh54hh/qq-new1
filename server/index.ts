@@ -279,6 +279,7 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/debug", handleDebug);
   app.get("/api/debug", handleDebug);
 
+  app.get("/demo", handleDemo);
   app.get("/api/demo", handleDemo);
 
   // Authentication routes
