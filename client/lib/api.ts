@@ -254,7 +254,7 @@ class ApiClient {
                 errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حس��ب جديد إذا لم يكن لديك حساب";
+                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
                 errorMessage = "انتهت صلاحية جلسة المستخدم";
                 errorType = "SESSION_EXPIRED";
@@ -436,7 +436,7 @@ class ApiClient {
     name?: string;
     email?: string;
   }): Promise<{ user: User }> {
-    return this.request<{ user: User }>("/auth/profile", {
+    return this.request<{ user: User }>("/api/auth/profile", {
       method: "PUT",
       body: JSON.stringify(profileData),
     });
