@@ -71,11 +71,18 @@ import { getSystemDiagnostic } from "./routes/system-diagnostic";
 let upload: multer.Multer;
 
 try {
-  if (!process.env.NETLIFY) {
+  if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
     // Only try to create storage in non-serverless environment
     const uploadsDir = path.join(process.cwd(), "uploads");
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    try {
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+    } catch (err) {
+      console.warn(
+        "Cannot create uploads directory in serverless environment:",
+        err,
+      );
     }
 
     const storage = multer.diskStorage({
