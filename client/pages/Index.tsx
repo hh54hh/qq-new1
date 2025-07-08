@@ -18,6 +18,15 @@ const Index = () => {
             <Button
               variant="outline"
               size="sm"
+              onClick={() =>
+                (window.location.href = "/network-diagnostic-test")
+              }
+            >
+              اختبار التشخيص
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => (window.location.href = "/network-diagnostic")}
             >
               التشخيص الشامل
