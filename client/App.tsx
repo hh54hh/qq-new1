@@ -206,13 +206,14 @@ const DebugRoute = () => {
 
 const AuthRoute = () => {
   const [state] = useAppStore();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   // If already logged in, redirect to dashboard
-  if (state.user) {
+  if (state.user || shouldRedirect) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <Auth onAuth={() => (window.location.href = "/dashboard")} />;
+  return <Auth onAuth={() => setShouldRedirect(true)} />;
 };
 
 const IndexRoute = () => {
@@ -240,7 +241,7 @@ const App = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اك��ب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
     console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
