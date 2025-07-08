@@ -18,16 +18,16 @@ const Index = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => (window.location.href = "/system-diagnostic")}
+              onClick={() => (window.location.href = "/network-diagnostic")}
             >
-              فحص النظام
+              التشخيص الشامل
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => (window.location.href = "/debug")}
             >
-              التشخيص
+              التشخيص السريع
             </Button>
             <Button onClick={() => (window.location.href = "/auth")}>
               تسجيل الدخول
