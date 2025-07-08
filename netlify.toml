@@ -59,3 +59,7 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Auto environment setup plugin
+[[plugins]]
+  package = "./netlify/plugins/env-setup"
