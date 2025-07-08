@@ -85,7 +85,7 @@ class ApiClient {
       return;
     }
 
-    // للبيئات الأخرى، اختبر المسارات المختلفة
+    // للبيئات الأخرى، اختبر ال��سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -119,7 +119,7 @@ class ApiClient {
 
     console.warn("⚠️ لم يتم العثور على API على أي من المسارات المتوقعة");
     // في حالة عدم العثور على API، استخدم المسار الافتراضي
-    console.log("🔄 استخدام المسار الافتراضي:", this.baseUrl);
+    console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
 
   setAuthToken(token: string) {
@@ -401,7 +401,7 @@ class ApiClient {
     });
 
     try {
-      const result = await this.request<AuthResponse>("/auth/login", {
+      const result = await this.request<AuthResponse>("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password } as LoginRequest),
       });
