@@ -103,6 +103,16 @@ export default function CustomerDashboard({
   // Explore posts state - loaded from real API
   const [explorePosts, setExplorePosts] = useState<any[]>([]);
 
+  // Debug logging
+  useEffect(() => {
+    console.log("🏠 CustomerDashboard mounted", {
+      userId: user?.id,
+      userRole: user?.role,
+      activeTab,
+      barbersCount: allBarbers.length,
+    });
+  }, []);
+
   useEffect(() => {
     if (searchQuery) {
       setFilteredBarbers(
@@ -1385,7 +1395,7 @@ export default function CustomerDashboard({
                         <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-1">
                           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                           <span>{barber.rating}</span>
-                          <span>•</span>
+                          <span>��</span>
                           <span>{barber.distance} كم</span>
                         </div>
                       </div>
