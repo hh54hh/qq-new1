@@ -133,11 +133,7 @@ export function createServer() {
   const app = express();
 
   // Check if we're in a serverless environment
-  const isServerless = !!(
-    process.env.NETLIFY ||
-    process.env.AWS_LAMBDA_FUNCTION_NAME ||
-    process.env.VERCEL
-  );
+  const isServerless = !!(process.env.NETLIFY || process.env.VERCEL);
 
   // Middleware
   app.use(cors());
