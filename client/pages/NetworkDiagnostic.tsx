@@ -8,10 +8,73 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
+// Conditional imports - only use if components exist
+const safeImport = (componentName: string) => {
+  try {
+    return require(`@/components/ui/${componentName}`);
+  } catch {
+    return null;
+  }
+};
+
+// Basic fallback components
+const TabsComponent = safeImport("tabs");
+const AlertComponent = safeImport("alert");
+const SeparatorComponent = safeImport("separator");
+const ProgressComponent = safeImport("progress");
+
+const { Tabs, TabsContent, TabsList, TabsTrigger } = TabsComponent || {
+  Tabs: ({ children, value, onValueChange, ...props }: any) => (
+    <div {...props}>{children}</div>
+  ),
+  TabsContent: ({ children, value, ...props }: any) => (
+    <div {...props}>{children}</div>
+  ),
+  TabsList: ({ children, ...props }: any) => (
+    <div className="flex gap-2 mb-4" {...props}>
+      {children}
+    </div>
+  ),
+  TabsTrigger: ({ children, value, ...props }: any) => (
+    <button className="px-3 py-1 border rounded" {...props}>
+      {children}
+    </button>
+  ),
+};
+
+const { Alert, AlertDescription, AlertTitle } = AlertComponent || {
+  Alert: ({ children, variant, ...props }: any) => (
+    <div
+      className={`p-4 border rounded ${variant === "destructive" ? "border-red-500 bg-red-50" : "border-yellow-500 bg-yellow-50"}`}
+      {...props}
+    >
+      {children}
+    </div>
+  ),
+  AlertDescription: ({ children, ...props }: any) => (
+    <div {...props}>{children}</div>
+  ),
+  AlertTitle: ({ children, ...props }: any) => (
+    <h4 className="font-bold" {...props}>
+      {children}
+    </h4>
+  ),
+};
+
+const { Separator } = SeparatorComponent || {
+  Separator: ({ ...props }: any) => <hr className="my-4" {...props} />,
+};
+
+const { Progress } = ProgressComponent || {
+  Progress: ({ value, ...props }: any) => (
+    <div className="w-full bg-gray-200 rounded-full h-2" {...props}>
+      <div
+        className="bg-blue-600 h-2 rounded-full"
+        style={{ width: `${value}%` }}
+      ></div>
+    </div>
+  ),
+};
 import {
   AlertTriangle,
   CheckCircle,
@@ -216,7 +279,7 @@ const NetworkDiagnostic: React.FC = () => {
   const testSupabase = async (index: number) => {
     updateDiagnostic(index, {
       status: "loading",
-      message: "جاري فحص قاعدة البيانات...",
+      message: "جاري فحص قاعدة ال��يانات...",
     });
     const startTime = Date.now();
 
@@ -266,7 +329,7 @@ const NetworkDiagnostic: React.FC = () => {
       if (response.ok) {
         updateDiagnostic(index, {
           status: "success",
-          message: `نظام المصادقة يع��ل (${timing}ms)`,
+          message: `نظام المصادقة يعمل (${timing}ms)`,
           details: data,
           timing,
         });
@@ -301,7 +364,7 @@ const NetworkDiagnostic: React.FC = () => {
         VITE_SUPABASE_ANON_KEY: import.meta.env?.VITE_SUPABASE_ANON_KEY
           ? "موجود"
           : "غير موجود",
-        MODE: import.meta.env?.MODE || "غير محدد",
+        MODE: import.meta.env?.MODE || "غير محد��",
         DEV: import.meta.env?.DEV || false,
         PROD: import.meta.env?.PROD || false,
       };
