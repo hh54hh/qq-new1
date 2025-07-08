@@ -20,6 +20,7 @@ import LocationPermissionDialog from "./components/LocationPermissionDialog";
 import DebugPage from "./pages/DebugPage";
 import DiagnosticPage from "./pages/DiagnosticPage";
 import SystemDiagnostic from "./pages/SystemDiagnostic";
+import NetworkDiagnostic from "./pages/NetworkDiagnostic";
 import { Button } from "@/components/ui/button";
 import { User } from "@shared/api";
 import { useAppStore } from "./lib/store";
