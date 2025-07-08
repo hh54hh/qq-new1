@@ -72,9 +72,6 @@ let upload: multer.Multer;
 try {
   if (!process.env.NETLIFY) {
     // Only try to create storage in non-serverless environment
-    const fs = require("fs");
-    const path = require("path");
-
     const uploadsDir = path.join(process.cwd(), "uploads");
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
