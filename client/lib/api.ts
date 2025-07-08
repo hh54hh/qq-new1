@@ -79,7 +79,7 @@ class ApiClient {
 
     // إذا كان على Netlify، استخدم مسار Functions مباشرة دون اختبار
     if (hostname.includes("netlify")) {
-      this.baseUrl = window.location.origin + "/.netlify/functions/api";
+      this.baseUrl = window.location.origin + "/.netlify/functions";
       this.apiUrlVerified = true;
       console.log("✅ Netlify detected - using functions path directly");
       return;
@@ -117,7 +117,7 @@ class ApiClient {
       }
     }
 
-    console.warn("⚠️ لم يتم العثور على API على أي من المسارات المتوقعة");
+    console.warn("⚠️ لم يتم العثور على API على أي من المسارات المت��قعة");
     // في حالة عدم العثور على API، استخدم المسار الافتراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
@@ -246,7 +246,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة، يرجى التحقق من جميع الحقول";
+                "البيانات المد��لة غير صحيحة، يرجى الت��قق من جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -271,7 +271,7 @@ class ApiClient {
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
-              errorMessage = "خ��مة API غير متوفرة - مشكلة في إعدادات الخادم";
+              errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم الفني على: 07800657822";
