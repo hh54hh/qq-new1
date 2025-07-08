@@ -36,6 +36,7 @@ const AppContent = () => {
   const [state, store] = useAppStore();
   const [activeTab, setActiveTab] = useState("home");
   const [showLocationDialog, setShowLocationDialog] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const { isPermissionRequested } = useLocation();
 
   // Enable message notifications
@@ -43,7 +44,17 @@ const AppContent = () => {
 
   // Initialize authentication on app start
   useEffect(() => {
-    store.initializeAuth();
+    const initAuth = async () => {
+      try {
+        await store.initializeAuth();
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        setIsAuthLoading(false);
+      }
+    };
+
+    initAuth();
 
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
@@ -57,7 +68,7 @@ const AppContent = () => {
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
     };
 
-    console.log("💡 نصائح مفيدة:");
+    console.log("���� نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
     console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
