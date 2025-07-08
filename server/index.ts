@@ -67,22 +67,31 @@ import {
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 import { getSystemDiagnostic } from "./routes/system-diagnostic";
 
-// Configure multer for file uploads (only for non-serverless environments)
+// Configure multer for file uploads
 let upload: multer.Multer;
 
+// Check if we're in a serverless environment
+const isServerless = !!(
+  process.env.NETLIFY ||
+  process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  process.env.VERCEL
+);
+
 try {
-  if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    // Only try to create storage in non-serverless environment
+  if (isServerless) {
+    // Serverless environment - use memory storage only
+    console.log("Serverless environment detected - using memory storage");
+    upload = multer({
+      storage: multer.memoryStorage(),
+      limits: { fileSize: 1 * 1024 * 1024 }, // 1MB limit for serverless
+    });
+  } else {
+    // Local/traditional server environment
+    console.log("Traditional server environment - using disk storage");
     const uploadsDir = path.join(process.cwd(), "uploads");
-    try {
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-      }
-    } catch (err) {
-      console.warn(
-        "Cannot create uploads directory in serverless environment:",
-        err,
-      );
+
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
     const storage = multer.diskStorage({
@@ -109,13 +118,6 @@ try {
           cb(new Error("يجب أن يكون الملف صورة"));
         }
       },
-    });
-  } else {
-    // Serverless environment - use memory storage only
-    console.log("Using memory storage for serverless environment");
-    upload = multer({
-      storage: multer.memoryStorage(),
-      limits: { fileSize: 1024 }, // Very small limit since we don't support uploads
     });
   }
 } catch (error) {
