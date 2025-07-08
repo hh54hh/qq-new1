@@ -326,10 +326,13 @@ function createAppWithRoutes(app: express.Application) {
   app.put("/api/auth/profile", handleUpdateProfile);
   app.put("/auth/profile", handleUpdateProfile);
 
-  // Test routes (for development)
+  // Test routes (for development) - both /api and direct paths
   app.get("/api/create-test-user", createTestUser);
+  app.get("/create-test-user", createTestUser);
   app.post("/api/debug-login", debugLogin);
+  app.post("/debug-login", debugLogin);
   app.get("/api/reset-test-password", resetTestPassword);
+  app.get("/reset-test-password", resetTestPassword);
 
   // Barbers routes
   app.get("/api/barbers", getBarbers);
@@ -396,7 +399,7 @@ function createAppWithRoutes(app: express.Application) {
     // Serverless mode - disable file uploads or handle them differently
     app.post("/api/upload/image", (req, res) => {
       res.status(501).json({
-        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        error: "��فع الملفات غير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
         suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
       });
