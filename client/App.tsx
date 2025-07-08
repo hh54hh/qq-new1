@@ -49,8 +49,15 @@ const AppContent = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
+    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
+    (window as any).openDiagnostic = () => {
+      window.location.href = "/network-diagnostic";
+      console.log("🔍 تم فتح صفحة التشخيص الشامل");
+    };
+
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
   // Check if we need to show location dialog for existing customers
@@ -201,8 +208,15 @@ const App = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
+    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
+    (window as any).openDiagnostic = () => {
+      window.location.href = "/network-diagnostic";
+      console.log("🔍 تم فتح صفحة التشخيص الشامل");
+    };
+
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
   return (
