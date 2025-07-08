@@ -1,6 +1,6 @@
-# Updated: Force fresh deploy
+# Updated: Force fresh deploy - using ES module
 [build]
-    command = "npm ci && node scripts/netlify-build.cjs"
+    command = "npm ci && node scripts/netlify-build.js"
   functions = "netlify/functions"
   publish = "dist/spa"
 
