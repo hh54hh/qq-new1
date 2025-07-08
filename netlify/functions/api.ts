@@ -14,7 +14,6 @@ const initializeApp = () => {
 
       // Set environment variables for serverless detection
       process.env.NETLIFY = "true";
-      process.env.AWS_LAMBDA_FUNCTION_NAME = "netlify-functions";
 
       app = createServerlessServer();
 
