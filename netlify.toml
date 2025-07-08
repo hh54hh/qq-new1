@@ -11,9 +11,11 @@
   CI = "true"
   NODE_ENV = "production"
   NETLIFY = "true"
-  # Auto-configured Supabase environment variables
+  # Supabase environment variables - required for database connection
   VITE_SUPABASE_URL = "https://yrsvksgkxjiogjuaeyvd.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlyc3Zrc2dreGppb2dqdWFleXZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDMzMDMsImV4cCI6MjA2NzM3OTMwM30.-haPW80fiZMWYCm83TXvwZ2kHHBhcvhWAc6jPYdlUXM"
+  # Additional serverless configuration
+  AWS_LAMBDA_FUNCTION_NAME = "netlify-functions"
 
 [functions]
   node_bundler = "esbuild"
