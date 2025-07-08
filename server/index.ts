@@ -132,6 +132,13 @@ try {
 export function createServer() {
   const app = express();
 
+  // Check if we're in a serverless environment
+  const isServerless = !!(
+    process.env.NETLIFY ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.VERCEL
+  );
+
   // Middleware
   app.use(cors());
   app.use(express.json({ limit: "10mb" })); // Increased limit for image uploads
