@@ -171,17 +171,19 @@ function createAppWithRoutes(app: express.Application) {
     },
   );
 
-  // Health check and debugging routes
-  app.get("/api/ping", (_req, res) => {
+  // Health check and debugging routes - handle both /api and root paths
+  const handlePing = (_req: express.Request, res: express.Response) => {
     try {
       res.json({
-        message: "Hello from Express server v4!",
+        message: "Hello from Express server v5!",
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || "development",
         serverless: !!process.env.NETLIFY,
-        version: "4.0.0",
+        version: "5.0.0",
         supabase_configured: true,
         auto_config: true,
+        path: _req.path,
+        url: _req.url,
       });
     } catch (error) {
       console.error("Ping endpoint error:", error);
@@ -190,7 +192,10 @@ function createAppWithRoutes(app: express.Application) {
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  });
+  };
+
+  app.get("/ping", handlePing);
+  app.get("/api/ping", handlePing);
 
   // Environment check endpoint
   app.get("/api/health", (_req, res) => {
