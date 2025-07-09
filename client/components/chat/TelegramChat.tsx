@@ -48,6 +48,10 @@ export default function TelegramChat({
   onBack,
   initialConversationId,
 }: TelegramChatProps) {
+  console.log(
+    "💬 [TELEGRAM-CHAT] بدء مع initialConversationId:",
+    initialConversationId,
+  );
   // State management
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] =
