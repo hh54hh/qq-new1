@@ -239,8 +239,20 @@ export default function ImprovedChatOverlay({
     };
   }, [isVisible]);
 
-  if (!isVisible) return null;
+  // جميع الـ callbacks يجب أن تكون قبل أي عودة مبكرة
+  const retryFailedMessage = useCallback(
+    async (messageId: string) => {
+      if (!selectedConversation) return;
+      try {
+        await chatManager.retryMessage(messageId, selectedConversation.id);
+      } catch (error) {
+        console.error("فشل في إعادة الإرسال:", error);
+      }
+    },
+    [selectedConversation],
+  );
 
+  // وظائف عادية (ليست hooks)
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString("ar-SA", {
@@ -268,17 +280,8 @@ export default function ImprovedChatOverlay({
     }
   };
 
-  const retryFailedMessage = useCallback(
-    async (messageId: string) => {
-      if (!selectedConversation) return;
-      try {
-        await chatManager.retryMessage(messageId, selectedConversation.id);
-      } catch (error) {
-        console.error("فشل في إعادة الإرسال:", error);
-      }
-    },
-    [selectedConversation],
-  );
+  // العودة المبكرة يجب أن تكون بعد جميع الـ hooks
+  if (!isVisible) return null;
 
   return (
     <AnimatePresence>
