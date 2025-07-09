@@ -42,7 +42,7 @@ import RatingPage from "./RatingPage";
 import SearchPage from "./SearchPage";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
-// import MessagesPage from "./MessagesPage"; // تم استبداله بنظام محسن
+
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
 
@@ -636,7 +636,7 @@ export default function CustomerDashboard({
           id: Date.now().toString(),
           type: "friend_request",
           title: "خطأ في المتابعة",
-          message: "حدث خطأ أثناء تحديث حالة المتابعة، يرجى المحاولة مرة أخرى",
+          message: "حدث خطأ أثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
           read: false,
           created_at: new Date().toISOString(),
@@ -1609,7 +1609,7 @@ export default function CustomerDashboard({
                 لا توجد حلا��ين قريبين
               </h3>
               <p className="text-muted-foreground mb-4">
-                سنعرض لك الحلاقين ا��متاحين في منطقتك قريباً
+                سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
                 تحديث الموقع
@@ -1647,7 +1647,7 @@ export default function CustomerDashboard({
 
   const renderSearch = () => (
     <div className="p-4 space-y-4">
-      {/* شريط البحث */}
+      {/* شريط البح�� */}
       <div className="relative">
         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
