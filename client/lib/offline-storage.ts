@@ -95,6 +95,14 @@ class OfflineStorageManager {
       throw new Error("Database not initialized");
     }
 
+    if (!this.db.objectStoreNames.contains(storeName)) {
+      console.warn(
+        `Store '${storeName}' not found. Available stores:`,
+        Array.from(this.db.objectStoreNames),
+      );
+      throw new Error(`Object store '${storeName}' not found`);
+    }
+
     const actualId = id || this.generateId();
     const offlineData: OfflineData = {
       id: actualId,
