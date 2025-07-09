@@ -109,7 +109,7 @@ class OfflineStorageManager {
       type: type || "generic",
       data,
       timestamp: Date.now(),
-      synced: false,
+      synced: 0, // استخدام 0 بدلاً من false
     };
 
     return new Promise((resolve, reject) => {
