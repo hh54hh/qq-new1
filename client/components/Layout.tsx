@@ -198,7 +198,7 @@ export default function Layout({
                 <button
                   onClick={onLogout}
                   className="text-xs text-muted-foreground hover:text-destructive transition-colors ml-1 sm:ml-2"
-                  title="تسجيل خروج"
+                  title="تسجيل خ��وج"
                 >
                   خروج
                 </button>
@@ -209,7 +209,9 @@ export default function Layout({
       </header>
 
       {/* Main Content */}
-      <main className="pb-20 min-h-[calc(100vh-80px)]">{children}</main>
+      <main className="pb-20 min-h-[calc(100vh-80px)] w-full max-w-full overflow-hidden">
+        {children}
+      </main>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-card/90 backdrop-blur-md border-t border-border/50 px-1 sm:px-2 py-2 z-50">
