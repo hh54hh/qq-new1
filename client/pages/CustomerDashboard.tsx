@@ -293,7 +293,7 @@ export default function CustomerDashboard({
         id: "friend_req_1",
         type: "friend_request" as const,
         title: "طلب صداقة جديد",
-        message: "أحمد الحلاق يريد متابعتك",
+        message: "أحمد الحلاق يري�� متابعتك",
         data: {
           senderId: "barber_1",
           senderName: "أحمد الحلاق",
@@ -411,9 +411,64 @@ export default function CustomerDashboard({
       setFilteredBarbers(enhancedBarbers);
     } catch (error) {
       console.error("❌ Error loading barbers:", error);
-      // Set empty arrays on error to prevent crashes
-      setAllBarbers([]);
-      setFilteredBarbers([]);
+
+      // More detailed error logging
+      if (error instanceof Error) {
+        console.error("�� Error message:", error.message);
+        console.error("❌ Error stack:", error.stack);
+      }
+
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        console.error("🌐 Network error - API might be unavailable");
+      }
+
+      // Set some dummy data for testing if we're in development
+      if (process.env.NODE_ENV === "development") {
+        console.log("🧪 Setting dummy barbers for development testing...");
+        const dummyBarbers = [
+          {
+            id: "dummy-1",
+            name: "حلاق تجريبي 1",
+            email: "test1@test.com",
+            role: "barber" as const,
+            status: "active" as const,
+            level: 50,
+            points: 500,
+            is_verified: true,
+            created_at: new Date().toISOString(),
+            rating: 4.5,
+            followers: 25,
+            distance: 1.2,
+            price: 40,
+            isFollowed: false,
+            avatar_url: "https://i.pravatar.cc/150?img=1",
+          },
+          {
+            id: "dummy-2",
+            name: "حلاق تجريبي 2",
+            email: "test2@test.com",
+            role: "barber" as const,
+            status: "active" as const,
+            level: 80,
+            points: 800,
+            is_verified: true,
+            created_at: new Date().toISOString(),
+            rating: 4.8,
+            followers: 45,
+            distance: 2.1,
+            price: 50,
+            isFollowed: false,
+            avatar_url: "https://i.pravatar.cc/150?img=2",
+          },
+        ];
+        setAllBarbers(dummyBarbers);
+        setFilteredBarbers(dummyBarbers);
+      } else {
+        // Set empty arrays in production
+        setAllBarbers([]);
+        setFilteredBarbers([]);
+      }
     } finally {
       store.setLoading(false);
     }
@@ -1975,7 +2030,7 @@ export default function CustomerDashboard({
             onClick={() => setShowEditProfile(true)}
           >
             <UserIcon className="h-4 w-4" />
-            تع��يل ��لملف الشخصي
+            تع���يل ��لملف الشخصي
           </Button>
           <Button
             variant="destructive"
