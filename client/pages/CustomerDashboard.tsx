@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import EnhancedMessagesPage from "./EnhancedMessagesPage";
 import {
   Dialog,
   DialogContent,
@@ -1888,7 +1889,7 @@ export default function CustomerDashboard({
                     <div className="flex-1">
                       <h4 className="font-medium">
                         {follower.follower?.name ||
-                          `مستخدم ${follower.follower_id.slice(-4)}`}
+                          `م��تخدم ${follower.follower_id.slice(-4)}`}
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         {follower.follower?.role === "barber" ? "حلاق" : "زبون"}
