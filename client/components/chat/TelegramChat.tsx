@@ -130,16 +130,19 @@ export default function TelegramChat({
       setConversations(convertedConversations);
 
       // Auto-select initial conversation if provided
-      if (initialConversationId && conversations.length > 0) {
+      if (initialConversationId && convertedConversations.length > 0) {
         const targetConversation = convertedConversations.find(
           (c) => c.id === initialConversationId,
         );
         if (targetConversation) {
+          console.log("🎯 فتح المحادثة:", targetConversation.name);
           setActiveConversation(targetConversation);
           loadMessages(targetConversation.id);
           if (isMobile) {
             setShowConversations(false);
           }
+        } else {
+          console.warn("⚠️ لم يتم العثور على المحادثة:", initialConversationId);
         }
       }
     } catch (error) {
