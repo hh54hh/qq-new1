@@ -88,12 +88,20 @@ export default function TelegramChat({
       "message:failed",
       handleMessageFailed,
     );
+    const unsubscribeConversationCreated = chatManager.on(
+      "conversation:created",
+      () => {
+        console.log("🔄 إعادة تحميل المحادثات بعد إنشاء محادثة جديدة");
+        loadConversations();
+      },
+    );
 
     return () => {
       window.removeEventListener("resize", checkMobile);
       unsubscribeNew();
       unsubscribeSent();
       unsubscribeFailed();
+      unsubscribeConversationCreated();
     };
   }, []);
 
