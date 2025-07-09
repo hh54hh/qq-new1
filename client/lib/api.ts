@@ -49,7 +49,7 @@ class ApiClient {
         return window.location.origin + "/api";
       }
 
-      // في ��يئة الإنتاج - تحقق من نوع النشر
+      // في بيئة الإنتاج - تحقق من نوع النشر
       const hostname = window.location.hostname;
 
       // إذا كان على Netlify (أي موقع يحتوي ��لى netlify في الاسم)
@@ -96,7 +96,7 @@ class ApiClient {
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
-          console.log(`⏰ انتهت مهلة الاختبار لـ ${path}`);
+          console.log(`⏰ انتهت مهلة الاختبار لـ ${path} (5 ثواني)`);
           controller.abort();
         }, 5000);
 
@@ -160,7 +160,7 @@ class ApiClient {
     return headers;
   }
 
-  // دالة للتحقق من صحة auth token
+  // دا��ة للتحقق من صحة auth token
   private checkAuthToken(endpoint: string): boolean {
     // المسارات التي تحتاج authentication
     const protectedPaths = [
@@ -279,8 +279,7 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage =
-                  "البريد الإلكت��وني أو ����لمة المرور ��ير صحيحة";
+                errorMessage = "البريد الإلكت��وني أو ��لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -303,7 +302,7 @@ class ApiClient {
               errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
-                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لف��ي على: 07800657822";
+                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
               errorMessage = "البيانات موجودة بالفعل في النظام";
@@ -399,7 +398,7 @@ class ApiClient {
 
         if (error.message.includes("Failed to fetch")) {
           networkErrorMessage = "فشل في الاتصال بالخادم";
-          suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
+          suggestion = "تحقق من اتصال الإنترنت أو أ�� الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
           networkErrorMessage = "خطأ في ا����شبكة";
           suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
@@ -437,7 +436,7 @@ class ApiClient {
       });
 
       const unexpectedError = new Error(
-        "حدث خطأ غير متوقع، يرجى المحاولة ��رة أخرى",
+        "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى",
       ) as any;
       unexpectedError.errorType = "UNEXPECTED_ERROR";
       unexpectedError.originalError =
@@ -472,7 +471,7 @@ class ApiClient {
       // إذا كان يمكن إعادة المحاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
-          console.log(`🔄 إعاد�� المحاولة لـ ${endpoint}`);
+          console.log(`🔄 إعادة المحاولة لـ ${endpoint}`);
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return await this.request<T>(endpoint, options);
         } catch (retryError) {
