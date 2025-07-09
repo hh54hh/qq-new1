@@ -184,7 +184,7 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    // التحقق من صحة مسار API إذا لم يتم التحقق مسبقاً
+    // التحقق من صحة مس��ر API إذا لم يتم التحقق مسبقاً
     await this.verifyApiUrl();
 
     // التحقق من auth token للمسارات المحمية
@@ -255,7 +255,7 @@ class ApiClient {
                 errorMessage = "البريد الإلكت��وني أو ��لمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
+                  "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
                 errorMessage = "انتهت صلاحية ج��سة المستخدم";
                 errorType = "SESSION_EXPIRED";
@@ -755,7 +755,7 @@ class ApiClient {
         id: Date.now().toString(),
         user: {
           id: "current",
-          name: "أنت",
+          name: "أ��ت",
           avatar_url: null,
         },
         comment,
@@ -855,11 +855,21 @@ class ApiClient {
 
   // Messages
   async getConversations(): Promise<{ conversations: any[] }> {
-    return this.request<{ conversations: any[] }>("/messages/conversations");
+    const fallbackData = { conversations: [] };
+    return this.requestWithFallback<{ conversations: any[] }>(
+      "/messages/conversations",
+      {},
+      fallbackData,
+    );
   }
 
   async getMessages(otherUserId: string): Promise<{ messages: any[] }> {
-    return this.request<{ messages: any[] }>(`/messages/${otherUserId}`);
+    const fallbackData = { messages: [] };
+    return this.requestWithFallback<{ messages: any[] }>(
+      `/messages/${otherUserId}`,
+      {},
+      fallbackData,
+    );
   }
 
   async sendMessage(messageData: {
@@ -880,7 +890,12 @@ class ApiClient {
   }
 
   async getUnreadMessageCount(): Promise<{ count: number }> {
-    return this.request<{ count: number }>("/messages/unread-count");
+    const fallbackData = { count: 0 };
+    return this.requestWithFallback<{ count: number }>(
+      "/messages/unread-count",
+      {},
+      fallbackData,
+    );
   }
 
   async deleteConversation(otherUserId: string): Promise<{ success: boolean }> {
