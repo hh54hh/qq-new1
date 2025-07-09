@@ -69,7 +69,7 @@ const AppContent = () => {
 
     initAuth();
 
-    // إضافة دالة عالمية لفتح صفحة الت��خيص
+    // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
@@ -109,6 +109,11 @@ const AppContent = () => {
 
   const handleLocationDialogComplete = () => {
     setShowLocationDialog(false);
+  };
+
+  const handleStartChat = (targetUser: User) => {
+    setChatTargetUser(targetUser);
+    setShowChat(true);
   };
 
   // Show loading while checking authentication
@@ -171,6 +176,17 @@ const AppContent = () => {
           </div>
         )}
       </Layout>
+
+      {/* نظام الدردشة المحسن */}
+      <StableChatManager
+        user={state.user}
+        targetUser={chatTargetUser}
+        isVisible={showChat}
+        onBack={() => {
+          setShowChat(false);
+          setChatTargetUser(undefined);
+        }}
+      />
     </>
   );
 };
