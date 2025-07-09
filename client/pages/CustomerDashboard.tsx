@@ -431,7 +431,7 @@ export default function CustomerDashboard({
         const dummyBarbers = [
           {
             id: "dummy-1",
-            name: "حلاق تجريبي 1",
+            name: "حلاق تجر��بي 1",
             email: "test1@test.com",
             role: "barber" as const,
             status: "active" as const,
@@ -1199,20 +1199,6 @@ export default function CustomerDashboard({
         onSave={(updatedUser) => {
           // User is already updated in store by EditProfilePage
           setShowEditProfile(false);
-        }}
-      />
-    );
-  }
-
-  // Show messages
-  if (showMessages) {
-    return (
-      <MessagesPage
-        user={user}
-        targetUser={messageTargetUser}
-        onBack={() => {
-          setShowMessages(false);
-          setMessageTargetUser(null);
         }}
       />
     );
