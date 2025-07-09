@@ -23,11 +23,14 @@ import SystemDiagnostic from "./pages/SystemDiagnostic";
 import NetworkDiagnostic from "./pages/NetworkDiagnostic";
 import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
+import OfflinePage from "./pages/OfflinePage";
+import PWAManager from "./components/PWAManager";
 import { Button } from "@/components/ui/button";
 import { User } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
 import { useMessageNotifications } from "./hooks/use-message-notifications";
+import { usePWA, useNetworkStatus } from "./hooks/use-pwa";
 
 const queryClient = new QueryClient();
 
@@ -59,7 +62,7 @@ const AppContent = () => {
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
-      console.log("🔧 تم فتح صفحة التشخيص");
+      console.log("🔧 تم فتح ��فحة التشخيص");
     };
 
     // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
@@ -217,6 +220,12 @@ const AuthRoute = () => {
 };
 
 const IndexRoute = () => {
+  const { isOnline } = useNetworkStatus();
+
+  if (!isOnline) {
+    return <OfflinePage onRetry={() => window.location.reload()} />;
+  }
+
   return <Index />;
 };
 
@@ -239,7 +248,7 @@ const App = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التش��يص");
     console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -268,6 +277,7 @@ const App = () => {
               path="/network-diagnostic-test"
               element={<NetworkDiagnosticTest />}
             />
+            <Route path="/offline" element={<OfflinePage />} />
 
             {/* Authenticated routes */}
             <Route path="/dashboard" element={<AppContent />} />
