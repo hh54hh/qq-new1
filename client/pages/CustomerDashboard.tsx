@@ -338,10 +338,22 @@ export default function CustomerDashboard({
     try {
       store.setLoading(true);
       console.log("📡 Fetching barbers from API...");
+      console.log("🌐 API Base URL:", (apiClient as any).baseUrl);
+
+      // Test API connectivity first
+      try {
+        console.log("🏓 Testing ping endpoint...");
+        const pingResponse = await fetch("/api/ping");
+        console.log("🏓 Ping response:", pingResponse.status, pingResponse.ok);
+      } catch (pingError) {
+        console.warn("⚠️ Ping failed:", pingError);
+      }
 
       // Load barbers
       const barbersResponse = await apiClient.getBarbers();
       console.log("📋 Barbers response:", barbersResponse);
+      console.log("📋 Barbers data:", barbersResponse.barbers);
+      console.log("📋 Barbers count:", barbersResponse.barbers?.length || 0);
       const barbers = barbersResponse.barbers || [];
 
       // Load real follow data - handle network errors gracefully
@@ -751,7 +763,7 @@ export default function CustomerDashboard({
       case "pending":
         return "با�����تظار";
       case "accepted":
-        return "مق��ول";
+        return "مق��و��";
       case "rejected":
         return "مرفوض";
       case "cancelled":
@@ -860,7 +872,7 @@ export default function CustomerDashboard({
                         handleToggleFollow(barber.id, barber.isFollowed)
                       }
                     >
-                      إلغاء المتابعة
+                      إلغاء المت��بعة
                     </Button>
                     <Button
                       size="sm"
@@ -1612,7 +1624,7 @@ export default function CustomerDashboard({
         <div className="text-center py-12">
           <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">
-            لا توجد منشورات مميزة
+            لا ��وجد منشورات مميزة
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
@@ -1819,9 +1831,7 @@ export default function CustomerDashboard({
             {profileFollowers.length === 0 && (
               <div className="text-center py-8">
                 <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
-                  لا يوجد متا��عين حاليا��
-                </p>
+                <p className="text-muted-foreground">لا يوجد متا��عين حالياً</p>
               </div>
             )}
           </div>
