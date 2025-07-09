@@ -157,6 +157,7 @@ const AppContent = () => {
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
+            onStartChat={handleStartChat}
           />
         ) : state.user.role === "barber" ? (
           <BarberDashboard
@@ -288,7 +289,7 @@ const App = () => {
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
-      console.log("🔧 تم فتح صفحة التشخيص");
+      console.log("🔧 تم فتح صف��ة التشخيص");
     };
 
     // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
