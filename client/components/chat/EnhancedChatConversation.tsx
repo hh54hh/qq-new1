@@ -202,7 +202,7 @@ export default function EnhancedChatConversation({
             id: "welcome_msg",
             sender_id: conversation.user.id,
             receiver_id: user.id,
-            content: "مرح��اً بك! 👋 كيف يمكنني مساعدتك اليوم؟",
+            content: "مرحباً بك! 👋 كيف يمكنني مساعدتك اليوم؟",
             created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
             read: true,
             message_type: "text",
@@ -232,6 +232,13 @@ export default function EnhancedChatConversation({
       replyToMessage?.id,
     );
 
+    console.log("إنشاء رسالة جديدة:", {
+      id: tempMessage.id,
+      content: tempMessage.content,
+      messageContent: messageContent,
+      tempMessage: tempMessage,
+    });
+
     // إضافة الرسالة محلياً أولاً
     setMessages((prev) => [...prev, tempMessage]);
     chatStorage.addMessage(conversation.user.id, tempMessage);
@@ -256,6 +263,13 @@ export default function EnhancedChatConversation({
           delivery_status: "sent",
           isOffline: false,
         };
+
+        console.log("تحديث رسالة مرسلة:", {
+          id: sentMessage.id,
+          content: sentMessage.content,
+          response: response,
+          sentMessage: sentMessage,
+        });
 
         setMessages((prev) =>
           prev.map((msg) => (msg.id === tempMessage.id ? sentMessage : msg)),
@@ -646,7 +660,7 @@ export default function EnhancedChatConversation({
                                 <Star className="h-3 w-3 text-yellow-400 fill-current shrink-0" />
                               )}
 
-                              {/* مؤشر ��لرسالة غير المتصلة */}
+                              {/* مؤشر الرسالة غير المتصلة */}
                               {message.isOffline && (
                                 <WifiOff className="h-3 w-3 text-gray-400 shrink-0" />
                               )}
