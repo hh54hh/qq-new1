@@ -179,8 +179,14 @@ export default function EnhancedMessagesPage({
       <TelegramChat
         currentUserId={state.user.id}
         onBack={handleBack}
-        initialConversationId={targetConversationId}
+        initialConversationId={finalConversationId || targetConversationId}
       />
+      {targetUserId && (
+        <div className="fixed bottom-4 left-4 bg-blue-500 text-white p-2 rounded text-xs z-50">
+          💬 Debug: targetUserId={targetUserId}, finalConversationId=
+          {finalConversationId}
+        </div>
+      )}
     </div>
   );
 }
