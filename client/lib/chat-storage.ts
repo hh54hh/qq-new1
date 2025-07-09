@@ -7,7 +7,7 @@ interface StoredMessage {
   content: string;
   created_at: string;
   read: boolean;
-  message_type?: "text" | "image" | "voice" | "system";
+  message_type?: "text" | "image" | "voice" | "system" | "location";
   delivery_status?: "sending" | "sent" | "delivered" | "read" | "failed";
   reply_to?: string;
   is_starred?: boolean;
@@ -47,7 +47,7 @@ class ChatStorage {
       const allMessages = this.getAllStoredMessages();
       return allMessages[conversationId] || [];
     } catch (error) {
-      console.error("خطأ في جلب ��لرسائل:", error);
+      console.error("خطأ في جلب الرسائل:", error);
       return [];
     }
   }
@@ -130,7 +130,7 @@ class ChatStorage {
       const stored = localStorage.getItem(this.CONVERSATIONS_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error("خطأ في جلب ال��حادثات:", error);
+      console.error("خطأ في جلب المحادثات:", error);
       return [];
     }
   }
