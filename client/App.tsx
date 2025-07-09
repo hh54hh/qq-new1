@@ -87,7 +87,7 @@ const AppContent = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
-    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
+    // إضافة دالة عالمية ��فتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
@@ -193,8 +193,13 @@ const AppContent = () => {
             activeTab={activeTab}
             onLogout={handleLogout}
             onStartChat={(user) => {
+              console.log("💬 [APP-BARBER] بدء محادثة مع:", user.id, user.name);
               setTargetChatUserId(user.id);
               setActiveTab("messages");
+              console.log(
+                "💬 [APP-BARBER] تم تغيير activeTab إلى messages, targetChatUserId:",
+                user.id,
+              );
             }}
             targetChatUserId={targetChatUserId}
           />
