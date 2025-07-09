@@ -56,9 +56,15 @@ class OfflineStorageManager {
         reject(new Error("Failed to open IndexedDB"));
       };
 
-      request.onsuccess = () => {
+      request.onsuccess = async () => {
         this.db = request.result;
         console.log("✅ IndexedDB initialized successfully");
+
+        // Cleanup old boolean data if this is an upgrade
+        if (this.options.version > 1) {
+          await this.cleanupOldBooleanData();
+        }
+
         resolve();
       };
 
