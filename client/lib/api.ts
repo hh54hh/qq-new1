@@ -95,7 +95,10 @@ class ApiClient {
         console.log(`⏳ ��ختبار: ${testUrl}`);
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => {
+          console.log(`⏰ انتهت مهلة الاختبار لـ ${path}`);
+          controller.abort();
+        }, 5000);
 
         const response = await fetch(testUrl, {
           method: "GET",
@@ -912,7 +915,7 @@ class ApiClient {
       throw new Error("محتوى الرسالة فارغ");
     }
 
-    console.log("📤 إرسال رسالة عبر API:", {
+    console.log("📤 إر��ال رسالة عبر API:", {
       receiver_id: messageData.receiver_id,
       content_length: messageData.content.length,
       message_type: messageData.message_type || "text",
