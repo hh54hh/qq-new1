@@ -412,6 +412,16 @@ class OfflineStorageManager {
     }
   }
 
+  private isValidIndexDBKey(key: any): boolean {
+    // IndexedDB يدعم numbers, strings, dates, arrays - لكن لا يدعم booleans
+    return (
+      typeof key === "number" ||
+      typeof key === "string" ||
+      key instanceof Date ||
+      Array.isArray(key)
+    );
+  }
+
   private generateId(): string {
     return `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
