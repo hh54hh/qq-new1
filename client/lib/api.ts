@@ -436,7 +436,7 @@ class ApiClient {
     name?: string;
     email?: string;
   }): Promise<{ user: User }> {
-    return this.request<{ user: User }>("/api/auth/profile", {
+    return this.request<{ user: User }>("/auth/profile", {
       method: "PUT",
       body: JSON.stringify(profileData),
     });
