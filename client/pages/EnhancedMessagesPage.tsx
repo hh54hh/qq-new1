@@ -64,7 +64,7 @@ export default function EnhancedMessagesPage({
 
   const handleTargetUser = async (userId: string) => {
     try {
-      console.log("🗨️ إنشاء محادثة مع:", userId);
+      console.log("🗨️ [HANDLE-TARGET-USER] إنشاء محادثة مع:", userId);
 
       // Get user name from API or use fallback
       let userName = "مستخدم";
@@ -87,10 +87,17 @@ export default function EnhancedMessagesPage({
       );
 
       if (conversation) {
-        console.log("✅ تم إنشاء المحادثة:", conversation.id);
+        console.log(
+          "✅ [HANDLE-TARGET-USER] تم إنشاء المحادثة:",
+          conversation.id,
+        );
         setTargetConversationId(conversation.id);
+        console.log(
+          "✅ [HANDLE-TARGET-USER] تم تعيين targetConversationId إلى:",
+          conversation.id,
+        );
       } else {
-        console.error("❌ فشل في إنشاء المحادثة");
+        console.error("❌ [HANDLE-TARGET-USER] فشل في إنشاء المحادثة");
       }
     } catch (error) {
       console.error("Failed to create conversation with target user:", error);
