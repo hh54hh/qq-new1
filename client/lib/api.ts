@@ -271,7 +271,7 @@ class ApiClient {
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
-              errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
+              errorMessage = "خ��مة API غير متوف��ة - مش��لة في إعدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم الفني على: 07800657822";
@@ -401,7 +401,7 @@ class ApiClient {
     });
 
     try {
-      const result = await this.request<AuthResponse>("/api/auth/login", {
+      const result = await this.request<AuthResponse>("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password } as LoginRequest),
       });
