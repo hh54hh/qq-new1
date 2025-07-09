@@ -135,7 +135,7 @@ class ChatManager {
         id: "demo_msg_1",
         conversationId: "demo_user_123",
         senderId: "demo_user_123",
-        content: "مر��باً! هذه رسالة تجريبية 👋‍♂️",
+        content: "مرحباً! هذه رسالة تجريبية 👋‍♂️",
         timestamp: Date.now() - 300000, // 5 دقائق مضت
         status: "read",
         isOwn: false,
@@ -539,7 +539,11 @@ class ChatManager {
         );
         console.log("✅ تم حفظ المحادثة محلياً:", newConversation.id);
       } catch (storageError) {
-        console.error("❌ فشل في حفظ المحادثة:", storageError);
+        console.error("❌ فشل في حفظ المحادثة:");
+        console.error(
+          "  Error:",
+          storageError?.message || storageError?.toString() || "Unknown error",
+        );
         // Return the conversation anyway for immediate use
       }
 
@@ -576,8 +580,10 @@ class ChatManager {
 
       this.emit("conversation:created", newConversation);
       return newConversation;
-    } catch (error) {
-      console.error("Failed to create conversation:", error);
+    } catch (error: any) {
+      console.error("❌ Failed to create conversation:");
+      console.error("  Message:", error?.message || "Unknown error");
+      console.error("  Type:", error?.name || "Unknown");
       return null;
     }
   }
