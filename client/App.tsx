@@ -205,13 +205,17 @@ const NotificationsRoute = () => {
 
 const MessagesRoute = () => {
   const [state] = useAppStore();
+  const [searchParams] = useSearchParams();
+  const targetUserId = searchParams.get("user");
 
   if (!state.user) {
     return <Navigate to="/auth" replace />;
   }
 
   // Use enhanced Telegram-style messages page
-  return <EnhancedMessagesPage />;
+  return (
+    <EnhancedMessagesPage initialConversationId={targetUserId || undefined} />
+  );
 };
 
 const DebugRoute = () => {
