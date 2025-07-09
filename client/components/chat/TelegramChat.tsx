@@ -111,6 +111,26 @@ export default function TelegramChat({
     }
   }, [activeConversation]);
 
+  // Handle initial conversation selection
+  useEffect(() => {
+    if (initialConversationId && conversations.length > 0) {
+      const targetConversation = conversations.find(
+        (c) => c.id === initialConversationId,
+      );
+      if (
+        targetConversation &&
+        (!activeConversation || activeConversation.id !== initialConversationId)
+      ) {
+        console.log("🎯 فتح المحادثة المطلوبة:", targetConversation.name);
+        setActiveConversation(targetConversation);
+        loadMessages(targetConversation.id);
+        if (isMobile) {
+          setShowConversations(false);
+        }
+      }
+    }
+  }, [initialConversationId, conversations, activeConversation, isMobile]);
+
   const loadConversations = async () => {
     try {
       setIsLoading(true);
