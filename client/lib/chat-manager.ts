@@ -444,9 +444,13 @@ class ChatManager {
     userId: string,
     userName: string,
   ): Promise<ChatConversation | null> {
+    console.log("🗘️ بحث عن محادثة مع:", userId, userName);
+
     try {
       // First check if conversation already exists
       const conversations = await this.getConversations();
+      console.log("📋 المحادثات الموجودة:", conversations.length);
+
       const existingConversation = conversations.find(
         (conv) =>
           conv.type === "direct" &&
@@ -455,41 +459,15 @@ class ChatManager {
       );
 
       if (existingConversation) {
+        console.log("✅ وجدت محادثة موجودة:", existingConversation.id);
         return existingConversation;
       }
 
-      // Create new conversation
-      const response = await offlineAPI.post("/api/conversations", {
-        type: "direct",
-        participantIds: [this.currentUserId, userId],
-        name: userName,
-      });
+      console.log("🆕 إنشاء محادثة جديدة");
 
-      if (response.success && response.data) {
-        const newConversation: ChatConversation = {
-          id: response.data.id,
-          name: userName,
-          participantIds: [this.currentUserId, userId],
-          lastActivity: Date.now(),
-          unreadCount: 0,
-          type: "direct",
-          isOnline: false,
-        };
-
-        await this.storage.saveData(
-          "conversations",
-          newConversation,
-          newConversation.id,
-        );
-        this.emit("conversation:created", newConversation);
-        return newConversation;
-      }
-    } catch (error) {
-      console.error("Failed to create conversation:", error);
-
-      // Create a temporary conversation for offline use
-      const tempConversation: ChatConversation = {
-        id: `temp_conv_${userId}_${Date.now()}`,
+      // Create new conversation locally first
+      const newConversation: ChatConversation = {
+        id: `conv_${this.currentUserId}_${userId}_${Date.now()}`,
         name: userName,
         participantIds: [this.currentUserId, userId],
         lastActivity: Date.now(),
@@ -498,15 +476,50 @@ class ChatManager {
         isOnline: false,
       };
 
+      // Save locally
       await this.storage.saveData(
         "conversations",
-        tempConversation,
-        tempConversation.id,
+        newConversation,
+        newConversation.id,
       );
-      return tempConversation;
-    }
 
-    return null;
+      console.log("✅ تم إنشاء المحادثة:", newConversation.id);
+
+      // Try to sync with server (optional)
+      try {
+        const response = await offlineAPI.post("/api/conversations", {
+          type: "direct",
+          participantIds: [this.currentUserId, userId],
+          name: userName,
+        });
+
+        if (response.success && response.data) {
+          // Update with server ID if successful
+          const updatedConversation = {
+            ...newConversation,
+            id: response.data.id,
+          };
+
+          await this.storage.deleteData("conversations", newConversation.id);
+          await this.storage.saveData(
+            "conversations",
+            updatedConversation,
+            updatedConversation.id,
+          );
+
+          this.emit("conversation:created", updatedConversation);
+          return updatedConversation;
+        }
+      } catch (error) {
+        console.log("📱 العمل في وضع عدم الاتصال");
+      }
+
+      this.emit("conversation:created", newConversation);
+      return newConversation;
+    } catch (error) {
+      console.error("Failed to create conversation:", error);
+      return null;
+    }
   }
 
   // Cleanup
