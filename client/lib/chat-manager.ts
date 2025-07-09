@@ -44,10 +44,22 @@ class ChatManager {
   private listeners: Map<string, Set<Function>> = new Map();
   private syncInProgress = false;
   private currentUserId: string = "";
+  private fallbackMode = false; // للعمل بدون تخزين محلي
 
   async initialize(userId: string) {
     this.currentUserId = userId;
-    this.storage = await getOfflineStorage();
+    try {
+      this.storage = await getOfflineStorage();
+      this.fallbackMode = false;
+      console.log("✅ تم تهيئة التخزين المحلي");
+    } catch (error) {
+      console.warn(
+        "⚠️ فشل في تهيئة التخزين المحلي، العمل في fallback mode:",
+        error,
+      );
+      this.fallbackMode = true;
+      this.storage = this.createFallbackStorage();
+    }
     this.setupNetworkListeners();
     await this.syncPendingMessages();
   }
