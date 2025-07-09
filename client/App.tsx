@@ -32,7 +32,7 @@ import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
 import NetworkStatusBanner from "./components/NetworkStatusBanner";
-import StableChatManager from "./components/chat/StableChatManager";
+import ChatOverlay from "./components/chat/ChatOverlay";
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
