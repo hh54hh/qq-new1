@@ -173,8 +173,17 @@ const AppContent = () => {
             activeTab={activeTab}
             onLogout={handleLogout}
             onStartChat={(user) => {
+              console.log(
+                "💬 [APP-CUSTOMER] بدء محادثة مع:",
+                user.id,
+                user.name,
+              );
               setTargetChatUserId(user.id);
               setActiveTab("messages");
+              console.log(
+                "💬 [APP-CUSTOMER] تم تغيير activeTab إلى messages, targetChatUserId:",
+                user.id,
+              );
             }}
             targetChatUserId={targetChatUserId}
           />
