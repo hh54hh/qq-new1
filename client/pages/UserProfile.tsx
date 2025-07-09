@@ -115,7 +115,7 @@ export default function UserProfile({
         `Loaded ${userSpecificPosts.length} posts for user ${profileUser.name}`,
       );
     } catch (error) {
-      console.error("Error loading user posts:", error);
+      console.log("📱 استخدام بيانات محفوظة للمنشورات");
       setUserPosts([]);
     } finally {
       setIsLoadingPosts(false);
@@ -143,7 +143,7 @@ export default function UserProfile({
     if (level >= 100) return "🟠";
     if (level >= 51) return "🟡";
     if (level >= 21) return "🔹";
-    return "🔸";
+    return "��";
   };
 
   const getLevelLabel = (level: number) => {
@@ -160,10 +160,14 @@ export default function UserProfile({
       setIsFollowing(!isFollowing);
 
       if (isFollowing) {
-        await apiClient.unfollowUser(profileUser.id);
+        await networkAwareAPI.safeRequest(() =>
+          apiClient.unfollowUser(profileUser.id),
+        );
         onUnfollow?.();
       } else {
-        await apiClient.followUser(profileUser.id);
+        await networkAwareAPI.safeRequest(() =>
+          apiClient.followUser(profileUser.id),
+        );
         onFollow?.();
       }
 
