@@ -92,7 +92,7 @@ export default function ImprovedChatOverlay({
     try {
       const loadedConversations = await chatManager.loadConversations(user.id);
 
-      // إضافة المحادثة المستهدفة إذا كانت موجودة
+      // إضافة المحادثة المس��هدفة إذا كانت موجودة
       if (targetUser) {
         const existingConv = loadedConversations.find(
           (c) => c.user.id === targetUser.id,
@@ -482,7 +482,7 @@ export default function ImprovedChatOverlay({
                 </div>
 
                 {/* منطقة الرسائل */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="chat-messages flex-1 overflow-y-auto p-6 space-y-6">
                   {isLoading ? (
                     <div className="flex items-center justify-center h-40">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
