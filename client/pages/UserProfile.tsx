@@ -79,11 +79,11 @@ export default function UserProfile({
       // Use safe network-aware API calls
       const followersResponse = await networkAwareAPI.safeRequest(
         () => apiClient.getFollows("followers"),
-        { total: 0 },
+        { follows: [], total: 0 },
       );
       const followingResponse = await networkAwareAPI.safeRequest(
         () => apiClient.getFollows("following"),
-        { total: 0 },
+        { follows: [], total: 0 },
       );
 
       setFollowerCount(followersResponse?.total || 0);
@@ -104,7 +104,7 @@ export default function UserProfile({
       // Use safe network-aware API call
       const response = await networkAwareAPI.safeRequest(
         () => apiClient.getPosts(),
-        { posts: [] },
+        { posts: [], total: 0 },
       );
 
       const userSpecificPosts = (response?.posts || []).filter(
@@ -149,7 +149,7 @@ export default function UserProfile({
   const getLevelLabel = (level: number) => {
     if (level >= 100) return "VIP";
     if (level >= 51) return "ذهبي";
-    if (level >= 21) return "محترف";
+    if (level >= 21) return "مح��رف";
     return "مبتدئ";
   };
 
