@@ -302,7 +302,7 @@ class ApiClient {
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
-              errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
+              errorMessage = "خ��مة API غير متوف��ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
@@ -465,7 +465,7 @@ class ApiClient {
 
       // إذا كان خطأ شبكة وتوجد بيا��ات احتياطية، استخدمها
       if (apiError.isNetworkError && fallbackData !== undefined) {
-        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}:`, {
+        console.log(`🔄 استخد��م البيانات الاحتياطية لـ ${endpoint}:`, {
           errorType: apiError.type,
           errorMessage: apiError.message,
         });
@@ -481,10 +481,19 @@ class ApiClient {
         } catch (retryError) {
           console.error(`❌ فشلت إعادة المحاولة لـ ${endpoint}`);
           if (fallbackData !== undefined) {
+            console.log(
+              `🔄 استخدام البيانات الاحتياطية بعد فشل إعادة المحاولة`,
+            );
             return fallbackData;
           }
           throw retryError;
         }
+      }
+
+      // إذا وجدت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
+      if (fallbackData !== undefined) {
+        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
+        return fallbackData;
       }
 
       throw error;
