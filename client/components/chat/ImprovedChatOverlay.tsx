@@ -136,7 +136,7 @@ export default function ImprovedChatOverlay({
         setMessages(loadedMessages);
 
         // تحديد الرسائل كمقروءة
-        await chatManager.markAsRead(conversationId, user.id);
+        await realChatManager.markAsRead(conversationId, user.id);
       } catch (error) {
         console.error("خطأ في تحميل الرسائل:", error);
         setConnectionError("فشل في تحميل الرسائل");
