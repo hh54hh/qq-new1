@@ -56,11 +56,21 @@ export default function EnhancedMessagesPage({
 
   const handleTargetUser = async (userId: string) => {
     try {
-      // Get user name from local data or API
+      console.log("🗨️ إنشاء محادثة مع:", userId);
+
+      // Get user name from API or use fallback
       let userName = "مستخدم";
 
-      // Try to find user in local storage or make an API call
-      // For now, we'll use a placeholder name
+      try {
+        // Try to get user info from API
+        const userResponse = await fetch(`/api/users/${userId}`);
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          userName = userData.name || userData.display_name || "مستخدم";
+        }
+      } catch (error) {
+        console.log("📝 استخدام اسم افتراضي");
+      }
 
       // Create or get conversation with the target user
       const conversation = await chatManager.getOrCreateConversationWithUser(
@@ -69,7 +79,10 @@ export default function EnhancedMessagesPage({
       );
 
       if (conversation) {
+        console.log("✅ تم إنشاء المحادثة:", conversation.id);
         setTargetConversationId(conversation.id);
+      } else {
+        console.error("❌ فشل في إنشاء المحادثة");
       }
     } catch (error) {
       console.error("Failed to create conversation with target user:", error);
