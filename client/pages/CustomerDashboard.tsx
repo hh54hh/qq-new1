@@ -42,7 +42,7 @@ import RatingPage from "./RatingPage";
 import SearchPage from "./SearchPage";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
-import MessagesPage from "./MessagesPage";
+// import MessagesPage from "./MessagesPage"; // تم استبداله بنظام محسن
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
 
@@ -50,12 +50,14 @@ interface CustomerDashboardProps {
   user: User;
   activeTab: string;
   onLogout?: () => void;
+  onStartChat?: (targetUser: User) => void; // دالة بدء الدردشة الجديدة
 }
 
 export default function CustomerDashboard({
   user,
   activeTab,
   onLogout,
+  onStartChat,
 }: CustomerDashboardProps) {
   const [state, store] = useAppStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -1130,8 +1132,13 @@ export default function CustomerDashboard({
         }}
         onMessage={() => {
           setShowProfile(false);
-          setMessageTargetUser(selectedProfile);
-          setShowMessages(true);
+          if (onStartChat && selectedProfile) {
+            onStartChat(selectedProfile);
+          } else {
+            // الط��يقة القديمة كبديل
+            setMessageTargetUser(selectedProfile);
+            setShowMessages(true);
+          }
         }}
       />
     );
