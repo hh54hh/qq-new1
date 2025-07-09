@@ -167,7 +167,7 @@ export class ChatManager {
         }
       });
 
-      // ترتيب الرسائل حسب التاريخ
+      // ترتيب الرسائل حس�� التاريخ
       messages.sort(
         (a, b) =>
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
@@ -286,6 +286,7 @@ export class ChatManager {
       const response = await apiClient.sendMessage({
         receiver_id: message.receiver_id,
         content: message.content,
+        message_type: "text",
       });
 
       // تحديث الرسالة بالنجاح
