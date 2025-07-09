@@ -22,7 +22,7 @@ import {
   type Conversation,
 } from "@/lib/chat-manager";
 import StableMessageInput from "./StableMessageInput";
-import { useKeyboardHandler } from "@/hooks/use-keyboard-handler";
+import { useSimpleKeyboard } from "@/hooks/use-simple-keyboard";
 
 interface ImprovedChatOverlayProps {
   user: User;
