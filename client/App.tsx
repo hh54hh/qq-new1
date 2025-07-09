@@ -56,6 +56,9 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   const [state, store] = useAppStore();
   const [activeTab, setActiveTab] = useState("home");
+  const [targetChatUserId, setTargetChatUserId] = useState<
+    string | undefined
+  >();
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
