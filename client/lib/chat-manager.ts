@@ -108,8 +108,31 @@ class ChatManager {
       console.log("📱 Loading conversations from cache");
     }
 
-    // Fallback to cache
-    const cached = await this.storage.getAllData("conversations");
+    // Fallback to cache + add demo user
+    let cached = await this.storage.getAllData("conversations");
+
+    // إضافة مستخدم تجريبي للاختبار
+    if (!cached || cached.length === 0) {
+      const demoConversation: ChatConversation = {
+        id: "demo_user_123",
+        name: "👨‍⚖️ أحمد الحلاق (تجريبي)",
+        avatar: "",
+        participantIds: [this.currentUserId, "demo_user_123"],
+        lastActivity: Date.now(),
+        unreadCount: 0,
+        type: "direct",
+        isOnline: true,
+      };
+
+      await this.storage.saveData(
+        "conversations",
+        demoConversation,
+        demoConversation.id,
+      );
+      cached = [demoConversation];
+      console.log("👨‍⚖️ تم إضافة مستخدم تجريبي");
+    }
+
     return cached || [];
   }
 
