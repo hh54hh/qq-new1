@@ -65,18 +65,22 @@ class NetworkAwareAPIWrapper {
   }
 
   async getNotifications() {
-    return this.safeRequest(() => this.apiClient.getNotifications(), []);
+    return this.safeRequest(() => this.apiClient.getNotifications(), {
+      notifications: [],
+    });
   }
 
   async getMessages(conversationId?: string) {
-    return this.safeRequest(
-      () => this.apiClient.getMessages(conversationId),
-      [],
-    );
+    return this.safeRequest(() => this.apiClient.getMessages(conversationId), {
+      messages: [],
+    });
   }
 
   async getBookings() {
-    return this.safeRequest(() => this.apiClient.getBookings(), []);
+    return this.safeRequest(() => this.apiClient.getBookings(), {
+      bookings: [],
+      total: 0,
+    });
   }
 
   // Pass-through methods for non-GET operations (these should handle errors normally)
