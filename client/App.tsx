@@ -226,12 +226,6 @@ const AuthRoute = () => {
 };
 
 const IndexRoute = () => {
-  const { isOnline } = useNetworkStatus();
-
-  if (!isOnline) {
-    return <OfflinePage onRetry={() => window.location.reload()} />;
-  }
-
   return <Index />;
 };
 
