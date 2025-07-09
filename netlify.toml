@@ -73,17 +73,6 @@
   to = "/index.html"
   status = 200
 
-# Messages page
-[[redirects]]
-  from = "/messages"
-  to = "/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/messages/*"
-  to = "/index.html"
-  status = 200
-
 # Cache control headers for PWA
 [[headers]]
   for = "/manifest.json"
