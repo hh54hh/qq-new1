@@ -15,7 +15,7 @@ import BarberDashboard from "./pages/BarberDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotificationService from "./components/NotificationService";
 import NotificationsCenter from "./pages/NotificationsCenter";
-import MessagesPage from "./pages/MessagesPage";
+
 import LocationPermissionDialog from "./components/LocationPermissionDialog";
 import DebugPage from "./pages/DebugPage";
 import DiagnosticPage from "./pages/DiagnosticPage";
