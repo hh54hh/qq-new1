@@ -22,6 +22,7 @@ import {
   type Conversation,
 } from "@/lib/chat-manager";
 import StableMessageInput from "./StableMessageInput";
+import { useKeyboardHandler } from "@/hooks/use-keyboard-handler";
 
 interface ImprovedChatOverlayProps {
   user: User;
@@ -82,7 +83,7 @@ export default function ImprovedChatOverlay({
     }
   }, []);
 
-  // تحميل المحادثات
+  // تحميل المحاد��ات
   const loadConversations = useCallback(async () => {
     if (!isVisible) return;
 
@@ -92,7 +93,7 @@ export default function ImprovedChatOverlay({
     try {
       const loadedConversations = await chatManager.loadConversations(user.id);
 
-      // إضافة المحادثة المس��هدفة إذا كانت موجودة
+      // إضافة المحادثة المستهدفة إذا كانت موجودة
       if (targetUser) {
         const existingConv = loadedConversations.find(
           (c) => c.user.id === targetUser.id,
