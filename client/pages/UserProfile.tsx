@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
 import PostViewPage from "./PostViewPage";
+import { StartChatButton } from "@/components/EnhancedStartChatButton";
 
 interface UserProfileProps {
   profileUser: User & {
@@ -38,6 +39,7 @@ interface UserProfileProps {
   onUnfollow?: () => void;
   onBooking?: () => void;
   onMessage?: () => void;
+  onStartChat?: (userId: string, userName: string) => void;
 }
 
 export default function UserProfile({
@@ -48,6 +50,7 @@ export default function UserProfile({
   onUnfollow,
   onBooking,
   onMessage,
+  onStartChat,
 }: UserProfileProps) {
   const [state, store] = useAppStore();
   const [activeTab, setActiveTab] = useState("posts");
@@ -115,7 +118,7 @@ export default function UserProfile({
 
     const diffInDays = Math.floor(diffInHours / 24);
     if (diffInDays === 1) return "أمس";
-    if (diffInDays < 7) return `منذ ${diffInDays} أيام`;
+    if (diffInDays < 7) return `منذ ${diffInDays} أ��ام`;
 
     return date.toLocaleDateString("ar-SA");
   };
@@ -323,15 +326,26 @@ export default function UserProfile({
                     </Button>
                   )}
 
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="shrink-0"
-                    onClick={onMessage}
-                    title="إرسال رسالة"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                  </Button>
+                  {onStartChat ? (
+                    <StartChatButton
+                      userId={profileUser.id}
+                      userName={profileUser.name}
+                      onStartChat={onStartChat}
+                      variant="compact"
+                      size="md"
+                      buttonVariant="primary"
+                    />
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                      onClick={onMessage}
+                      title="إرسال رسالة"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
