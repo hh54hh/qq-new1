@@ -53,7 +53,7 @@ export default function ImprovedChatOverlay({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  const keyboardState = useKeyboardHandler();
+  const keyboardState = useSimpleKeyboard();
 
   // مراقبة حالة الاتصال
   useEffect(() => {
@@ -411,7 +411,7 @@ export default function ImprovedChatOverlay({
               </div>
             </>
           ) : (
-            // واجهة المحادثة
+            // واجهة المحاد��ة
             selectedConversation && (
               <>
                 {/* هيدر المحادثة */}
