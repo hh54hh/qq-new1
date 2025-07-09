@@ -15,11 +15,13 @@ import {
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { StartChatButton } from "@/components/EnhancedStartChatButton";
 
 interface UserProfileCardProps {
   user: User;
   currentUser: User;
   onStartChat: (user: User) => void;
+  onStartChatNew?: (userId: string, userName: string) => void;
   onCall?: (user: User) => void;
   onVideoCall?: (user: User) => void;
   className?: string;
@@ -30,6 +32,7 @@ export default function UserProfileCard({
   user,
   currentUser,
   onStartChat,
+  onStartChatNew,
   onCall,
   onVideoCall,
   className,
@@ -217,13 +220,23 @@ export default function UserProfileCard({
           {showActions && !isCurrentUser && (
             <div className="flex gap-3">
               {/* زر بدء المحادثة */}
-              <Button
-                onClick={() => onStartChat(user)}
-                className="flex-1 bg-gradient-to-r from-primary to-golden-600 hover:from-primary/90 hover:to-golden-500 text-primary-foreground border-0 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                بدء محادثة
-              </Button>
+              {onStartChatNew ? (
+                <StartChatButton
+                  userId={user.id}
+                  userName={user.name}
+                  onStartChat={onStartChatNew}
+                  variant="profile"
+                  className="flex-1"
+                />
+              ) : (
+                <Button
+                  onClick={() => onStartChat(user)}
+                  className="flex-1 bg-gradient-to-r from-primary to-golden-600 hover:from-primary/90 hover:to-golden-500 text-primary-foreground border-0 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  بدء محادثة
+                </Button>
+              )}
 
               {/* أزرار الاتصال */}
               <div className="flex gap-2">
