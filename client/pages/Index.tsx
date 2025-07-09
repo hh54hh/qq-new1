@@ -56,6 +56,11 @@ const Index = () => {
               تسجيل الدخول
             </Button>
           </div>
+
+          {/* PWA Manager */}
+          <div className="mt-4">
+            <PWAManager className="max-w-xs" />
+          </div>
         </div>
       </header>
 
