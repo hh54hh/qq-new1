@@ -178,8 +178,8 @@ export default function StableChatList({
         return "📷 صورة";
       case "voice":
         return "🎵 رسالة صوتية";
-      case "location":
-        return "📍 موقع";
+      case "system":
+        return "📍 رسالة نظام";
       default:
         return message.content;
     }
