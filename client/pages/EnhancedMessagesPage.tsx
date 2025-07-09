@@ -26,6 +26,9 @@ export default function EnhancedMessagesPage({
   const [targetConversationId, setTargetConversationId] = useState<
     string | undefined
   >(initialConversationId);
+  const [finalConversationId, setFinalConversationId] = useState<
+    string | undefined
+  >();
 
   useEffect(() => {
     const initializeSystem = async () => {
