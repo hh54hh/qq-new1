@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { User } from "@shared/api";
-import ChatList from "./ChatList";
+import EnhancedChatList from "./EnhancedChatList";
 import EnhancedChatConversation from "./EnhancedChatConversation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -105,7 +105,7 @@ export default function ChatManager({
             }}
             className="h-full"
           >
-            <ChatList
+            <EnhancedChatList
               user={user}
               onConversationSelect={handleConversationSelect}
               onBack={onBack}
