@@ -10,10 +10,10 @@ import { cn } from "@/lib/utils";
 export function createLazyComponent<T extends React.ComponentType<any>>(
   importFn: () => Promise<{ default: T }>,
   fallback?: React.ReactNode,
-) {
+): React.ComponentType<React.ComponentProps<T>> {
   const LazyComponent = lazy(importFn);
 
-  return React.forwardRef<any, React.ComponentProps<T>>((props, ref) => (
+  return (props: React.ComponentProps<T>) => (
     <Suspense
       fallback={
         fallback || (
@@ -23,9 +23,9 @@ export function createLazyComponent<T extends React.ComponentType<any>>(
         )
       }
     >
-      <LazyComponent ref={ref} {...props} />
+      <LazyComponent {...props} />
     </Suspense>
-  ));
+  );
 }
 
 // Optimized image component with lazy loading
