@@ -196,12 +196,15 @@ export default function ImprovedChatOverlay({
       }
     };
 
-    chatManager.addEventListener("messageAdded", handleMessageAdded);
-    chatManager.addEventListener("messageUpdated", handleMessageUpdated);
+    realChatManager.addEventListener("messageAdded", handleMessageAdded);
+    realChatManager.addEventListener("messageUpdated", handleMessageUpdated);
 
     return () => {
-      chatManager.removeEventListener("messageAdded", handleMessageAdded);
-      chatManager.removeEventListener("messageUpdated", handleMessageUpdated);
+      realChatManager.removeEventListener("messageAdded", handleMessageAdded);
+      realChatManager.removeEventListener(
+        "messageUpdated",
+        handleMessageUpdated,
+      );
     };
   }, [selectedConversation]);
 
