@@ -2,14 +2,14 @@
  * Network-aware API wrapper that handles offline scenarios gracefully
  */
 
-import { ApiClient } from "./api";
+import apiClient from "./api";
 
 class NetworkAwareAPIWrapper {
-  private apiClient: ApiClient;
+  private apiClient: typeof apiClient;
   private isOnline: boolean = navigator.onLine;
 
   constructor() {
-    this.apiClient = new ApiClient();
+    this.apiClient = apiClient;
     this.setupNetworkListeners();
   }
 
