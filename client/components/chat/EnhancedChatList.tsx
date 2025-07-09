@@ -41,7 +41,7 @@ interface Message {
   content: string;
   created_at: string;
   read: boolean;
-  message_type?: "text" | "image" | "voice" | "system";
+  message_type?: "text" | "image" | "voice" | "system" | "location";
   sender?: User;
   receiver?: User;
   delivery_status?: "sending" | "sent" | "delivered" | "read" | "failed";
@@ -378,7 +378,7 @@ export default function EnhancedChatList({
                             )}
                           ></div>
 
-                          {/* مؤشر ال��تابة */}
+                          {/* مؤشر الكتابة */}
                           {conversation.isTyping && (
                             <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
                               <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
@@ -434,7 +434,7 @@ export default function EnhancedChatList({
                             )}
                           </div>
 
-                          {/* حالة المستخدم */}
+                          {/* حالة المستخ��م */}
                           <p className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-2">
                             {getStatusText(conversation)}
                           </p>
