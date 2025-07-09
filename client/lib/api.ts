@@ -119,12 +119,15 @@ class ApiClient {
       } catch (error) {
         // تجاهل أخطاء AbortController timeout العادية
         if (error instanceof Error && error.name === "AbortError") {
-          console.log(`⏰ انتهت مهلة الاختبار لـ ${path}`);
+          console.log(`⏰ انتهت مهلة الاختبار لـ ${path} (طبيعي)`);
         } else {
-          console.log(
-            `❌ خطأ في الات��ال بـ ${path}:`,
-            error instanceof Error ? error.message : error,
-          );
+          const errorMsg =
+            error instanceof Error
+              ? error.message
+              : typeof error === "object"
+                ? JSON.stringify(error)
+                : String(error);
+          console.log(`❌ خطأ في الاتصال بـ ${path}:`, errorMsg);
         }
       }
     }
@@ -160,7 +163,7 @@ class ApiClient {
     return headers;
   }
 
-  // دا��ة للتحقق من صحة auth token
+  // دالة للتحقق من صحة auth token
   private checkAuthToken(endpoint: string): boolean {
     // المسارات التي تحتاج authentication
     const protectedPaths = [
@@ -398,7 +401,7 @@ class ApiClient {
 
         if (error.message.includes("Failed to fetch")) {
           networkErrorMessage = "فشل في الاتصال بالخادم";
-          suggestion = "تحقق من اتصال الإنترنت أو أ�� الخادم متاح";
+          suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
           networkErrorMessage = "خطأ في ا����شبكة";
           suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
