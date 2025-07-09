@@ -123,7 +123,7 @@ const AppContent = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-500 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">ج��رٍ التحميل...</p>
+          <p className="text-muted-foreground">جارٍ التحميل...</p>
         </div>
       </div>
     );
@@ -313,6 +313,7 @@ const App = () => {
             {/* Authenticated routes */}
             <Route path="/dashboard" element={<AppContent />} />
             <Route path="/notifications" element={<NotificationsRoute />} />
+            <Route path="/messages" element={<MessagesRoute />} />
 
             {/* Catch all route - show 404 page */}
             <Route path="*" element={<NotFound />} />
