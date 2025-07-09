@@ -155,7 +155,12 @@ const AppContent = () => {
       <Layout
         user={state.user}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          if (tab !== "messages") {
+            setTargetChatUserId(undefined);
+          }
+        }}
         onLogout={handleLogout}
         onShowNotifications={() => (window.location.href = "/notifications")}
         onShowMessages={() => {
@@ -283,7 +288,7 @@ const App = () => {
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
     };
 
-    console.log("💡 نصائح مفيدة:");
+    console.log("💡 نصا��ح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
     console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
