@@ -129,8 +129,22 @@ class ChatManager {
         demoConversation,
         demoConversation.id,
       );
+
+      // إضافة رسالة تجريبية
+      const demoMessage = {
+        id: "demo_msg_1",
+        conversationId: "demo_user_123",
+        senderId: "demo_user_123",
+        content: "مرحباً! هذه رسالة تجريبية 👋‍♂️",
+        timestamp: Date.now() - 300000, // 5 دقائق مضت
+        status: "read",
+        isOwn: false,
+      };
+
+      await this.storage.saveData("messages", demoMessage, demoMessage.id);
+
       cached = [demoConversation];
-      console.log("👨‍⚖️ تم إضافة مستخدم تجريبي");
+      console.log("👨‍⚖️ تم إضافة مستخدم تجريبي مع رسالة");
     }
 
     return cached || [];
