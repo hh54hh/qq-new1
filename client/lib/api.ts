@@ -118,7 +118,7 @@ class ApiClient {
       }
     }
 
-    console.warn("⚠️ لم يتم العثور على API على أي من المسارات المت��قعة");
+    console.warn("⚠️ لم يتم العث��ر على API على أي من المسارات المت��قعة");
     // في حالة عدم العثور على API، استخدم المسار الافتراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
@@ -184,7 +184,7 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    // التحقق من صحة مس��ر API إذا لم يتم التحقق مسبقاً
+    // التحقق من صحة مسار API إذا لم يتم التحقق مسبقاً
     await this.verifyApiUrl();
 
     // التحقق من auth token للمسارات المحمية
@@ -255,7 +255,7 @@ class ApiClient {
                 errorMessage = "البريد الإلكت��وني أو ��لمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
+                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
                 errorMessage = "انتهت صلاحية ج��سة المستخدم";
                 errorType = "SESSION_EXPIRED";
@@ -294,7 +294,7 @@ class ApiClient {
                 "إذا اس��مرت المشكلة، اتصل بالدعم الفني على: 07800657822";
               break;
             case 502:
-              errorMessage = "الخادم غير متاح حالياً، يرجى المحاولة لاح��اً";
+              errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لاح��اً";
               errorType = "BAD_GATEWAY_ERROR";
               break;
             case 503:
@@ -755,7 +755,7 @@ class ApiClient {
         id: Date.now().toString(),
         user: {
           id: "current",
-          name: "أ��ت",
+          name: "أنت",
           avatar_url: null,
         },
         comment,
@@ -865,11 +865,21 @@ class ApiClient {
 
   async getMessages(otherUserId: string): Promise<{ messages: any[] }> {
     const fallbackData = { messages: [] };
-    return this.requestWithFallback<{ messages: any[] }>(
+    const response = await this.requestWithFallback<{ messages: any[] }>(
       `/messages/${otherUserId}`,
       {},
       fallbackData,
     );
+
+    // تصحيح: تحويل حقل 'message' إلى 'content'
+    if (response.messages) {
+      response.messages = response.messages.map((msg) => ({
+        ...msg,
+        content: msg.content || msg.message || "", // استخدام 'message' إذا لم يوجد 'content'
+      }));
+    }
+
+    return response;
   }
 
   async sendMessage(messageData: {
@@ -877,10 +887,23 @@ class ApiClient {
     content: string;
     message_type?: string;
   }): Promise<{ message: any; success: boolean }> {
-    return this.request<{ message: any; success: boolean }>("/messages", {
-      method: "POST",
-      body: JSON.stringify(messageData),
-    });
+    const response = await this.request<{ message: any; success: boolean }>(
+      "/messages",
+      {
+        method: "POST",
+        body: JSON.stringify(messageData),
+      },
+    );
+
+    // تصحيح: تحويل حقل 'message' إلى 'content' في الاستجابة
+    if (response.message) {
+      response.message = {
+        ...response.message,
+        content: response.message.content || response.message.message || "",
+      };
+    }
+
+    return response;
   }
 
   async markMessagesAsRead(senderId: string): Promise<{ success: boolean }> {
