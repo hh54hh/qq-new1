@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { getOfflineStorage } from "@/lib/offline-storage";
 import offlineAPI from "@/lib/offline-api";
+import chatManager from "@/lib/chat-manager";
 
 interface Message {
   id: string;
@@ -59,6 +60,20 @@ export default function TelegramChat({
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
+
+    // Listen for real-time updates
+    const unsubscribeNew = chatManager.on("message:new", handleNewMessage);
+    const unsubscribeSent = chatManager.on("message:sent", handleMessageSent);
+    const unsubscribeFailed = chatManager.on(
+      "message:failed",
+      handleMessageFailed,
+    );
+
+    return () => {
+      unsubscribeNew();
+      unsubscribeSent();
+      unsubscribeFailed();
+    };
   }, []);
 
   // Auto-scroll to bottom when new messages arrive
@@ -249,6 +264,29 @@ export default function TelegramChat({
     if (minutes < 60) return `قبل ${minutes} دقيقة`;
     if (hours < 24) return `قبل ${hours} ساعة`;
     return `قبل ${days} يوم`;
+  };
+
+  // Real-time message handlers
+  const handleNewMessage = (message: Message) => {
+    if (
+      activeConversation &&
+      message.conversationId === activeConversation.id
+    ) {
+      setMessages((prev) => {
+        // Avoid duplicates
+        const exists = prev.find((m) => m.id === message.id);
+        if (exists) return prev;
+        return [...prev, message];
+      });
+    }
+  };
+
+  const handleMessageSent = (message: Message) => {
+    setMessages((prev) => prev.map((m) => (m.id === message.id ? message : m)));
+  };
+
+  const handleMessageFailed = (message: Message) => {
+    setMessages((prev) => prev.map((m) => (m.id === message.id ? message : m)));
   };
 
   const filteredConversations = conversations.filter((conv) =>
@@ -463,7 +501,7 @@ export default function TelegramChat({
                   <input
                     ref={inputRef}
                     type="text"
-                    placeholder="اكتب رسال��..."
+                    placeholder="اكتب رسالة..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
