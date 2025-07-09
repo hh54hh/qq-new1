@@ -149,8 +149,7 @@ const AppContent = () => {
         onLogout={handleLogout}
         onShowNotifications={() => (window.location.href = "/notifications")}
         onShowMessages={() => {
-          setShowChat(true);
-          setChatTargetUser(undefined);
+          window.location.href = "/messages";
         }}
       >
         {state.user.role === "customer" ? (
