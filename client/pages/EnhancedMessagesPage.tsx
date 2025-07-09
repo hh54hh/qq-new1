@@ -58,8 +58,10 @@ export default function EnhancedMessagesPage({
 
       setIsInitializing(false);
       console.log("✅ Chat system initialized successfully");
-    } catch (error) {
-      console.error("❌ Failed to initialize chat system:", error);
+    } catch (error: any) {
+      console.error("❌ Failed to initialize chat system:");
+      console.error("  Message:", error?.message || "Unknown error");
+      console.error("  Type:", error?.name || "Unknown");
       setError("فشل في تهيئة نظام المحادثات");
       setIsInitializing(false);
     }
@@ -101,10 +103,12 @@ export default function EnhancedMessagesPage({
           conversation.id,
         );
       } else {
-        console.error("❌ [HANDLE-TARGET-USER] فشل في إنشاء المحادثة");
+        console.error("❌ [HANDLE-TARGET-USER] ف��ل في إنشاء المحادثة");
       }
-    } catch (error) {
-      console.error("Failed to create conversation with target user:", error);
+    } catch (error: any) {
+      console.error("❌ Failed to create conversation with target user:");
+      console.error("  Message:", error?.message || "Unknown error");
+      console.error("  Type:", error?.name || "Unknown");
     }
   };
 
