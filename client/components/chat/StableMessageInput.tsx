@@ -78,7 +78,7 @@ export default function StableMessageInput({
   // معالجة التركيز
   const handleFocus = useCallback(() => {
     setIsFocused(true);
-    // منع التمرير عند التركيز على الهواتف
+    // منع التمرير عند التركيز على ا��هواتف
     if (window.innerWidth < 768) {
       setTimeout(() => {
         textareaRef.current?.scrollIntoView({
@@ -147,7 +147,7 @@ export default function StableMessageInput({
     <div
       ref={containerRef}
       className={cn(
-        "relative bg-slate-800/95 backdrop-blur-sm border-t border-slate-700",
+        "chat-input relative bg-slate-800/95 backdrop-blur-sm border-t border-slate-700",
         className,
       )}
     >
