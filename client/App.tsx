@@ -32,7 +32,7 @@ import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
 import NetworkStatusBanner from "./components/NetworkStatusBanner";
-import ChatOverlay from "./components/chat/ChatOverlay";
+import ImprovedChatOverlay from "./components/chat/ImprovedChatOverlay";
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
@@ -251,7 +251,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إضافة دالة عالمية لفتح صفحة التشخيص
+    // إضافة د��لة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
