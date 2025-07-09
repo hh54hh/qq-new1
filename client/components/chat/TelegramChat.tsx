@@ -180,7 +180,7 @@ export default function TelegramChat({
           (c) => c.id === initialConversationId,
         );
         if (targetConversation) {
-          console.log("🎯 فت�� المحادثة:", targetConversation.name);
+          console.log("🎯 فتح المحادثة:", targetConversation.name);
           setActiveConversation(targetConversation);
           loadMessages(targetConversation.id);
           if (isMobile) {
@@ -190,8 +190,9 @@ export default function TelegramChat({
           console.warn("⚠️ لم يتم العثور على المحادثة:", initialConversationId);
         }
       }
-    } catch (error) {
-      console.error("Failed to load conversations:", error);
+    } catch (error: any) {
+      console.error("❌ Failed to load conversations:");
+      console.error("  Message:", error?.message || "Unknown error");
       setConversations([]);
     } finally {
       setIsLoading(false);
@@ -208,8 +209,9 @@ export default function TelegramChat({
           timestamp: msg.timestamp || new Date(msg.createdAt).getTime(),
         })),
       );
-    } catch (error) {
-      console.error("Failed to load messages:", error);
+    } catch (error: any) {
+      console.error("❌ Failed to load messages:");
+      console.error("  Message:", error?.message || "Unknown error");
       setMessages([]);
     }
   };
@@ -234,8 +236,10 @@ export default function TelegramChat({
 
       // Message will be added via the real-time handler
       console.log("✨ Message sent:", sentMessage.id);
-    } catch (error) {
-      console.error("Failed to send message:", error);
+    } catch (error: any) {
+      console.error("❌ Failed to send message:");
+      console.error("  Message:", error?.message || "Unknown error");
+      console.error("  Type:", error?.name || "Unknown");
     }
   }, [newMessage, activeConversation]);
 
@@ -398,7 +402,7 @@ export default function TelegramChat({
 
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-muted-foreground truncate">
-                        {conversation.lastMessage || "لا ت��جد رسائل"}
+                        {conversation.lastMessage || "لا توجد رسائل"}
                       </p>
                       {conversation.unreadCount &&
                         conversation.unreadCount > 0 && (
