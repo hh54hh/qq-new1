@@ -306,7 +306,7 @@ export default function ImprovedChatOverlay({
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="absolute inset-4 md:inset-6 lg:inset-8 bg-slate-900 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col"
+          className="chat-container absolute inset-4 md:inset-6 lg:inset-8 bg-slate-900 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col"
         >
           {currentView === "list" ? (
             // قائمة المحادثات
@@ -440,7 +440,7 @@ export default function ImprovedChatOverlay({
                       </h3>
                       <p className="text-sm text-slate-400">
                         {selectedConversation.isOnline
-                          ? "متصل ا��آن"
+                          ? "متصل الآن"
                           : selectedConversation.lastSeen
                             ? `آخر ظهور ${formatTime(selectedConversation.lastSeen)}`
                             : "غير متصل"}
