@@ -252,7 +252,7 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكتروني أو ��لمة المرور غير صحيحة";
+                errorMessage = "البريد الإلكت��وني أو ��لمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -275,7 +275,7 @@ class ApiClient {
               errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
-                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم الفني على: 07800657822";
+                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
               errorMessage = "البيانات موجودة بالفعل في النظام";
@@ -388,6 +388,42 @@ class ApiClient {
         "إذا استمرت المشكلة، اتصل بالدعم الفني على: 07800657822";
 
       throw unexpectedError;
+    }
+  }
+
+  // دالة طلب محسنة مع معالجة أخطاء أفضل
+  private async requestWithFallback<T>(
+    endpoint: string,
+    options: RequestInit = {},
+    fallbackData?: T,
+  ): Promise<T> {
+    try {
+      return await this.request<T>(endpoint, options);
+    } catch (error) {
+      const apiError = ApiErrorHandler.createErrorFromException(error);
+
+      // إذا كان خطأ شبكة وتوجد بيانات احتياطية، استخدمها
+      if (apiError.isNetworkError && fallbackData !== undefined) {
+        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
+        return fallbackData;
+      }
+
+      // إذا كان يمكن إعادة المحاولة، جرب مرة واحدة أخرى
+      if (apiError.canRetry) {
+        try {
+          console.log(`🔄 إعادة المحاولة لـ ${endpoint}`);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          return await this.request<T>(endpoint, options);
+        } catch (retryError) {
+          console.error(`❌ فشلت إعادة المحاولة لـ ${endpoint}`);
+          if (fallbackData !== undefined) {
+            return fallbackData;
+          }
+          throw retryError;
+        }
+      }
+
+      throw error;
     }
   }
 
