@@ -144,8 +144,8 @@ export class ChatManager {
     userId: string,
   ): Promise<Message[]> {
     try {
-      // محاولة تحميل من API
-      const response = await apiClient.getMessages(50, 0);
+      // محاولة تحميل الرسائل من API
+      const response = await apiClient.getMessages(conversationId);
 
       const messages: Message[] = [];
 
@@ -340,7 +340,7 @@ export class ChatManager {
     }
   }
 
-  // إنشاء محاد��ات وهمية للاختبار
+  // إنشاء محادثات وهمية للاختبار
   private generateMockConversations(userId: string): Conversation[] {
     return [
       {
@@ -385,7 +385,7 @@ export class ChatManager {
           id: "msg2",
           sender_id: userId,
           receiver_id: "user2",
-          content: "شكراً لك على الخدمة الممتازة",
+          content: "شكراً لك ��لى الخدمة الممتازة",
           created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
           read: true,
           delivery_status: "read",
