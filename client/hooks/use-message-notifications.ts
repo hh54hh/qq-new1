@@ -14,56 +14,31 @@ export function useMessageNotifications() {
   useEffect(() => {
     if (!state.user) return;
 
-    // Check for new messages with better error handling
+    // Check for new messages with improved error handling
     const checkForNewMessages = async () => {
       // لا تحقق إذا لم يكن هناك اتصال
       if (!isOnline) {
-        console.log("📏 تخطي فحص الرسائل - لا يوجد اتصال");
         return;
       }
 
-      try {
-        const response = await networkAwareAPI.safeRequest(
-          () => apiClient.getUnreadMessageCount(),
-          { count: 0 },
-        );
-        const unreadCount = response?.count || 0;
+      // استخدام safeRequest للتعامل مع الأخطاء بشكل لطيف
+      const response = await networkAwareAPI.safeRequest(
+        () => apiClient.getUnreadMessageCount(),
+        { count: 0 },
+      );
 
-        // إعادة تعيين عداد الأخطاء عند النجاح
-        setConsecutiveErrors(0);
+      const unreadCount = response?.count || 0;
 
-        // تحديث العدد المحفوظ
-        if (unreadCount !== lastUnreadCount) {
-          setLastUnreadCount(unreadCount);
+      // إعادة تعيين عداد الأخطاء عند الحصول على استجاب��
+      setConsecutiveErrors(0);
 
-          // إظهار إشعار عند وجود رسائل جديدة
-          if (unreadCount > lastUnreadCount && unreadCount > 0) {
-            console.log(`📩 لديك ${unreadCount} رسائل غير مقروءة`);
-          }
-        }
-      } catch (error: any) {
-        setConsecutiveErrors((prev) => prev + 1);
+      // تحديث العدد المحفوظ
+      if (unreadCount !== lastUnreadCount) {
+        setLastUnreadCount(unreadCount);
 
-        // طباعة أقل للأخطاء المتكررة
-        if (consecutiveErrors < 3) {
-          console.warn(
-            `⚠️ فشل فحص الرسائل (${consecutiveErrors + 1}/3):`,
-            error.message,
-          );
-        } else if (consecutiveErrors === 3) {
-          console.warn("😵 تم إيقاف طباعة أخطاء فحص الرسائل لتجنب الإزعاج");
-        }
-
-        // زيادة فترة الانتظار عند وجود أخطاء متكررة
-        if (consecutiveErrors >= 3) {
-          clearInterval(intervalRef.current!);
-
-          // إعادة بدء الفحص بعد 30 ثانية
-          setTimeout(() => {
-            if (state.user && isOnline) {
-              intervalRef.current = setInterval(checkForNewMessages, 30000); // 30 ثانية بدلاً من 10
-            }
-          }, 30000);
+        // إظهار إشعار عند وجود رسائل جديدة
+        if (unreadCount > lastUnreadCount && unreadCount > 0) {
+          console.log(`📩 لديك ${unreadCount} رسائل غير مقروءة`);
         }
       }
     };
