@@ -34,8 +34,12 @@ export default function MessagesPage({
   targetUserId,
 }: MessagesPageProps) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [state] = useAppStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Get target user from URL if not provided as prop
+  const urlTargetUserId = searchParams.get("user") || targetUserId;
 
   // States
   const [conversations, setConversations] = useState<ConversationWithUser[]>(
@@ -86,7 +90,7 @@ export default function MessagesPage({
             (u) => u.id === otherUserId,
           ) || {
             id: otherUserId,
-            name: "مستخدم غير مع��وف",
+            name: "مستخدم غير معروف",
             email: "",
             role: "customer" as const,
             location: null,
@@ -417,7 +421,7 @@ export default function MessagesPage({
               </div>
               <h3 className="text-lg font-medium mb-2">اختر محادثة</h3>
               <p className="text-muted-foreground">
-                اختر محادثة من القائمة لبدء المراسلة
+                اختر محاد��ة من القائمة لبدء المراسلة
               </p>
             </div>
           </div>
