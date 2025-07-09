@@ -13,6 +13,12 @@ export default function EnhancedMessagesPage({
   targetUserId,
   initialConversationId,
 }: EnhancedMessagesPageProps) {
+  console.log(
+    "💬 [ENHANCED-MESSAGES] بدء مع targetUserId:",
+    targetUserId,
+    "initialConversationId:",
+    initialConversationId,
+  );
   const navigate = useNavigate();
   const [state] = useAppStore();
   const [isInitializing, setIsInitializing] = useState(true);
