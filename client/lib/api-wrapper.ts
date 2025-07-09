@@ -48,8 +48,12 @@ class NetworkAwareAPIWrapper {
         return fallback || null;
       }
 
-      // For non-network errors, log and let them bubble up
-      console.error("❌ API Error:", error);
+      // For non-network errors, provide fallback if available
+      console.warn("⚠️ API Error (non-network):", error.message || error);
+      if (fallback !== undefined) {
+        console.log("🔄 استخدام البيانات الاحتياطية لخطأ غير شبكي");
+        return fallback;
+      }
       throw error;
     }
   }
