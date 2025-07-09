@@ -1,426 +1,454 @@
-import { User } from "@shared/api";
-import apiClient from "./api";
+/**
+ * Smart Chat Manager for Telegram-style messaging
+ * Handles offline storage, synchronization, and real-time updates
+ */
 
-export interface Message {
+import { getOfflineStorage } from "./offline-storage";
+import offlineAPI from "./offline-api";
+
+export interface ChatMessage {
   id: string;
-  sender_id: string;
-  receiver_id: string;
+  conversationId: string;
+  senderId: string;
   content: string;
-  created_at: string;
-  read: boolean;
-  message_type?: "text" | "image" | "voice" | "system";
-  delivery_status?: "sending" | "sent" | "delivered" | "read" | "failed";
-  reply_to?: string;
+  timestamp: number;
+  status: "sending" | "sent" | "delivered" | "read" | "failed";
+  isOffline?: boolean;
+  replyTo?: string;
+  edited?: boolean;
+  editedAt?: number;
 }
 
-export interface Conversation {
+export interface ChatConversation {
   id: string;
-  user: User;
-  lastMessage?: Message;
+  name: string;
+  avatar?: string;
+  participantIds: string[];
+  lastMessage?: ChatMessage;
+  lastActivity: number;
   unreadCount: number;
   isOnline?: boolean;
-  isTyping?: boolean;
-  lastSeen?: string;
+  type: "direct" | "group";
 }
 
-export interface SendMessageData {
-  receiver_id: string;
-  content: string;
-  reply_to?: string;
+export interface ChatUser {
+  id: string;
+  name: string;
+  avatar?: string;
+  isOnline: boolean;
+  lastSeen: number;
 }
 
-export class ChatManager {
-  private messages = new Map<string, Message[]>();
-  private conversations = new Map<string, Conversation>();
-  private eventListeners = new Map<string, Function[]>();
+class ChatManager {
+  private storage: any = null;
+  private listeners: Map<string, Set<Function>> = new Map();
+  private syncInProgress = false;
+  private currentUserId: string = "";
 
-  // إضافة مستمع للأحداث
-  addEventListener(event: string, callback: Function) {
-    if (!this.eventListeners.has(event)) {
-      this.eventListeners.set(event, []);
-    }
-    this.eventListeners.get(event)!.push(callback);
+  async initialize(userId: string) {
+    this.currentUserId = userId;
+    this.storage = await getOfflineStorage();
+    this.setupNetworkListeners();
+    await this.syncPendingMessages();
   }
 
-  // إزالة مستمع الأحداث
-  removeEventListener(event: string, callback: Function) {
-    const listeners = this.eventListeners.get(event);
-    if (listeners) {
-      const index = listeners.indexOf(callback);
-      if (index > -1) {
-        listeners.splice(index, 1);
+  private setupNetworkListeners() {
+    window.addEventListener("online", () => {
+      console.log("📶 Network restored - syncing messages");
+      this.syncPendingMessages();
+    });
+
+    window.addEventListener("offline", () => {
+      console.log("📡 Network lost - switching to offline mode");
+    });
+  }
+
+  // Event system
+  on(event: string, callback: Function) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)!.add(callback);
+
+    return () => {
+      this.listeners.get(event)?.delete(callback);
+    };
+  }
+
+  private emit(event: string, data: any) {
+    this.listeners.get(event)?.forEach((callback) => callback(data));
+  }
+
+  // Conversation management
+  async getConversations(): Promise<ChatConversation[]> {
+    try {
+      // Try network first
+      const response = await offlineAPI.get("/api/conversations");
+
+      if (response.success && response.data) {
+        // Cache conversations
+        for (const conv of response.data) {
+          await this.storage.saveData("conversations", conv, conv.id);
+        }
+        return response.data;
+      }
+    } catch (error) {
+      console.log("📱 Loading conversations from cache");
+    }
+
+    // Fallback to cache
+    const cached = await this.storage.getAllData("conversations");
+    return cached || [];
+  }
+
+  async getConversation(id: string): Promise<ChatConversation | null> {
+    try {
+      const response = await offlineAPI.get(`/api/conversations/${id}`);
+      if (response.success) {
+        await this.storage.saveData("conversations", response.data, id);
+        return response.data;
+      }
+    } catch (error) {
+      console.log("📱 Loading conversation from cache");
+    }
+
+    return await this.storage.getData("conversations", id);
+  }
+
+  // Message management
+  async getMessages(conversationId: string): Promise<ChatMessage[]> {
+    try {
+      // Try network first
+      const response = await offlineAPI.get(
+        `/api/conversations/${conversationId}/messages`,
+      );
+
+      if (response.success && response.data) {
+        // Cache messages
+        for (const msg of response.data) {
+          await this.storage.saveData(
+            "messages",
+            { ...msg, conversationId },
+            msg.id,
+          );
+        }
+        return response.data;
+      }
+    } catch (error) {
+      console.log("📱 Loading messages from cache");
+    }
+
+    // Fallback to cache
+    const cached = await this.storage.getAllData("messages");
+    return cached.filter((msg: any) => msg.conversationId === conversationId);
+  }
+
+  async sendMessage(
+    conversationId: string,
+    content: string,
+    replyTo?: string,
+  ): Promise<ChatMessage> {
+    const tempMessage: ChatMessage = {
+      id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      conversationId,
+      senderId: this.currentUserId,
+      content: content.trim(),
+      timestamp: Date.now(),
+      status: "sending",
+      isOffline: !navigator.onLine,
+      replyTo,
+    };
+
+    // Store message locally immediately
+    await this.storage.saveData("messages", tempMessage, tempMessage.id);
+
+    // Emit new message event
+    this.emit("message:new", tempMessage);
+
+    try {
+      // Try to send to server
+      const response = await offlineAPI.post("/api/messages", {
+        conversationId,
+        content,
+        replyTo,
+      });
+
+      if (response.success && response.data) {
+        // Update with server data
+        const sentMessage: ChatMessage = {
+          ...tempMessage,
+          id: response.data.id,
+          status: "sent",
+          isOffline: false,
+        };
+
+        await this.storage.saveData("messages", sentMessage, sentMessage.id);
+        await this.storage.deleteData("messages", tempMessage.id);
+
+        this.emit("message:sent", sentMessage);
+        return sentMessage;
+      } else {
+        throw new Error("Failed to send message");
+      }
+    } catch (error) {
+      console.log("📡 Message queued for offline sync");
+
+      // Store for later sync
+      await this.storage.saveData(
+        "pendingMessages",
+        {
+          conversationId,
+          content,
+          replyTo,
+          tempId: tempMessage.id,
+          timestamp: tempMessage.timestamp,
+        },
+        tempMessage.id,
+      );
+
+      // Update status
+      const failedMessage: ChatMessage = {
+        ...tempMessage,
+        status: navigator.onLine ? "failed" : "sending",
+      };
+
+      await this.storage.saveData("messages", failedMessage, failedMessage.id);
+      this.emit("message:failed", failedMessage);
+
+      return failedMessage;
+    }
+  }
+
+  async markMessageAsRead(messageId: string): Promise<void> {
+    try {
+      const response = await offlineAPI.put(`/api/messages/${messageId}/read`);
+
+      if (response.success) {
+        // Update local storage
+        const message = await this.storage.getData("messages", messageId);
+        if (message) {
+          message.status = "read";
+          await this.storage.saveData("messages", message, messageId);
+          this.emit("message:read", message);
+        }
+      }
+    } catch (error) {
+      // Queue for later sync
+      await this.storage.saveData(
+        "pendingReads",
+        { messageId, timestamp: Date.now() },
+        messageId,
+      );
+    }
+  }
+
+  async markConversationAsRead(conversationId: string): Promise<void> {
+    try {
+      const response = await offlineAPI.put(
+        `/api/conversations/${conversationId}/read`,
+      );
+
+      if (response.success) {
+        // Update conversation
+        const conversation = await this.storage.getData(
+          "conversations",
+          conversationId,
+        );
+        if (conversation) {
+          conversation.unreadCount = 0;
+          await this.storage.saveData(
+            "conversations",
+            conversation,
+            conversationId,
+          );
+          this.emit("conversation:read", conversation);
+        }
+      }
+    } catch (error) {
+      // Queue for later sync
+      await this.storage.saveData(
+        "pendingConversationReads",
+        { conversationId, timestamp: Date.now() },
+        conversationId,
+      );
+    }
+  }
+
+  // Offline sync
+  async syncPendingMessages(): Promise<void> {
+    if (this.syncInProgress || !navigator.onLine) return;
+
+    this.syncInProgress = true;
+    console.log("🔄 Syncing pending messages...");
+
+    try {
+      // Sync pending messages
+      const pendingMessages =
+        await this.storage.getUnsyncedData("pendingMessages");
+
+      for (const pending of pendingMessages) {
+        try {
+          const response = await offlineAPI.post("/api/messages", {
+            conversationId: pending.data.conversationId,
+            content: pending.data.content,
+            replyTo: pending.data.replyTo,
+          });
+
+          if (response.success) {
+            // Update the temp message with real ID
+            const tempMessage = await this.storage.getData(
+              "messages",
+              pending.data.tempId,
+            );
+            if (tempMessage) {
+              const sentMessage = {
+                ...tempMessage,
+                id: response.data.id,
+                status: "sent",
+                isOffline: false,
+              };
+
+              await this.storage.saveData(
+                "messages",
+                sentMessage,
+                response.data.id,
+              );
+              await this.storage.deleteData("messages", pending.data.tempId);
+              this.emit("message:synced", sentMessage);
+            }
+
+            // Remove from pending
+            await this.storage.deleteData("pendingMessages", pending.id);
+          }
+        } catch (error) {
+          console.warn("Failed to sync message:", pending.id);
+        }
+      }
+
+      // Sync pending reads
+      await this.syncPendingReads();
+
+      console.log("✅ Message sync completed");
+    } catch (error) {
+      console.error("❌ Sync failed:", error);
+    } finally {
+      this.syncInProgress = false;
+    }
+  }
+
+  private async syncPendingReads(): Promise<void> {
+    const pendingReads = await this.storage.getUnsyncedData("pendingReads");
+
+    for (const pending of pendingReads) {
+      try {
+        await offlineAPI.put(`/api/messages/${pending.data.messageId}/read`);
+        await this.storage.deleteData("pendingReads", pending.id);
+      } catch (error) {
+        console.warn("Failed to sync read status:", pending.id);
+      }
+    }
+
+    const pendingConvReads = await this.storage.getUnsyncedData(
+      "pendingConversationReads",
+    );
+
+    for (const pending of pendingConvReads) {
+      try {
+        await offlineAPI.put(
+          `/api/conversations/${pending.data.conversationId}/read`,
+        );
+        await this.storage.deleteData("pendingConversationReads", pending.id);
+      } catch (error) {
+        console.warn("Failed to sync conversation read status:", pending.id);
       }
     }
   }
 
-  // إطلاق حدث
-  private emit(event: string, data?: any) {
-    const listeners = this.eventListeners.get(event);
-    if (listeners) {
-      listeners.forEach((callback) => callback(data));
-    }
+  // Search functionality
+  async searchMessages(query: string): Promise<ChatMessage[]> {
+    const allMessages = await this.storage.getAllData("messages");
+    return allMessages.filter((msg: ChatMessage) =>
+      msg.content.toLowerCase().includes(query.toLowerCase()),
+    );
   }
 
-  // تحميل المحادثات
-  async loadConversations(userId: string): Promise<Conversation[]> {
+  async searchConversations(query: string): Promise<ChatConversation[]> {
+    const allConversations = await this.storage.getAllData("conversations");
+    return allConversations.filter((conv: ChatConversation) =>
+      conv.name.toLowerCase().includes(query.toLowerCase()),
+    );
+  }
+
+  // Utility methods
+  async getUnreadCount(): Promise<number> {
     try {
-      // محاولة تحميل المحادثات من API
-      const response = await apiClient.getConversations();
-
-      // تجميع المحادثات
-      const conversationsMap = new Map<string, Conversation>();
-
-      response.conversations?.forEach((conv: any) => {
-        conversationsMap.set(conv.id, {
-          id: conv.id,
-          user: conv.user || {
-            id: conv.id,
-            name: conv.name || `مستخدم ${conv.id}`,
-            email: `${conv.id}@example.com`,
-            role: "customer" as any,
-            status: "active",
-            level: 50,
-            points: 1000,
-            is_verified: false,
-            created_at: new Date().toISOString(),
-          },
-          lastMessage: conv.lastMessage
-            ? {
-                id: conv.lastMessage.id,
-                sender_id: conv.lastMessage.sender_id,
-                receiver_id: conv.lastMessage.receiver_id,
-                content: conv.lastMessage.content || conv.lastMessage.message,
-                created_at: conv.lastMessage.created_at,
-                read: conv.lastMessage.read || false,
-                delivery_status: conv.lastMessage.read ? "read" : "delivered",
-              }
-            : undefined,
-          unreadCount: conv.unreadCount || 0,
-          isOnline: Math.random() > 0.5,
-        });
-      });
-
-      const conversations = Array.from(conversationsMap.values());
-
-      // حفظ في الذاكرة المحلية
-      conversations.forEach((conv) => {
-        this.conversations.set(conv.id, conv);
-      });
-
-      this.emit("conversationsLoaded", conversations);
-      return conversations;
+      const response = await offlineAPI.get("/api/messages/unread-count");
+      if (response.success) {
+        return response.data.count;
+      }
     } catch (error) {
-      console.error("خطأ في تحميل المحادثات:", error);
+      // Calculate from cache
+      const conversations = await this.storage.getAllData("conversations");
+      return conversations.reduce(
+        (total: number, conv: ChatConversation) => total + conv.unreadCount,
+        0,
+      );
+    }
 
-      // إرجاع بيانات وهمية في حالة الخطأ
-      const mockConversations = this.generateMockConversations(userId);
-      this.emit("conversationsLoaded", mockConversations);
-      return mockConversations;
+    return 0;
+  }
+
+  async deleteMessage(messageId: string): Promise<void> {
+    try {
+      await offlineAPI.delete(`/api/messages/${messageId}`);
+      await this.storage.deleteData("messages", messageId);
+      this.emit("message:deleted", { messageId });
+    } catch (error) {
+      // Queue for later sync
+      await this.storage.saveData(
+        "pendingDeletes",
+        { messageId, timestamp: Date.now() },
+        messageId,
+      );
     }
   }
 
-  // تحميل رسائل محادثة محددة
-  async loadMessages(
-    conversationId: string,
-    userId: string,
-  ): Promise<Message[]> {
+  async editMessage(messageId: string, newContent: string): Promise<void> {
     try {
-      // محاولة تحميل الرسائل من API
-      const response = await apiClient.getMessages(conversationId);
+      const response = await offlineAPI.put(`/api/messages/${messageId}`, {
+        content: newContent,
+      });
 
-      const messages: Message[] = [];
-
-      response.messages?.forEach((msg: any) => {
-        if (
-          (msg.sender_id === userId && msg.receiver_id === conversationId) ||
-          (msg.sender_id === conversationId && msg.receiver_id === userId)
-        ) {
-          messages.push({
-            id: msg.id,
-            sender_id: msg.sender_id,
-            receiver_id: msg.receiver_id,
-            content: msg.content || msg.message,
-            created_at: msg.created_at,
-            read: msg.read || false,
-            delivery_status: msg.read ? "read" : "delivered",
-            message_type: msg.message_type || "text",
-          });
+      if (response.success) {
+        const message = await this.storage.getData("messages", messageId);
+        if (message) {
+          message.content = newContent;
+          message.edited = true;
+          message.editedAt = Date.now();
+          await this.storage.saveData("messages", message, messageId);
+          this.emit("message:edited", message);
         }
-      });
-
-      // ترتيب الرسائل حس�� التاريخ
-      messages.sort(
-        (a, b) =>
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-      );
-
-      // حفظ في الذاكرة المحلية
-      this.messages.set(conversationId, messages);
-
-      this.emit("messagesLoaded", { conversationId, messages });
-      return messages;
+      }
     } catch (error) {
-      console.error("خطأ في تحميل الرسائل:", error);
-
-      // إرجاع بيانات وهمية في حالة الخطأ
-      const mockMessages = this.generateMockMessages(conversationId, userId);
-      this.emit("messagesLoaded", { conversationId, messages: mockMessages });
-      return mockMessages;
+      // Queue for later sync
+      await this.storage.saveData(
+        "pendingEdits",
+        { messageId, newContent, timestamp: Date.now() },
+        messageId,
+      );
     }
   }
 
-  // إرسال رسالة
-  async sendMessage(data: SendMessageData, senderId: string): Promise<Message> {
-    const tempId = `temp_${Date.now()}_${Math.random()}`;
-
-    // إنشاء رسالة مؤقتة
-    const tempMessage: Message = {
-      id: tempId,
-      sender_id: senderId,
-      receiver_id: data.receiver_id,
-      content: data.content,
-      created_at: new Date().toISOString(),
-      read: false,
-      delivery_status: "sending",
-      message_type: "text",
-    };
-
-    // إضافة الرسالة فوراً للواجهة
-    const conversationMessages = this.messages.get(data.receiver_id) || [];
-    conversationMessages.push(tempMessage);
-    this.messages.set(data.receiver_id, conversationMessages);
-
-    this.emit("messageAdded", {
-      conversationId: data.receiver_id,
-      message: tempMessage,
-    });
-
-    try {
-      // محاولة الإرسال عبر API
-      const response = await apiClient.sendMessage({
-        receiver_id: data.receiver_id,
-        content: data.content,
-        message_type: "text",
-      });
-
-      // تحديث الرسالة بالمعرف الحقيقي
-      const sentMessage: Message = {
-        ...tempMessage,
-        id: response.message?.id || tempId,
-        delivery_status: "sent",
-      };
-
-      // تحديث في الذاكرة المحلية
-      const updatedMessages = conversationMessages.map((msg) =>
-        msg.id === tempId ? sentMessage : msg,
-      );
-      this.messages.set(data.receiver_id, updatedMessages);
-
-      this.emit("messageUpdated", {
-        conversationId: data.receiver_id,
-        oldMessageId: tempId,
-        message: sentMessage,
-      });
-
-      return sentMessage;
-    } catch (error) {
-      console.error("خطأ في إرسال الرسالة:", error);
-
-      // تحديث حالة الرسالة إلى فشل
-      const failedMessage: Message = {
-        ...tempMessage,
-        delivery_status: "failed",
-      };
-
-      const updatedMessages = conversationMessages.map((msg) =>
-        msg.id === tempId ? failedMessage : msg,
-      );
-      this.messages.set(data.receiver_id, updatedMessages);
-
-      this.emit("messageUpdated", {
-        conversationId: data.receiver_id,
-        oldMessageId: tempId,
-        message: failedMessage,
-      });
-
-      throw error;
-    }
-  }
-
-  // إعادة إرسال رسالة فاشلة
-  async retryMessage(messageId: string, conversationId: string): Promise<void> {
-    const messages = this.messages.get(conversationId);
-    if (!messages) return;
-
-    const message = messages.find((msg) => msg.id === messageId);
-    if (!message || message.delivery_status !== "failed") return;
-
-    // تحديث حالة الرسالة إلى إرسال
-    message.delivery_status = "sending";
-    this.emit("messageUpdated", {
-      conversationId,
-      oldMessageId: messageId,
-      message,
-    });
-
-    try {
-      const response = await apiClient.sendMessage({
-        receiver_id: message.receiver_id,
-        content: message.content,
-        message_type: "text",
-      });
-
-      // تحديث الرسالة بالنجاح
-      message.id = response.message?.id || message.id;
-      message.delivery_status = "sent";
-
-      this.emit("messageUpdated", {
-        conversationId,
-        oldMessageId: messageId,
-        message,
-      });
-    } catch (error) {
-      console.error("خطأ في إعادة إرسال الرسالة:", error);
-      message.delivery_status = "failed";
-      this.emit("messageUpdated", {
-        conversationId,
-        oldMessageId: messageId,
-        message,
-      });
-      throw error;
-    }
-  }
-
-  // تحديث حالة قراءة الرسائل
-  async markAsRead(conversationId: string, userId: string): Promise<void> {
-    try {
-      const messages = this.messages.get(conversationId);
-      if (!messages) return;
-
-      const unreadMessages = messages.filter(
-        (msg) => msg.receiver_id === userId && !msg.read,
-      );
-
-      if (unreadMessages.length === 0) return;
-
-      // تحديث محليا
-      unreadMessages.forEach((msg) => {
-        msg.read = true;
-        msg.delivery_status = "read";
-      });
-
-      this.emit("messagesMarkedAsRead", {
-        conversationId,
-        messageIds: unreadMessages.map((m) => m.id),
-      });
-
-      // تحديث في الخادم (اختياري)
-      // await apiClient.markMessagesAsRead(unreadMessages.map(m => m.id));
-    } catch (error) {
-      console.error("خطأ في تحديث حالة القراءة:", error);
-    }
-  }
-
-  // إنشاء محادثات وهمية للاختبار
-  private generateMockConversations(userId: string): Conversation[] {
-    return [
-      {
-        id: "user1",
-        user: {
-          id: "user1",
-          name: "أحمد محمد",
-          email: "ahmed@example.com",
-          role: "barber" as any,
-          status: "active",
-          level: 85,
-          points: 2100,
-          is_verified: true,
-          created_at: new Date().toISOString(),
-        },
-        lastMessage: {
-          id: "msg1",
-          sender_id: "user1",
-          receiver_id: userId,
-          content: "مرحباً، كيف يمكنني مساعدتك؟",
-          created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          read: false,
-          delivery_status: "delivered",
-        },
-        unreadCount: 2,
-        isOnline: true,
-      },
-      {
-        id: "user2",
-        user: {
-          id: "user2",
-          name: "فاطمة أحمد",
-          email: "fatima@example.com",
-          role: "customer" as any,
-          status: "active",
-          level: 65,
-          points: 1200,
-          is_verified: true,
-          created_at: new Date().toISOString(),
-        },
-        lastMessage: {
-          id: "msg2",
-          sender_id: userId,
-          receiver_id: "user2",
-          content: "شكراً لك على الخدمة الممتازة",
-          created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          read: true,
-          delivery_status: "read",
-        },
-        unreadCount: 0,
-        isOnline: false,
-        lastSeen: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-      },
-    ];
-  }
-
-  // إنشاء رسائل وهمية للاختبار
-  private generateMockMessages(
-    conversationId: string,
-    userId: string,
-  ): Message[] {
-    return [
-      {
-        id: "1",
-        sender_id: conversationId,
-        receiver_id: userId,
-        content: "مرحباً! كيف يمكنني مساعدتك اليوم؟",
-        created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-        read: true,
-        delivery_status: "read",
-      },
-      {
-        id: "2",
-        sender_id: userId,
-        receiver_id: conversationId,
-        content: "مرحباً، أريد حجز موعد للغد",
-        created_at: new Date(Date.now() - 50 * 60 * 1000).toISOString(),
-        read: true,
-        delivery_status: "read",
-      },
-      {
-        id: "3",
-        sender_id: conversationId,
-        receiver_id: userId,
-        content: "بالطبع! ما هو الوقت المناسب لك؟",
-        created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-        read: false,
-        delivery_status: "delivered",
-      },
-    ];
-  }
-
-  // تنظيف الذاكرة
-  cleanup() {
-    this.messages.clear();
-    this.conversations.clear();
-    this.eventListeners.clear();
+  // Cleanup
+  destroy() {
+    this.listeners.clear();
+    window.removeEventListener("online", this.syncPendingMessages);
+    window.removeEventListener("offline", () => {});
   }
 }
 
-// إنشاء مثيل مشترك
-export const chatManager = new ChatManager();
+// Singleton instance
+const chatManager = new ChatManager();
+
+export default chatManager;
+export { ChatManager };
