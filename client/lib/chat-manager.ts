@@ -64,10 +64,10 @@ export class ChatManager {
   // تحميل المحادثات
   async loadConversations(userId: string): Promise<Conversation[]> {
     try {
-      // محاولة تحميل من API
-      const response = await apiClient.getMessages(50, 0);
+      // محاولة تحميل المحادثات من API
+      const response = await apiClient.getConversations();
 
-      // تجميع الرسائل في محادثات
+      // تجميع المحادثات
       const conversationsMap = new Map<string, Conversation>();
 
       response.messages?.forEach((msg: any) => {
@@ -340,7 +340,7 @@ export class ChatManager {
     }
   }
 
-  // إنشاء محادثات وهمية للاختبار
+  // إنشاء محاد��ات وهمية للاختبار
   private generateMockConversations(userId: string): Conversation[] {
     return [
       {
