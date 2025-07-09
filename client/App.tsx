@@ -180,7 +180,7 @@ const AppContent = () => {
       </Layout>
 
       {/* نظام الدردشة المحسن */}
-      <ChatOverlay
+      <ImprovedChatOverlay
         user={state.user}
         targetUser={chatTargetUser}
         isVisible={showChat}
@@ -251,7 +251,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إضافة د��لة عالمية لفتح صفحة التشخيص
+    // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
