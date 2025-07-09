@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { User } from "@shared/api";
+import "../../styles/chat-overlay.css";
 import {
   X,
   ArrowLeft,
