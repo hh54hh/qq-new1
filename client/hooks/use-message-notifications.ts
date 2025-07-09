@@ -92,8 +92,11 @@ export function useMessageNotifications() {
       }
 
       try {
-        const response = await apiClient.getUnreadMessageCount();
-        setLastUnreadCount(response.count);
+        const response = await networkAwareAPI.safeRequest(
+          () => apiClient.getUnreadMessageCount(),
+          { count: 0 },
+        );
+        setLastUnreadCount(response?.count || 0);
         return response.count;
       } catch (error: any) {
         console.warn("⚠️ فشل تحديث عدد الرسائل:", error.message);
