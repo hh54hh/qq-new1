@@ -25,6 +25,9 @@ import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
 import PWAManager from "./components/PWAManager";
+import PWAUpdateNotification, {
+  PWAStatusBar,
+} from "./components/PWAUpdateNotification";
 import { Button } from "@/components/ui/button";
 import { User } from "@shared/api";
 import { useAppStore } from "./lib/store";
@@ -62,7 +65,7 @@ const AppContent = () => {
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
-      console.log("🔧 تم فتح ��فحة التشخيص");
+      console.log("🔧 تم فت�� صفحة التشخيص");
     };
 
     // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
@@ -248,7 +251,7 @@ const App = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التش��يص");
+    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
     console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -256,6 +259,8 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
+          <PWAStatusBar />
+          <PWAUpdateNotification />
           <Toaster />
           <Sonner />
           <Routes>
