@@ -22,28 +22,17 @@ interface MessagesPageProps {
 
 interface Message {
   id: string;
-  conversationId: string;
   senderId: string;
   content: string;
-  type: string;
   createdAt: Date;
-  updatedAt: Date;
-}
-
-interface Conversation {
-  id: string;
-  user1Id: string;
-  user2Id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  lastMessage?: Message;
 }
 
 interface MessageWithUser extends Message {
   sender: User;
 }
 
-interface ConversationWithUser extends Conversation {
+interface ConversationItem {
+  id: string;
   otherUser: User;
   lastMessage?: MessageWithUser;
 }
@@ -61,11 +50,9 @@ export default function MessagesPage({
   const urlTargetUserId = searchParams.get("user") || targetUserId;
 
   // States
-  const [conversations, setConversations] = useState<ConversationWithUser[]>(
-    [],
-  );
+  const [conversations, setConversations] = useState<ConversationItem[]>([]);
   const [activeConversation, setActiveConversation] =
-    useState<ConversationWithUser | null>(null);
+    useState<ConversationItem | null>(null);
   const [messages, setMessages] = useState<MessageWithUser[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,7 +69,7 @@ export default function MessagesPage({
     scrollToBottom();
   }, [messages]);
 
-    // Open specific conversation if targetUserId provided
+  // Open specific conversation if targetUserId provided
   useEffect(() => {
     if (urlTargetUserId && conversations.length > 0) {
       const targetConversation = conversations.find(
@@ -98,26 +85,12 @@ export default function MessagesPage({
   const loadConversations = async () => {
     try {
       setIsLoading(true);
-            const response = await apiClient.getConversations();
 
-      // Transform conversations with user data - using mock data for now
-      const conversationsWithUsers: ConversationWithUser[] = [];
+      // For now, return empty array - will implement real API calls later
+      const conversationsWithUsers: ConversationItem[] = [];
 
-      // TODO: Implement real conversation loading
-      console.log("TODO: Load real conversations", response);
-
-          return {
-            ...conv,
-            otherUser,
-            lastMessage: conv.lastMessage
-              ? {
-                  ...conv.lastMessage,
-                  sender:
-                    conv.lastMessage.senderId === user.id ? user : otherUser,
-                }
-              : undefined,
-          };
-        });
+      // TODO: Implement real conversation loading from API
+      console.log("TODO: Load real conversations from API");
 
       setConversations(conversationsWithUsers);
     } catch (error) {
@@ -129,44 +102,11 @@ export default function MessagesPage({
 
   const loadMessages = async (conversationId: string) => {
     try {
-      const response = await apiClient.getMessages(conversationId);
+      // For now, return empty array - will implement real API calls later
+      const messagesWithUsers: MessageWithUser[] = [];
 
-      // Get all unique user IDs from messages
-      const userIds = [...new Set(response.messages.map((m) => m.senderId))];
-      const users = new Map<string, User>();
-      users.set(user.id, user);
-
-      // Load user data for other participants
-      for (const userId of userIds) {
-        if (userId !== user.id && !users.has(userId)) {
-          try {
-            const userResponse = await apiClient.getBarberProfile(userId);
-            users.set(userId, userResponse.barber);
-          } catch {
-            // Fallback user if loading fails
-            users.set(userId, {
-              id: userId,
-              name: "مستخدم غير معروف",
-              email: "",
-              role: "customer" as const,
-              location: null,
-              verified: false,
-              rating: 0,
-              profilePictureUrl: null,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
-          }
-        }
-      }
-
-      // Transform messages with sender data
-      const messagesWithUsers: MessageWithUser[] = response.messages.map(
-        (msg) => ({
-          ...msg,
-          sender: users.get(msg.senderId) || users.get(user.id)!,
-        }),
-      );
+      // TODO: Implement real message loading from API
+      console.log("TODO: Load messages for conversation:", conversationId);
 
       setMessages(messagesWithUsers);
     } catch (error) {
@@ -181,16 +121,19 @@ export default function MessagesPage({
       setIsSending(true);
 
       const messageData = {
-        conversationId: activeConversation.id,
+        receiver_id: activeConversation.otherUser.id,
         content: newMessage.trim(),
-        type: "text" as const,
+        message_type: "text",
       };
 
       const response = await apiClient.sendMessage(messageData);
 
       // Add the new message to the list
       const newMessageWithUser: MessageWithUser = {
-        ...response.message,
+        id: response.message.id,
+        senderId: user.id,
+        content: newMessage.trim(),
+        createdAt: new Date(),
         sender: user,
       };
 
@@ -426,7 +369,7 @@ export default function MessagesPage({
               </div>
               <h3 className="text-lg font-medium mb-2">اختر محادثة</h3>
               <p className="text-muted-foreground">
-                اختر محادثة من القائمة لبدء المراسلة
+                اختر م��ادثة من القائمة لبدء المراسلة
               </p>
             </div>
           </div>
