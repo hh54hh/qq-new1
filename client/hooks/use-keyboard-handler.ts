@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 
 interface KeyboardState {
   isVisible: boolean;
@@ -14,16 +14,16 @@ export function useKeyboardHandler() {
   });
 
   // فحص دعم Virtual Keyboard API
-  const isVirtualKeyboardSupported = useCallback(() => {
+  const isVirtualKeyboardSupported = () => {
     return "virtualKeyboard" in navigator;
-  }, []);
+  };
 
   // فحص إذا كان الجهاز محمول
-  const isMobile = useCallback(() => {
+  const isMobile = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent,
     );
-  }, []);
+  };
 
   // معالجة تغيي�� حجم النافذة (للكيبورد على الأجهزة المحمولة)
   const handleResize = useCallback(() => {
