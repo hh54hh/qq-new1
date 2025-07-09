@@ -21,45 +21,59 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-golden-900/10">
       {/* Header */}
       <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Scissors className="h-8 w-8 text-golden-500" />
-            <span className="text-2xl font-bold text-golden-500">
-              BarberApp
-            </span>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                (window.location.href = "/network-diagnostic-test")
-              }
-            >
-              اختبار التشخيص
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => (window.location.href = "/network-diagnostic")}
-            >
-              التشخيص الشامل
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => (window.location.href = "/debug")}
-            >
-              التشخيص السريع
-            </Button>
-            <Button onClick={() => (window.location.href = "/auth")}>
-              تسجيل الدخول
-            </Button>
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          {/* Main header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Scissors className="h-6 w-6 sm:h-8 sm:w-8 text-golden-500" />
+              <span className="text-lg sm:text-2xl font-bold text-golden-500">
+                BarberApp
+              </span>
+            </div>
+
+            {/* Mobile: Only login button */}
+            <div className="sm:hidden">
+              <Button
+                size="sm"
+                onClick={() => (window.location.href = "/auth")}
+              >
+                دخول
+              </Button>
+            </div>
+
+            {/* Desktop: All buttons */}
+            <div className="hidden sm:flex gap-2">
+              <Button onClick={() => (window.location.href = "/auth")}>
+                تسجيل الدخول
+              </Button>
+            </div>
           </div>
 
-          {/* PWA Manager */}
-          <div className="mt-4">
-            <PWAManager className="max-w-xs" />
+          {/* Debug buttons - only for development */}
+          {import.meta.env.DEV && (
+            <div className="mt-2 flex flex-wrap gap-1 justify-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+                onClick={() => (window.location.href = "/debug")}
+              >
+                تشخيص
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+                onClick={() => (window.location.href = "/network-diagnostic")}
+              >
+                شبكة
+              </Button>
+            </div>
+          )}
+
+          {/* PWA Manager - compact */}
+          <div className="mt-2">
+            <PWAManager className="w-full max-w-md mx-auto" />
           </div>
         </div>
       </header>
