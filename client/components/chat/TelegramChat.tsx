@@ -133,12 +133,25 @@ export default function TelegramChat({
         targetConversation &&
         (!activeConversation || activeConversation.id !== initialConversationId)
       ) {
-        console.log("🎯 فتح المحادثة المطلوبة:", targetConversation.name);
+        console.log(
+          "🎯 [TELEGRAM-CHAT-EFFECT] فتح المحادثة المطلوبة:",
+          targetConversation.name,
+          "ID:",
+          targetConversation.id,
+        );
         setActiveConversation(targetConversation);
         loadMessages(targetConversation.id);
         if (isMobile) {
           setShowConversations(false);
         }
+        console.log("✅ [TELEGRAM-CHAT-EFFECT] تم تعيين المحادثة النشطة");
+      } else {
+        console.log(
+          "⚠️ [TELEGRAM-CHAT-EFFECT] لم يتم العثور على المحادثة أو هي نشطة بالفعل. initialConversationId:",
+          initialConversationId,
+          "conversations.length:",
+          conversations.length,
+        );
       }
     }
   }, [initialConversationId, conversations, activeConversation, isMobile]);
@@ -167,7 +180,7 @@ export default function TelegramChat({
           (c) => c.id === initialConversationId,
         );
         if (targetConversation) {
-          console.log("🎯 فتح المحادثة:", targetConversation.name);
+          console.log("🎯 فت�� المحادثة:", targetConversation.name);
           setActiveConversation(targetConversation);
           loadMessages(targetConversation.id);
           if (isMobile) {
@@ -385,7 +398,7 @@ export default function TelegramChat({
 
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-muted-foreground truncate">
-                        {conversation.lastMessage || "لا توجد رسائل"}
+                        {conversation.lastMessage || "لا ت��جد رسائل"}
                       </p>
                       {conversation.unreadCount &&
                         conversation.unreadCount > 0 && (
