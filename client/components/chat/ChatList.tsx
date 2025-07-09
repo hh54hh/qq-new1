@@ -25,9 +25,9 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { User } from "@shared/api";
-import apiClient from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useChat } from "@/hooks/use-chat";
 
 interface Message {
   id: string;
@@ -66,147 +66,23 @@ export default function ChatList({
   onBack,
   refreshTrigger = 0,
 }: ChatListProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<
     "all" | "unread" | "pinned"
   >("all");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    loadConversations();
-  }, [refreshTrigger]);
-
-  useEffect(() => {
-    // تحديث المحادثات كل 5 ثوانٍ
-    const interval = setInterval(loadConversations, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadConversations = async () => {
-    try {
-      setIsLoading(true);
-      const response = await apiClient.getConversations();
-
-      // تحويل البيانات لتتضمن معلومات إضافية
-      const enhancedConversations: Conversation[] = (
-        response.conversations || []
-      ).map((conv: any) => ({
-        id: conv.user.id,
-        user: conv.user,
-        lastMessage: conv.lastMessage,
-        unreadCount: conv.unreadCount || 0,
-        isPinned: false, // يمكن إضافة هذا للقاعدة لاحقاً
-        isArchived: false,
-        isOnline: Math.random() > 0.5, // محاكاة الحالة الحقيقية
-        lastSeen: conv.user.last_seen || new Date().toISOString(),
-        isTyping: false,
-      }));
-
-      setConversations(enhancedConversations);
-    } catch (error) {
-      console.error("خطأ في تحميل المحادثات:", error);
-
-      // بيانات تجريبية محسنة
-      const mockConversations: Conversation[] = [
-        {
-          id: "barber_1",
-          user: {
-            id: "barber_1",
-            name: "أحمد الحلاق المحترف",
-            email: "ahmed@example.com",
-            role: "barber",
-            status: "active",
-            level: 95,
-            points: 3500,
-            is_verified: true,
-            created_at: new Date().toISOString(),
-            avatar_url:
-              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face",
-          },
-          lastMessage: {
-            id: "msg_1",
-            sender_id: "barber_1",
-            receiver_id: user.id,
-            content: "شكراً لك على الحجز، نراك غداً إن شاء الله 👍",
-            created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-            read: false,
-            message_type: "text",
-          },
-          unreadCount: 3,
-          isPinned: true,
-          isArchived: false,
-          isOnline: true,
-          isTyping: false,
-        },
-        {
-          id: "barber_2",
-          user: {
-            id: "barber_2",
-            name: "محمد العلي",
-            email: "mohammed@example.com",
-            role: "barber",
-            status: "active",
-            level: 88,
-            points: 2800,
-            is_verified: true,
-            created_at: new Date().toISOString(),
-            avatar_url:
-              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face",
-          },
-          lastMessage: {
-            id: "msg_2",
-            sender_id: user.id,
-            receiver_id: "barber_2",
-            content: "متى يمكنني الحجز لقصة شعر عصرية؟",
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-            read: true,
-            message_type: "text",
-          },
-          unreadCount: 0,
-          isPinned: false,
-          isArchived: false,
-          isOnline: false,
-          lastSeen: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
-          isTyping: false,
-        },
-        {
-          id: "barber_3",
-          user: {
-            id: "barber_3",
-            name: "خالد المبدع",
-            email: "khalid@example.com",
-            role: "barber",
-            status: "active",
-            level: 92,
-            points: 3100,
-            is_verified: true,
-            created_at: new Date().toISOString(),
-            avatar_url:
-              "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&fit=crop&crop=face",
-          },
-          lastMessage: {
-            id: "msg_3",
-            sender_id: "barber_3",
-            receiver_id: user.id,
-            content: "تم تحديد موعدك بنجاح، سعداء بخدمتك ✨",
-            created_at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
-            read: true,
-            message_type: "text",
-          },
-          unreadCount: 0,
-          isPinned: false,
-          isArchived: false,
-          isOnline: true,
-          isTyping: true,
-        },
-      ];
-      setConversations(mockConversations);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    conversations,
+    isLoading,
+    totalUnreadCount,
+    updateConversation,
+    deleteConversation: deleteChatConversation,
+  } = useChat({
+    userId: user.id,
+    enableRealtime: true,
+    refreshInterval: 5000,
+  });
 
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -239,27 +115,13 @@ export default function ChatList({
   };
 
   const togglePin = (conversationId: string) => {
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === conversationId
-          ? { ...conv, isPinned: !conv.isPinned }
-          : conv,
-      ),
+    const conversation = conversations.find(
+      (conv) => conv.id === conversationId,
     );
-  };
-
-  const deleteConversation = async (conversationId: string) => {
-    try {
-      await apiClient.deleteConversation(conversationId);
-      setConversations((prev) =>
-        prev.filter((conv) => conv.id !== conversationId),
-      );
-    } catch (error) {
-      console.error("خطأ في حذف المحادثة:", error);
-      // حذف محلي كبديل
-      setConversations((prev) =>
-        prev.filter((conv) => conv.id !== conversationId),
-      );
+    if (conversation) {
+      updateConversation(conversationId, {
+        isPinned: !conversation.isPinned,
+      });
     }
   };
 
@@ -294,11 +156,6 @@ export default function ChatList({
       : 0;
     return bTime - aTime;
   });
-
-  const totalUnreadCount = conversations.reduce(
-    (sum, conv) => sum + conv.unreadCount,
-    0,
-  );
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -610,7 +467,7 @@ export default function ChatList({
                                     className="text-destructive focus:text-destructive"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      deleteConversation(conversation.id);
+                                      deleteChatConversation(conversation.id);
                                     }}
                                   >
                                     <Trash2 className="mr-2 h-4 w-4" />
