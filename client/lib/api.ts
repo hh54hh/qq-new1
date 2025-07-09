@@ -271,7 +271,7 @@ class ApiClient {
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
-              errorMessage = "خ��مة API غير متوف��ة - مش��لة في إعدادات الخادم";
+              errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم الفني على: 07800657822";
@@ -290,7 +290,7 @@ class ApiClient {
               errorMessage = "خطأ في الخادم، يرجى المحاولة مرة أخرى";
               errorType = "SERVER_ERROR";
               suggestion =
-                "إذا استمرت المشكلة، اتصل بالدعم الفني على: 07800657822";
+                "إذا اس��مرت المشكلة، اتصل بالدعم الفني على: 07800657822";
               break;
             case 502:
               errorMessage = "الخادم غير متاح حالياً، يرجى المحاولة لاح��اً";
@@ -353,10 +353,10 @@ class ApiClient {
           networkErrorMessage = "فشل في الاتصال بالخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
-          networkErrorMessage = "خطأ في ا��شبكة";
+          networkErrorMessage = "خطأ في ا����شبكة";
           suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
         } else if (error.message.includes("timeout")) {
-          networkErrorMessage = "انتهت مهلة الاتصال";
+          networkErrorMessage = "ا��تهت مهلة الاتصال";
           suggestion = "الاتصال بطيء، يرجى المحاولة مرة أخرى";
         }
 
@@ -421,14 +421,14 @@ class ApiClient {
   }
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    return this.request<AuthResponse>("/api/auth/register", {
+    return this.request<AuthResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify(userData),
     });
   }
 
   async getProfile(): Promise<{ user: User }> {
-    return this.request<{ user: User }>("/api/auth/profile");
+    return this.request<{ user: User }>("/auth/profile");
   }
 
   async updateProfile(profileData: {
