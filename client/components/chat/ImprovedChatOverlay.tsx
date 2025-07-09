@@ -286,6 +286,7 @@ export default function ImprovedChatOverlay({
   return (
     <AnimatePresence>
       <motion.div
+        key="chat-overlay"
         ref={overlayRef}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -297,6 +298,7 @@ export default function ImprovedChatOverlay({
         <AnimatePresence>
           {connectionError && (
             <motion.div
+              key="connection-error"
               initial={{ opacity: 0, y: -50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -50 }}
@@ -309,6 +311,7 @@ export default function ImprovedChatOverlay({
         </AnimatePresence>
 
         <motion.div
+          key="chat-container"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
