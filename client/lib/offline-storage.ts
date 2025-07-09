@@ -206,7 +206,14 @@ class OfflineStorageManager {
       const transaction = this.db!.transaction([storeName], "readonly");
       const store = transaction.objectStore(storeName);
       const index = store.index("synced");
-      const request = index.getAll(IDBKeyRange.only(0)); // استخدام 0 بدلاً من false
+      // استخدام 0 للبحث عن البيانات غير المتزامنة (synced = false)
+      const keyValue = 0;
+      if (!this.isValidIndexDBKey(keyValue)) {
+        console.warn("⚠️ Invalid key for IndexedDB:", keyValue);
+        resolve([]);
+        return;
+      }
+      const request = index.getAll(IDBKeyRange.only(keyValue));
 
       request.onsuccess = () => {
         resolve(request.result);
