@@ -15,6 +15,7 @@ import {
   GetFriendRequestsResponse,
 } from "@shared/api";
 import { ErrorHandler } from "./error-handler";
+import { ApiErrorHandler } from "./api-error-handler";
 
 // Extended interfaces for frontend use
 export interface SearchFilters {
@@ -251,7 +252,7 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+                errorMessage = "البريد الإلكتروني أو ��لمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
