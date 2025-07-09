@@ -20,6 +20,7 @@ import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
+import networkAwareAPI from "@/lib/api-wrapper";
 import PostViewPage from "./PostViewPage";
 import { StartChatButton } from "@/components/EnhancedStartChatButton";
 
@@ -74,12 +75,21 @@ export default function UserProfile({
   const loadUserStats = async () => {
     try {
       setIsLoadingStats(true);
-      const followersResponse = await apiClient.getFollows("followers");
-      const followingResponse = await apiClient.getFollows("following");
-      setFollowerCount(followersResponse.total || 0);
-      setFollowingCount(followingResponse.total || 0);
+
+      // Use safe network-aware API calls
+      const followersResponse = await networkAwareAPI.safeRequest(
+        () => apiClient.getFollows("followers"),
+        { total: 0 },
+      );
+      const followingResponse = await networkAwareAPI.safeRequest(
+        () => apiClient.getFollows("following"),
+        { total: 0 },
+      );
+
+      setFollowerCount(followersResponse?.total || 0);
+      setFollowingCount(followingResponse?.total || 0);
     } catch (error) {
-      console.error("Error loading user stats:", error);
+      console.log("📱 استخدام بيانات محفوظة لإحصائيات المستخدم");
       setFollowerCount(0);
       setFollowingCount(0);
     } finally {
@@ -90,8 +100,14 @@ export default function UserProfile({
   const loadUserPosts = async () => {
     try {
       setIsLoadingPosts(true);
-      const response = await apiClient.getPosts();
-      const userSpecificPosts = (response.posts || []).filter(
+
+      // Use safe network-aware API call
+      const response = await networkAwareAPI.safeRequest(
+        () => apiClient.getPosts(),
+        { posts: [] },
+      );
+
+      const userSpecificPosts = (response?.posts || []).filter(
         (post) => post.user_id === profileUser.id,
       );
       setUserPosts(userSpecificPosts);
