@@ -70,7 +70,7 @@ export class ChatManager {
       // تجميع المحادثات
       const conversationsMap = new Map<string, Conversation>();
 
-      response.messages?.forEach((msg: any) => {
+      response.conversations?.forEach((conv: any) => {
         const otherUserId =
           msg.sender_id === userId ? msg.receiver_id : msg.sender_id;
         const otherUser = msg.sender_id === userId ? msg.receiver : msg.sender;
@@ -204,7 +204,7 @@ export class ChatManager {
       message_type: "text",
     };
 
-    // إضافة الرسالة فوراً للواجهة
+    // إضافة الر��الة فوراً للواجهة
     const conversationMessages = this.messages.get(data.receiver_id) || [];
     conversationMessages.push(tempMessage);
     this.messages.set(data.receiver_id, conversationMessages);
@@ -385,7 +385,7 @@ export class ChatManager {
           id: "msg2",
           sender_id: userId,
           receiver_id: "user2",
-          content: "شكراً لك ��لى الخدمة الممتازة",
+          content: "شكراً لك على الخدمة الممتازة",
           created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
           read: true,
           delivery_status: "read",
