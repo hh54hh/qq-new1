@@ -32,7 +32,7 @@ import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
 import { Button } from "@/components/ui/button";
-import { User } from "@shared/api";
+import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
 import { useMessageNotifications } from "./hooks/use-message-notifications";
