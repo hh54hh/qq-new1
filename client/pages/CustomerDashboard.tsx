@@ -52,6 +52,7 @@ interface CustomerDashboardProps {
   activeTab: string;
   onLogout?: () => void;
   onStartChat?: (targetUser: User) => void; // دالة بدء الدردشة الجديدة
+  targetChatUserId?: string; // معرف المستخدم المستهدف للدردشة
 }
 
 export default function CustomerDashboard({
@@ -59,6 +60,7 @@ export default function CustomerDashboard({
   activeTab,
   onLogout,
   onStartChat,
+  targetChatUserId,
 }: CustomerDashboardProps) {
   const [state, store] = useAppStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -320,7 +322,7 @@ export default function CustomerDashboard({
       },
     ];
 
-    // إضافة طلبات الصداقة للإشعارات إذا لم تكن موج��دة
+    // إضافة طلبات الصداقة للإشعارات إذا لم تكن مو����دة
     friendRequests.forEach((request) => {
       const exists = state.notifications.some((n) => n.id === request.id);
       if (!exists) {
@@ -2079,7 +2081,7 @@ export default function CustomerDashboard({
     case "bookings":
       return renderBookings();
     case "messages":
-      return <EnhancedMessagesPage />;
+      return <EnhancedMessagesPage targetUserId={targetChatUserId} />;
     case "profile":
       return renderProfile();
     default:
