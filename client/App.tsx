@@ -123,7 +123,7 @@ const AppContent = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-500 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جارٍ التحميل...</p>
+          <p className="text-muted-foreground">ج��رٍ التحميل...</p>
         </div>
       </div>
     );
@@ -208,6 +208,16 @@ const NotificationsRoute = () => {
       onBack={() => window.history.back()}
     />
   );
+};
+
+const MessagesRoute = () => {
+  const [state] = useAppStore();
+
+  if (!state.user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <MessagesPage user={state.user} />;
 };
 
 const DebugRoute = () => {
