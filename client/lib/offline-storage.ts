@@ -226,7 +226,7 @@ class OfflineStorageManager {
       getRequest.onsuccess = () => {
         const data = getRequest.result;
         if (data) {
-          data.synced = true;
+          data.synced = 1; // استخدام 1 بدلاً من true
           const putRequest = store.put(data);
 
           putRequest.onsuccess = () => {
