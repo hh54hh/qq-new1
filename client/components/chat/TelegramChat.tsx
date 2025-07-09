@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { getOfflineStorage } from "@/lib/offline-storage";
 import offlineAPI from "@/lib/offline-api";
 import chatManager from "@/lib/chat-manager";
+import ChatPerformanceMonitor from "../ChatPerformanceMonitor";
 
 interface Message {
   id: string;
@@ -202,6 +203,7 @@ export default function TelegramChat({
 
   return (
     <div className="flex h-screen bg-background">
+      <ChatPerformanceMonitor />
       {/* Conversations Sidebar */}
       <div className="w-80 bg-card border-r border-border flex flex-col">
         <style jsx>{`
