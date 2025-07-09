@@ -17,10 +17,10 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import {
-  chatManager,
+  realChatManager,
   type Message,
   type Conversation,
-} from "@/lib/chat-manager";
+} from "@/lib/real-chat-manager";
 import StableMessageInput from "./StableMessageInput";
 import { useSimpleKeyboard } from "@/hooks/use-simple-keyboard";
 
@@ -170,7 +170,7 @@ export default function ImprovedChatOverlay({
     }
   }, [newMessage, selectedConversation, user.id, isSending]);
 
-  // معالجة أحداث مدير الدردشة
+  // معالجة أحداث م��ير الدردشة
   useEffect(() => {
     const handleMessageAdded = (data: any) => {
       if (
