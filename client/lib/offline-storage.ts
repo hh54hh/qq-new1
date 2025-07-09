@@ -188,6 +188,14 @@ class OfflineStorageManager {
       throw new Error("Database not initialized");
     }
 
+    if (!this.db.objectStoreNames.contains(storeName)) {
+      console.warn(
+        `Store '${storeName}' not found. Available stores:`,
+        Array.from(this.db.objectStoreNames),
+      );
+      return [];
+    }
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([storeName], "readonly");
       const store = transaction.objectStore(storeName);
