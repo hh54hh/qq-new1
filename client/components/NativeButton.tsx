@@ -317,4 +317,3 @@ export function ButtonGroup({
 }
 
 export { NativeButton, nativeButtonVariants };
-export type { NativeButtonProps };
