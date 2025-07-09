@@ -33,7 +33,7 @@ import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
 import NetworkStatusBanner from "./components/NetworkStatusBanner";
-import ImprovedChatOverlay from "./components/chat/ImprovedChatOverlay";
+
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
