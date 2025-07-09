@@ -1889,7 +1889,7 @@ export default function CustomerDashboard({
                     <div className="flex-1">
                       <h4 className="font-medium">
                         {follower.follower?.name ||
-                          `م��تخدم ${follower.follower_id.slice(-4)}`}
+                          `مستخدم ${follower.follower_id.slice(-4)}`}
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         {follower.follower?.role === "barber" ? "حلاق" : "زبون"}
@@ -2064,7 +2064,7 @@ export default function CustomerDashboard({
             className="w-full justify-start gap-3"
             onClick={onLogout}
           >
-            تسجيل خروج
+            ��سجيل خروج
           </Button>
         </div>
       </div>
@@ -2078,6 +2078,8 @@ export default function CustomerDashboard({
       return renderSearch();
     case "bookings":
       return renderBookings();
+    case "messages":
+      return <EnhancedMessagesPage />;
     case "profile":
       return renderProfile();
     default:
