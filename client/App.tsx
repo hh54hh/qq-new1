@@ -31,6 +31,7 @@ import PWAUpdateNotification, {
 import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
+import NetworkStatusBanner from "./components/NetworkStatusBanner";
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
@@ -283,6 +284,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
+          <NetworkStatusBanner />
           <PWAStatusBar />
           <PWAUpdateNotification />
           <PWAPerformanceMonitor />
