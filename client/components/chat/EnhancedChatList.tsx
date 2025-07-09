@@ -174,7 +174,7 @@ export default function EnhancedChatList({
 
     switch (message.message_type) {
       case "image":
-        return "📷 صورة";
+        return "📷 صور��";
       case "voice":
         return "🎵 رسالة صوتية";
       case "location":
@@ -200,7 +200,7 @@ export default function EnhancedChatList({
       {!isOnline && (
         <div className="relative z-50 bg-red-500 text-white text-center py-2 text-sm">
           <WifiOff className="h-4 w-4 inline mr-2" />
-          وضع عدم الاتصال - يتم عرض الرسائل المحفوظة
+          وضع عدم الاتصال - يتم عرض الرسائل المحف��ظة
         </div>
       )}
 
@@ -257,7 +257,7 @@ export default function EnhancedChatList({
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Users className="mr-2 h-4 w-4" />
-                    مجم��عات جديدة
+                    مجموعات جديدة
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Archive className="mr-2 h-4 w-4" />
@@ -314,7 +314,7 @@ export default function EnhancedChatList({
                 <div className="text-center py-16">
                   <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
                   <p className="text-gray-600 dark:text-gray-400">
-                    جاري تحميل المحادثات...
+                    جاري تحميل المحا��ثات...
                   </p>
                 </div>
               ) : sortedConversations.length === 0 ? (
@@ -422,7 +422,8 @@ export default function EnhancedChatList({
                             </div>
                             {conversation.lastMessage && (
                               <div className="flex items-center gap-1">
-                                {conversation.lastMessage.isOffline && (
+                                {(conversation.lastMessage as any)
+                                  ?.isOffline && (
                                   <Clock className="h-3 w-3 text-gray-400" />
                                 )}
                                 <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
