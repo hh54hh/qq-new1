@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
+import networkAwareAPI from "@/lib/api-wrapper";
 import { useNetworkStatus } from "@/lib/chat-storage";
 
 export function useMessageNotifications() {
@@ -22,8 +23,11 @@ export function useMessageNotifications() {
       }
 
       try {
-        const response = await apiClient.getUnreadMessageCount();
-        const unreadCount = response.count;
+        const response = await networkAwareAPI.safeRequest(
+          () => apiClient.getUnreadMessageCount(),
+          { count: 0 },
+        );
+        const unreadCount = response?.count || 0;
 
         // إعادة تعيين عداد الأخطاء عند النجاح
         setConsecutiveErrors(0);
