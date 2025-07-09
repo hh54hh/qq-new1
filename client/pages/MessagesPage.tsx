@@ -82,7 +82,7 @@ export default function MessagesPage({
     scrollToBottom();
   }, [messages]);
 
-  // Open specific conversation if targetUserId provided
+    // Open specific conversation if targetUserId provided
   useEffect(() => {
     if (urlTargetUserId && conversations.length > 0) {
       const targetConversation = conversations.find(
@@ -98,27 +98,13 @@ export default function MessagesPage({
   const loadConversations = async () => {
     try {
       setIsLoading(true);
-      const response = await apiClient.getConversations();
+            const response = await apiClient.getConversations();
 
-      // Transform conversations with user data
-      const conversationsWithUsers: ConversationWithUser[] =
-        response.conversations.map((conv) => {
-          const otherUserId =
-            conv.user1Id === user.id ? conv.user2Id : conv.user1Id;
-          const otherUser = response.users.find(
-            (u) => u.id === otherUserId,
-          ) || {
-            id: otherUserId,
-            name: "مستخدم غير معروف",
-            email: "",
-            role: "customer" as const,
-            location: null,
-            verified: false,
-            rating: 0,
-            profilePictureUrl: null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          };
+      // Transform conversations with user data - using mock data for now
+      const conversationsWithUsers: ConversationWithUser[] = [];
+
+      // TODO: Implement real conversation loading
+      console.log("TODO: Load real conversations", response);
 
           return {
             ...conv,
