@@ -319,8 +319,12 @@ function createAppWithRoutes(app: express.Application) {
   // Authentication routes - both /api and direct paths for Netlify compatibility
   app.post("/api/auth/login", handleLogin);
   app.post("/auth/login", handleLogin);
+  app.post("/api/login", handleLogin); // Direct login endpoint
+  app.post("/login", handleLogin); // Direct login endpoint
   app.post("/api/auth/register", handleRegister);
   app.post("/auth/register", handleRegister);
+  app.post("/api/register", handleRegister); // Direct register endpoint
+  app.post("/register", handleRegister); // Direct register endpoint
   app.get("/api/auth/profile", handleGetProfile);
   app.get("/auth/profile", handleGetProfile);
   app.put("/api/auth/profile", handleUpdateProfile);
