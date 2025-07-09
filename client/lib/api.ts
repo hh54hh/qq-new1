@@ -129,7 +129,7 @@ class ApiClient {
       }
     }
 
-    console.warn("⚠️ لم يتم العث��ر على API على أي من المسارات المت��قعة");
+    console.warn("⚠️ لم يتم العث���ر على API على أي من المسارات المت��قعة");
     // في حالة عدم العثور على API، استخدم المسار الا��تراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
@@ -216,13 +216,19 @@ class ApiClient {
       endpoint,
     });
 
+    // إنشاء controller للطلب فقط إذا لم يوجد signal مُمرر
+    let controller: AbortController | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+
     try {
-      // إضافة timeout للطلبات (30 ثانية)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        console.warn(`⏰ انتهت مهلة الطلب: ${endpoint}`);
-        controller.abort();
-      }, 30000);
+      // استخدام signal المُمرر أو إنشاء جديد مع timeout
+      if (!options.signal) {
+        controller = new AbortController();
+        timeoutId = setTimeout(() => {
+          console.warn(`⏰ انتهت مهلة الطلب (30 ثانية): ${endpoint}`);
+          controller?.abort();
+        }, 30000);
+      }
 
       const response = await fetch(url, {
         ...options,
@@ -230,10 +236,10 @@ class ApiClient {
           ...this.getHeaders(),
           ...options.headers,
         },
-        signal: options.signal || controller.signal,
+        signal: options.signal || controller?.signal,
       });
 
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
 
       console.log(`API Response: ${response.status} ${response.statusText}`);
 
