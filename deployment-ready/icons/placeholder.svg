@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- خلفية ذهبية -->
+  <rect width="512" height="512" fill="#d4af37" rx="64"/>
+  
+  <!-- شكل مقص (رمز الحلاقة) -->
+  <g transform="translate(256,256)" fill="#1a1b1e">
+    <!-- مقبض المقص العلوي -->
+    <circle cx="-40" cy="-60" r="20"/>
+    <!-- مقبض المقص السفل�� -->
+    <circle cx="-40" cy="60" r="20"/>
+    
+    <!-- شفرة المقص العلوية -->
+    <path d="M-20,-40 L80,-20 L80,-30 L-20,-50 Z"/>
+    <!-- شفرة المقص السفلية -->
+    <path d="M-20,40 L80,20 L80,30 L-20,50 Z"/>
+    
+    <!-- المحور -->
+    <circle cx="0" cy="0" r="8"/>
+    
+    <!-- خطوط الشعر -->
+    <path d="M100,-10 L140,-15 M100,0 L140,0 M100,10 L140,15" stroke="#1a1b1e" stroke-width="3" fill="none"/>
+  </g>
+  
+  <!-- نص عربي صغير -->
+  <text x="256" y="420" text-anchor="middle" font-family="Arial" font-size="36" font-weight="bold" fill="#1a1b1e">حلاقة</text>
+</svg>

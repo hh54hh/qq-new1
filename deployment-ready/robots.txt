@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# PWA files
+Allow: /manifest.json
+Allow: /sw.js
+Allow: /icons/
+Allow: /screenshots/
+
+# API endpoints (disallow indexing)
+Disallow: /api/
+Disallow: /.netlify/functions/
+
+# Private pages
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /debug
+
+Sitemap: /sitemap.xml
