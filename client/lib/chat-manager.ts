@@ -65,7 +65,7 @@ export class ChatManager {
   async loadConversations(userId: string): Promise<Conversation[]> {
     try {
       // محاولة تحميل من API
-      const response = await apiClient.getMessages();
+      const response = await apiClient.getMessages(50, 0);
 
       // تجميع الرسائل في محادثات
       const conversationsMap = new Map<string, Conversation>();
@@ -145,7 +145,7 @@ export class ChatManager {
   ): Promise<Message[]> {
     try {
       // محاولة تحميل من API
-      const response = await apiClient.getMessages();
+      const response = await apiClient.getMessages(50, 0);
 
       const messages: Message[] = [];
 
@@ -219,7 +219,7 @@ export class ChatManager {
       const response = await apiClient.sendMessage({
         receiver_id: data.receiver_id,
         content: data.content,
-        reply_to: data.reply_to,
+        message_type: "text",
       });
 
       // تحديث الرسالة بالمعرف الحقيقي
@@ -274,7 +274,7 @@ export class ChatManager {
     const message = messages.find((msg) => msg.id === messageId);
     if (!message || message.delivery_status !== "failed") return;
 
-    // تحدي�� حالة الرسالة إلى إرسال
+    // تحديث حالة الرسالة إلى إرسال
     message.delivery_status = "sending";
     this.emit("messageUpdated", {
       conversationId,
