@@ -129,7 +129,7 @@ export default function ImprovedChatOverlay({
       setConnectionError(null);
 
       try {
-        const loadedMessages = await chatManager.loadMessages(
+        const loadedMessages = await realChatManager.loadMessages(
           conversationId,
           user.id,
         );
