@@ -209,42 +209,6 @@ const NotificationsRoute = () => {
   );
 };
 
-const MessagesRoute = () => {
-  const [state] = useAppStore();
-
-  if (!state.user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  // استخراج معرف المستخدم المستهدف من URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const targetUserId = urlParams.get("with");
-  const targetUserName = urlParams.get("name");
-
-  let targetUser: User | undefined;
-  if (targetUserId && targetUserName) {
-    targetUser = {
-      id: targetUserId,
-      name: decodeURIComponent(targetUserName),
-      email: `${targetUserId}@example.com`,
-      role: "barber" as UserRole,
-      status: "active",
-      level: 90,
-      points: 2500,
-      is_verified: true,
-      created_at: new Date().toISOString(),
-    };
-  }
-
-  return (
-    <MessagesPage
-      user={state.user}
-      onBack={() => window.history.back()}
-      targetUser={targetUser}
-    />
-  );
-};
-
 const DebugRoute = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -338,7 +302,6 @@ const App = () => {
             {/* Authenticated routes */}
             <Route path="/dashboard" element={<AppContent />} />
             <Route path="/notifications" element={<NotificationsRoute />} />
-            <Route path="/messages" element={<MessagesRoute />} />
 
             {/* Catch all route - show 404 page */}
             <Route path="*" element={<NotFound />} />
