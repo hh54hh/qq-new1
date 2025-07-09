@@ -54,6 +54,12 @@ const navItems: NavItem[] = [
     roles: ["customer"],
   },
   {
+    id: "messages",
+    label: "المحادثات",
+    icon: MessageCircle,
+    roles: ["customer", "barber"],
+  },
+  {
     id: "requests",
     label: "طلبات",
     icon: MessageCircle,
