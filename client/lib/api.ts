@@ -49,7 +49,7 @@ class ApiClient {
         return window.location.origin + "/api";
       }
 
-      // في بيئة الإنتاج - تحقق من نوع النشر
+      // في بيئة الإنتاج - تحقق من ��وع النشر
       const hostname = window.location.hostname;
 
       // إذا كان على Netlify (أي موقع يحتوي على netlify في الاسم)
@@ -117,7 +117,15 @@ class ApiClient {
           console.log(`❌ API غير متاح على ${path}: ${response.status}`);
         }
       } catch (error) {
-        console.log(`❌ خطأ في الاتصال بـ ${path}:`, error);
+        // تجاهل أخطاء AbortController timeout العادية
+        if (error instanceof Error && error.name === "AbortError") {
+          console.log(`⏰ انتهت مهلة الاختبار لـ ${path}`);
+        } else {
+          console.log(
+            `❌ خطأ في الاتصال بـ ${path}:`,
+            error instanceof Error ? error.message : error,
+          );
+        }
       }
     }
 
@@ -915,7 +923,7 @@ class ApiClient {
       throw new Error("محتوى الرسالة فارغ");
     }
 
-    console.log("📤 إر��ال رسالة عبر API:", {
+    console.log("📤 إرسال رسالة عبر API:", {
       receiver_id: messageData.receiver_id,
       content_length: messageData.content.length,
       message_type: messageData.message_type || "text",
