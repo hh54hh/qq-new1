@@ -4,6 +4,7 @@ import { Scissors, Star, Clock, MapPin } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import PWAManager from "@/components/PWAManager";
 
 const Index = () => {
   const [state] = useAppStore();
@@ -123,7 +124,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  اختر من بين العديد من المحلات في مختلف أنحاء المدينة
+                  اختر من بين ��لعديد من المحلات في مختلف أنحاء المدينة
                 </p>
               </CardContent>
             </Card>
