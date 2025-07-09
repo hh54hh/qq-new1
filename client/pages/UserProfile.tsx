@@ -129,7 +129,7 @@ export default function UserProfile({
       (now.getTime() - date.getTime()) / (1000 * 60 * 60),
     );
 
-    if (diffInHours < 1) return "الآن";
+    if (diffInHours < 1) return "ال��ن";
     if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
 
     const diffInDays = Math.floor(diffInHours / 24);
@@ -174,7 +174,7 @@ export default function UserProfile({
       store.addNotification({
         id: Date.now().toString(),
         type: isFollowing ? "friend_request" : "new_follower",
-        title: isFollowing ? "إلغاء المتابعة" : "متابعة جديدة",
+        title: isFollowing ? "إلغاء ��لمتابعة" : "متابعة جديدة",
         message: isFollowing
           ? `تم إلغاء متابعة ${profileUser.name}`
           : `تتابع الآن ${profileUser.name}`,
@@ -193,7 +193,7 @@ export default function UserProfile({
 
     try {
       if (likedPosts.has(postId)) {
-        await apiClient.unlikePost(postId);
+        await networkAwareAPI.safeRequest(() => apiClient.unlikePost(postId));
         setLikedPosts((prev) => {
           const newSet = new Set(prev);
           newSet.delete(postId);
@@ -207,7 +207,7 @@ export default function UserProfile({
           ),
         );
       } else {
-        await apiClient.likePost(postId);
+        await networkAwareAPI.safeRequest(() => apiClient.likePost(postId));
         setLikedPosts((prev) => new Set(prev).add(postId));
         setUserPosts((prevPosts) =>
           prevPosts.map((post) =>
