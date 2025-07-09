@@ -477,11 +477,17 @@ class ChatManager {
       };
 
       // Save locally
-      await this.storage.saveData(
-        "conversations",
-        newConversation,
-        newConversation.id,
-      );
+      try {
+        await this.storage.saveData(
+          "conversations",
+          newConversation,
+          newConversation.id,
+        );
+        console.log("✅ تم حفظ المحادثة محلياً:", newConversation.id);
+      } catch (storageError) {
+        console.error("❌ فشل في حفظ المحادثة:", storageError);
+        // Return the conversation anyway for immediate use
+      }
 
       console.log("✅ تم إنشاء المحادثة:", newConversation.id);
 
