@@ -236,18 +236,26 @@ export default function Layout({
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-all duration-200 min-w-[50px] sm:min-w-[60px]",
+                  "relative flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-all duration-200 min-w-[50px] sm:min-w-[60px]",
                   isActive
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                 )}
               >
-                <Icon
-                  className={cn(
-                    "h-4 w-4 sm:h-5 sm:w-5",
-                    isActive && "scale-110",
+                <div className="relative">
+                  <Icon
+                    className={cn(
+                      "h-4 w-4 sm:h-5 sm:w-5",
+                      isActive && "scale-110",
+                    )}
+                  />
+                  {/* شارة الرسائل غير المقروءة */}
+                  {item.id === "messages" && unreadMessages > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center min-w-4">
+                      {unreadMessages > 9 ? "9+" : unreadMessages}
+                    </span>
                   )}
-                />
+                </div>
                 <span className="text-xs font-medium truncate">
                   {item.label}
                 </span>
