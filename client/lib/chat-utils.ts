@@ -1,27 +1,6 @@
 import { User } from "@shared/api";
 
 /**
- * بدء محادثة مع مستخدم محدد
- * @param targetUser المستخدم المراد بدء محادثة معه
- * @param currentUser المستخدم الحالي
- */
-export function startChatWithUser(targetUser: User, currentUser: User) {
-  // التحقق من أن المستخدم لا يحاول بدء محادثة مع نفسه
-  if (targetUser.id === currentUser.id) {
-    console.warn("لا يمكن بدء محادثة مع نفسك");
-    return;
-  }
-
-  // إنشاء URL للمحادثة
-  const chatUrl = `/messages?with=${targetUser.id}&name=${encodeURIComponent(
-    targetUser.name,
-  )}`;
-
-  // الانتقال إلى صفحة المحادثة
-  window.location.href = chatUrl;
-}
-
-/**
  * تنسيق وقت آخر ظهور
  * @param lastSeen وقت آخر ظهور
  * @returns نص منسق
@@ -127,42 +106,4 @@ export function generateTempMessageId(): string {
  */
 export function isValidUserId(userId: string): boolean {
   return userId && userId.trim().length > 0 && userId !== "undefined";
-}
-
-/**
- * إنشاء رابط للمحادثة مع مستخدم
- * @param targetUser المستخدم المستهدف
- * @returns رابط المحادثة
- */
-export function createChatLink(targetUser: User): string {
-  return `/messages?with=${targetUser.id}&name=${encodeURIComponent(
-    targetUser.name,
-  )}`;
-}
-
-/**
- * استخراج معلومات المستخدم من رابط المحادثة
- * @param url الرابط
- * @returns معلومات المستخدم أو null
- */
-export function extractUserFromChatUrl(url: string): {
-  id: string;
-  name: string;
-} | null {
-  try {
-    const urlParams = new URLSearchParams(url.split("?")[1]);
-    const id = urlParams.get("with");
-    const name = urlParams.get("name");
-
-    if (id && name) {
-      return {
-        id,
-        name: decodeURIComponent(name),
-      };
-    }
-  } catch (error) {
-    console.error("خطأ في استخراج معلومات المستخدم من الرابط:", error);
-  }
-
-  return null;
 }
