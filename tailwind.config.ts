@@ -19,6 +19,20 @@ export default {
       lg: "1024px",
       xl: "1280px",
       "2xl": "1536px",
+      "3xl": "1920px",
+      // Device-specific breakpoints
+      "mobile-s": "320px",
+      "mobile-m": "375px",
+      "mobile-l": "425px",
+      tablet: "768px",
+      laptop: "1024px",
+      "laptop-l": "1440px",
+      desktop: "1920px",
+      // Orientation breakpoints
+      landscape: { raw: "(orientation: landscape)" },
+      portrait: { raw: "(orientation: portrait)" },
+      // High DPI screens
+      retina: { raw: "(-webkit-min-device-pixel-ratio: 2)" },
     },
     extend: {
       colors: {
@@ -82,6 +96,26 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      spacing: {
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+        "safe-left": "env(safe-area-inset-left)",
+        "safe-right": "env(safe-area-inset-right)",
+      },
+      minHeight: {
+        "screen-safe":
+          "calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+        dvh: "100dvh",
+      },
+      maxHeight: {
+        "screen-safe":
+          "calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+        dvh: "100dvh",
+      },
+      fontSize: {
+        "2xs": ["0.625rem", { lineHeight: "0.75rem" }],
+        "3xs": ["0.5rem", { lineHeight: "0.625rem" }],
       },
       keyframes: {
         "accordion-down": {
