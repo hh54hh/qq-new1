@@ -135,7 +135,7 @@ class ChatManager {
         id: "demo_msg_1",
         conversationId: "demo_user_123",
         senderId: "demo_user_123",
-        content: "مرحباً! هذه رسالة تجريبية 👋‍♂️",
+        content: "مر��باً! هذه رسالة تجريبية 👋‍♂️",
         timestamp: Date.now() - 300000, // 5 دقائق مضت
         status: "read",
         isOwn: false,
@@ -378,8 +378,13 @@ class ChatManager {
       await this.syncPendingReads();
 
       console.log("✅ Message sync completed");
-    } catch (error) {
-      console.error("❌ Sync failed:", error);
+    } catch (error: any) {
+      console.error("❌ Sync failed:");
+      console.error("  Message:", error?.message || "Unknown error");
+      console.error("  Type:", error?.name || "Unknown");
+      if (error?.stack) {
+        console.error("  Stack:", error.stack);
+      }
     } finally {
       this.syncInProgress = false;
     }
