@@ -37,12 +37,14 @@ interface BarberDashboardProps {
   user: User;
   activeTab: string;
   onLogout?: () => void;
+  onStartChat?: (targetUser: User) => void;
 }
 
 export default function BarberDashboard({
   user,
   activeTab,
   onLogout,
+  onStartChat,
 }: BarberDashboardProps) {
   const [state, store] = useAppStore();
   const [newPostCaption, setNewPostCaption] = useState("");
@@ -183,8 +185,12 @@ export default function BarberDashboard({
         }}
         onMessage={() => {
           setShowProfile(false);
-          setMessageTargetUser(selectedProfile);
-          setShowMessages(true);
+          if (onStartChat && selectedProfile) {
+            onStartChat(selectedProfile);
+          } else {
+            setMessageTargetUser(selectedProfile);
+            setShowMessages(true);
+          }
         }}
       />
     );
