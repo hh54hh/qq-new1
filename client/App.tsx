@@ -219,9 +219,7 @@ const MessagesRoute = () => {
   }
 
   // Use enhanced Telegram-style messages page
-  return (
-    <EnhancedMessagesPage initialConversationId={targetUserId || undefined} />
-  );
+  return <EnhancedMessagesPage targetUserId={targetUserId || undefined} />;
 };
 
 const DebugRoute = () => {
