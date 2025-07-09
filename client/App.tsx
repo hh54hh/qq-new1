@@ -167,9 +167,10 @@ const AppContent = () => {
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
-            onStartChat={(user) =>
-              (window.location.href = `/messages?user=${user.id}`)
-            }
+            onStartChat={(user) => {
+              setTargetChatUserId(user.id);
+              setActiveTab("messages");
+            }}
           />
         ) : state.user.role === "barber" ? (
           <BarberDashboard
@@ -276,7 +277,7 @@ const App = () => {
     // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
-      console.log("🔍 تم فتح صفحة التشخيص الشامل");
+      console.log("🔍 تم ��تح صفحة التشخيص الشامل");
     };
 
     console.log("💡 نصائح مفيدة:");
