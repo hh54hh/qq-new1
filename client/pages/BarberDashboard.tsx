@@ -38,6 +38,7 @@ interface BarberDashboardProps {
   activeTab: string;
   onLogout?: () => void;
   onStartChat?: (targetUser: User) => void;
+  targetChatUserId?: string; // معرف المستخدم المستهدف للدردشة
 }
 
 export default function BarberDashboard({
@@ -45,6 +46,7 @@ export default function BarberDashboard({
   activeTab,
   onLogout,
   onStartChat,
+  targetChatUserId,
 }: BarberDashboardProps) {
   const [state, store] = useAppStore();
   const [newPostCaption, setNewPostCaption] = useState("");
@@ -731,7 +733,7 @@ export default function BarberDashboard({
             <Textarea
               value={newPostCaption}
               onChange={(e) => setNewPostCaption(e.target.value)}
-              placeholder="اكتب وصفاً ل��ملك..."
+              placeholder="اك��ب وصفاً ل��ملك..."
               className="min-h-[100px] text-right"
               dir="rtl"
             />
@@ -1024,7 +1026,7 @@ export default function BarberDashboard({
         {following.length === 0 && (
           <div className="text-center py-8">
             <Users className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-            <p className="text-muted-foreground">لا تتاب�� أحد حتى الآن</p>
+            <p className="text-muted-foreground">��ا تتاب�� أحد حتى الآن</p>
           </div>
         )}
       </div>
@@ -1079,7 +1081,7 @@ export default function BarberDashboard({
     case "requests":
       return renderRequests();
     case "messages":
-      return <EnhancedMessagesPage />;
+      return <EnhancedMessagesPage targetUserId={targetChatUserId} />;
     case "new-post":
       return renderNewPost();
     case "profile":
