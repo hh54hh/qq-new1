@@ -66,7 +66,7 @@ export const CompactChatButton: React.FC<CompactChatButtonProps> = ({
     primary:
       "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg",
     secondary:
-      "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 hover:border-slate-400",
+      "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 hover:border-slate-500",
   };
 
   const iconSize = size === "sm" ? 16 : 18;
