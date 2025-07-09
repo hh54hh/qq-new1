@@ -191,8 +191,32 @@ const MessagesRoute = () => {
     return <Navigate to="/auth" replace />;
   }
 
+  // استخراج معرف المستخدم المستهدف من URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetUserId = urlParams.get("with");
+  const targetUserName = urlParams.get("name");
+
+  let targetUser: User | undefined;
+  if (targetUserId && targetUserName) {
+    targetUser = {
+      id: targetUserId,
+      name: decodeURIComponent(targetUserName),
+      email: `${targetUserId}@example.com`,
+      role: "barber" as UserRole,
+      status: "active",
+      level: 90,
+      points: 2500,
+      is_verified: true,
+      created_at: new Date().toISOString(),
+    };
+  }
+
   return (
-    <MessagesPage user={state.user} onBack={() => window.history.back()} />
+    <MessagesPage
+      user={state.user}
+      onBack={() => window.history.back()}
+      targetUser={targetUser}
+    />
   );
 };
 
