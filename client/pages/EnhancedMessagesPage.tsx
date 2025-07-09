@@ -95,8 +95,9 @@ export default function EnhancedMessagesPage({
           conversation.id,
         );
         setTargetConversationId(conversation.id);
+        setFinalConversationId(conversation.id);
         console.log(
-          "✅ [HANDLE-TARGET-USER] تم تعيين targetConversationId إلى:",
+          "✅ [HANDLE-TARGET-USER] تم تعيين finalConversationId إلى:",
           conversation.id,
         );
       } else {
