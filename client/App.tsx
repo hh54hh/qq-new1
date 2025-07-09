@@ -75,7 +75,7 @@ const AppContent = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
-    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
+    // إضافة د��لة عالمية لفتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
@@ -151,14 +151,18 @@ const AppContent = () => {
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
-            onStartChat={handleStartChat}
+            onStartChat={(user) =>
+              (window.location.href = `/messages?user=${user.id}`)
+            }
           />
         ) : state.user.role === "barber" ? (
           <BarberDashboard
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
-            onStartChat={handleStartChat}
+            onStartChat={(user) =>
+              (window.location.href = `/messages?user=${user.id}`)
+            }
           />
         ) : state.user.role === "admin" ? (
           <AdminDashboard
@@ -261,7 +265,7 @@ const App = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
-    // إضافة دا��ة عالمية لفتح صفحة التشخيص الشامل
+    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
