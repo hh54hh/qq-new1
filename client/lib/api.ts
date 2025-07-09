@@ -73,7 +73,7 @@ class ApiClient {
     if (this.apiUrlVerified || typeof window === "undefined") return;
 
     const hostname = window.location.hostname;
-    console.log("🔍 بدء التحقق من API URL:", {
+    console.log("🔍 ��دء التحقق من API URL:", {
       hostname,
       currentBaseUrl: this.baseUrl,
     });
@@ -364,6 +364,18 @@ class ApiClient {
       });
       return data;
     } catch (error) {
+      // Handle AbortError (timeout or cancellation)
+      if (error instanceof Error && error.name === "AbortError") {
+        console.warn(`⏰ تم إلغاء الطلب أو انتهت المهلة: ${endpoint}`);
+
+        const timeoutError = new Error(
+          "انتهت مهلة الاتصال، يرجى المحاولة مرة أخرى",
+        ) as any;
+        timeoutError.errorType = "TIMEOUT_ERROR";
+        timeoutError.suggestion = "تحقق من اتصال الإنترنت وحاول مرة أخرى";
+        throw timeoutError;
+      }
+
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
         console.error("Network error:", { error, url });
@@ -892,7 +904,7 @@ class ApiClient {
   async getMessages(otherUserId: string): Promise<{ messages: any[] }> {
     // التحقق من صحة معرف المستخدم
     if (!otherUserId || otherUserId === "undefined") {
-      console.error("❌ معرف المستخدم غير صحيح:", otherUserId);
+      console.error("��� معرف المستخدم غير صحيح:", otherUserId);
       return { messages: [] };
     }
 
