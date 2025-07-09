@@ -58,7 +58,7 @@ class ApiClient {
         hostname.includes("netlify")
       ) {
         console.log("🌐 Detected Netlify deployment, using Functions path");
-        return window.location.origin + "/.netlify/functions";
+        return window.location.origin + "/.netlify/functions/api";
       }
 
       // لجميع البيئات الأخ��ى (fly.dev وغيرها) استخدم /api العادي
@@ -79,7 +79,7 @@ class ApiClient {
 
     // إذا كان على Netlify، استخدم مسار Functions مباشرة دون اختبار
     if (hostname.includes("netlify")) {
-      this.baseUrl = window.location.origin + "/.netlify/functions";
+      this.baseUrl = window.location.origin + "/.netlify/functions/api";
       this.apiUrlVerified = true;
       console.log("✅ Netlify detected - using functions path directly");
       return;
@@ -91,7 +91,7 @@ class ApiClient {
     for (const path of possiblePaths) {
       try {
         const testUrl = window.location.origin + path + "/ping";
-        console.log(`⏳ اختبار: ${testUrl}`);
+        console.log(`⏳ ��ختبار: ${testUrl}`);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);

@@ -338,10 +338,22 @@ export default function CustomerDashboard({
     try {
       store.setLoading(true);
       console.log("📡 Fetching barbers from API...");
+      console.log("🌐 API Base URL:", (apiClient as any).baseUrl);
+
+      // Test API connectivity first
+      try {
+        console.log("🏓 Testing ping endpoint...");
+        const pingResponse = await fetch("/api/ping");
+        console.log("🏓 Ping response:", pingResponse.status, pingResponse.ok);
+      } catch (pingError) {
+        console.warn("⚠️ Ping failed:", pingError);
+      }
 
       // Load barbers
       const barbersResponse = await apiClient.getBarbers();
       console.log("📋 Barbers response:", barbersResponse);
+      console.log("📋 Barbers data:", barbersResponse.barbers);
+      console.log("📋 Barbers count:", barbersResponse.barbers?.length || 0);
       const barbers = barbersResponse.barbers || [];
 
       // Load real follow data - handle network errors gracefully
@@ -399,9 +411,64 @@ export default function CustomerDashboard({
       setFilteredBarbers(enhancedBarbers);
     } catch (error) {
       console.error("❌ Error loading barbers:", error);
-      // Set empty arrays on error to prevent crashes
-      setAllBarbers([]);
-      setFilteredBarbers([]);
+
+      // More detailed error logging
+      if (error instanceof Error) {
+        console.error("❌ Error message:", error.message);
+        console.error("❌ Error stack:", error.stack);
+      }
+
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        console.error("🌐 Network error - API might be unavailable");
+      }
+
+      // Set some dummy data for testing if we're in development
+      if (process.env.NODE_ENV === "development") {
+        console.log("🧪 Setting dummy barbers for development testing...");
+        const dummyBarbers = [
+          {
+            id: "dummy-1",
+            name: "حلاق تجريبي 1",
+            email: "test1@test.com",
+            role: "barber" as const,
+            status: "active" as const,
+            level: 50,
+            points: 500,
+            is_verified: true,
+            created_at: new Date().toISOString(),
+            rating: 4.5,
+            followers: 25,
+            distance: 1.2,
+            price: 40,
+            isFollowed: false,
+            avatar_url: "https://i.pravatar.cc/150?img=1",
+          },
+          {
+            id: "dummy-2",
+            name: "حلاق تجريبي 2",
+            email: "test2@test.com",
+            role: "barber" as const,
+            status: "active" as const,
+            level: 80,
+            points: 800,
+            is_verified: true,
+            created_at: new Date().toISOString(),
+            rating: 4.8,
+            followers: 45,
+            distance: 2.1,
+            price: 50,
+            isFollowed: false,
+            avatar_url: "https://i.pravatar.cc/150?img=2",
+          },
+        ];
+        setAllBarbers(dummyBarbers);
+        setFilteredBarbers(dummyBarbers);
+      } else {
+        // Set empty arrays in production
+        setAllBarbers([]);
+        setFilteredBarbers([]);
+      }
     } finally {
       store.setLoading(false);
     }
@@ -749,9 +816,9 @@ export default function CustomerDashboard({
   const getBookingStatusLabel = (status: string) => {
     switch (status) {
       case "pending":
-        return "با����تظار";
+        return "با�����تظار";
       case "accepted":
-        return "مق��ول";
+        return "مق��و��";
       case "rejected":
         return "مرفوض";
       case "cancelled":
@@ -860,7 +927,7 @@ export default function CustomerDashboard({
                         handleToggleFollow(barber.id, barber.isFollowed)
                       }
                     >
-                      إلغاء المتابعة
+                      إلغاء المت��بعة
                     </Button>
                     <Button
                       size="sm"
@@ -1196,6 +1263,40 @@ export default function CustomerDashboard({
           </div>
         </div>
 
+        {/* Debug Info */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="bg-muted p-4 rounded-lg text-sm space-y-2">
+            <p>🔍 Debug Info:</p>
+            <p>• User ID: {user?.id}</p>
+            <p>• All Barbers: {allBarbers.length}</p>
+            <p>• Filtered Barbers: {filteredBarbers.length}</p>
+            <p>• Loading: {state.isLoading ? "Yes" : "No"}</p>
+            <p>
+              • Location:{" "}
+              {userLocation
+                ? `${userLocation.lat}, ${userLocation.lng}`
+                : "Not available"}
+            </p>
+            <div className="flex gap-2 mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => loadBarbers()}
+                disabled={state.isLoading}
+              >
+                🔄 إعادة تحميل الحلاقين
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => console.log("All barbers data:", allBarbers)}
+              >
+                📋 طباعة البيانات
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Followed Barbers Section */}
         {followedBarbers.length > 0 && (
           <div className="space-y-4">
@@ -1291,72 +1392,116 @@ export default function CustomerDashboard({
             </Button>
           </div>
 
-          {nearbyBarbers.slice(0, 3).map((barber) => (
-            <Card key={barber.id} className="border-border/50 bg-card/50">
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <Avatar
-                    className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
-                    onClick={() => handleViewProfile(barber)}
-                  >
-                    <AvatarImage src={barber.avatar_url} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm sm:text-base">
-                      {barber.name ? barber.name.charAt(0) : "ح"}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4
-                        className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm sm:text-base truncate"
-                        onClick={() => handleViewProfile(barber)}
-                      >
-                        {barber.name}
-                      </h4>
-                      <span className="text-xs sm:text-sm">
-                        {getLevelIcon(barber.level)}
-                      </span>
-                      <Badge variant="outline" className="text-xs shrink-0">
-                        {getLevelLabel(barber.level)}
-                      </Badge>
+          {/* Loading State */}
+          {state.isLoading && (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="border-border/50 bg-card/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 bg-muted rounded-full animate-pulse" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-muted rounded animate-pulse" />
+                        <div className="h-3 bg-muted rounded w-3/4 animate-pulse" />
+                      </div>
+                      <div className="h-8 w-16 bg-muted rounded animate-pulse" />
                     </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
-                    <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground flex-wrap">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span>{barber.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        <span className="whitespace-nowrap">
-                          {barber.distance} كم
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span>{barber.followers}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2 shrink-0">
-                    <Badge
-                      className={cn("text-xs", getStatusColor(barber.status))}
-                    >
-                      {barber.status}
-                    </Badge>
-                    <Button
-                      size="sm"
-                      className="bg-primary hover:bg-primary/90 text-xs sm:text-sm"
-                      onClick={() => handleBookBarber(barber)}
-                    >
-                      حجز
-                    </Button>
-                  </div>
-                </div>
+          {/* No Barbers Message */}
+          {!state.isLoading && nearbyBarbers.length === 0 && (
+            <Card className="border-border/50 bg-card/50">
+              <CardContent className="p-8 text-center">
+                <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  لا توجد حلاقين متاحين
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  جاري البحث عن حلاقين في منطقتك...
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loadBarbers()}
+                >
+                  إعادة المحاولة
+                </Button>
               </CardContent>
             </Card>
-          ))}
+          )}
+
+          {/* Barbers List */}
+          {!state.isLoading &&
+            nearbyBarbers.slice(0, 3).map((barber) => (
+              <Card key={barber.id} className="border-border/50 bg-card/50">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <Avatar
+                      className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+                      onClick={() => handleViewProfile(barber)}
+                    >
+                      <AvatarImage src={barber.avatar_url} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-sm sm:text-base">
+                        {barber.name ? barber.name.charAt(0) : "ح"}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4
+                          className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm sm:text-base truncate"
+                          onClick={() => handleViewProfile(barber)}
+                        >
+                          {barber.name}
+                        </h4>
+                        <span className="text-xs sm:text-sm">
+                          {getLevelIcon(barber.level)}
+                        </span>
+                        <Badge variant="outline" className="text-xs shrink-0">
+                          {getLevelLabel(barber.level)}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground flex-wrap">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{barber.rating}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span className="whitespace-nowrap">
+                            {barber.distance} كم
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          <span>{barber.followers}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 shrink-0">
+                      <Badge
+                        className={cn("text-xs", getStatusColor(barber.status))}
+                      >
+                        {barber.status}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90 text-xs sm:text-sm"
+                        onClick={() => handleBookBarber(barber)}
+                      >
+                        حجز
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
         </div>
 
         {/* Suggestions Section */}
@@ -1551,7 +1696,7 @@ export default function CustomerDashboard({
         <div className="text-center py-12">
           <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">
-            لا توجد منشورات مميزة
+            لا ��وجد منشورات مميزة
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery

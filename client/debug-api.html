@@ -1,0 +1,279 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>فحص API - الحلاقين</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: #f9f9f9;
+      }
+      .success {
+        border-color: #4caf50;
+        background-color: #f8fff8;
+      }
+      .error {
+        border-color: #f44336;
+        background-color: #fff8f8;
+      }
+      .loading {
+        border-color: #2196f3;
+        background-color: #f8f9ff;
+      }
+      button {
+        background: #007cba;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #005a87;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      pre {
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 10px;
+      }
+      .status-ok {
+        background: #4caf50;
+      }
+      .status-error {
+        background: #f44336;
+      }
+      .status-loading {
+        background: #2196f3;
+        animation: pulse 1s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 فحص API - الحلاقين</h1>
+      <p>هذه الصفحة تساعد في فحص والتشخيص من عمل API الحلاقين</p>
+
+      <div class="test-section" id="ping-section">
+        <h3>
+          <span class="status-indicator" id="ping-status"></span>
+          1. فحص اتصال الخادم (Ping)
+        </h3>
+        <button onclick="testPing()">اختبار Ping</button>
+        <div id="ping-result"></div>
+      </div>
+
+      <div class="test-section" id="barbers-section">
+        <h3>
+          <span class="status-indicator" id="barbers-status"></span>
+          2. فحص API الحلاقين
+        </h3>
+        <button onclick="testBarbers()">اختبار جلب الحلاقين</button>
+        <div id="barbers-result"></div>
+      </div>
+
+      <div class="test-section" id="url-section">
+        <h3>📍 معلومات البيئة</h3>
+        <div id="environment-info"></div>
+      </div>
+
+      <div class="test-section">
+        <h3>🚀 اختبارات سريعة</h3>
+        <button onclick="runAllTests()">تشغيل جميع الاختبارات</button>
+        <button onclick="clearResults()">مسح النتائج</button>
+      </div>
+    </div>
+
+    <script>
+      // Environment info
+      document.getElementById("environment-info").innerHTML = `
+            <p><strong>المضيف:</strong> ${window.location.hostname}</p>
+            <p><strong>البروتوكول:</strong> ${window.location.protocol}</p>
+            <p><strong>الميناء:</strong> ${window.location.port || "افتراضي"}</p>
+            <p><strong>المسار الكامل:</strong> ${window.location.href}</p>
+            <p><strong>النوع المتوقع:</strong> ${window.location.hostname.includes("netlify") ? "Netlify Functions" : "Express Server"}</p>
+        `;
+
+      function setStatus(elementId, status) {
+        const element = document.getElementById(elementId);
+        element.className = "status-indicator";
+        element.classList.add(`status-${status}`);
+      }
+
+      function updateSection(sectionId, className) {
+        const section = document.getElementById(sectionId);
+        section.className = "test-section " + className;
+      }
+
+      async function testPing() {
+        setStatus("ping-status", "loading");
+        updateSection("ping-section", "loading");
+
+        const resultDiv = document.getElementById("ping-result");
+        resultDiv.innerHTML = "<p>جاري الاختبار...</p>";
+
+        try {
+          const start = Date.now();
+          const response = await fetch("/api/ping");
+          const duration = Date.now() - start;
+
+          if (response.ok) {
+            const data = await response.text();
+            setStatus("ping-status", "ok");
+            updateSection("ping-section", "success");
+            resultDiv.innerHTML = `
+                        <p>✅ <strong>نجح الاتصال!</strong></p>
+                        <p>الاستجابة: ${response.status} ${response.statusText}</p>
+                        <p>الوقت: ${duration}ms</p>
+                        <pre>${data}</pre>
+                    `;
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+        } catch (error) {
+          setStatus("ping-status", "error");
+          updateSection("ping-section", "error");
+          resultDiv.innerHTML = `
+                    <p>❌ <strong>فشل الاتصال!</strong></p>
+                    <p>الخطأ: ${error.message}</p>
+                `;
+        }
+      }
+
+      async function testBarbers() {
+        setStatus("barbers-status", "loading");
+        updateSection("barbers-section", "loading");
+
+        const resultDiv = document.getElementById("barbers-result");
+        resultDiv.innerHTML = "<p>جاري جلب الحلاقين...</p>";
+
+        try {
+          const start = Date.now();
+
+          // Try different possible endpoints
+          const endpoints = ["/api/barbers", "/.netlify/functions/api/barbers"];
+          let lastError = null;
+
+          for (const endpoint of endpoints) {
+            try {
+              console.log(`جاري اختبار: ${endpoint}`);
+              const response = await fetch(endpoint);
+
+              if (response.ok) {
+                const data = await response.json();
+                const duration = Date.now() - start;
+
+                setStatus("barbers-status", "ok");
+                updateSection("barbers-section", "success");
+                resultDiv.innerHTML = `
+                                <p>✅ <strong>نجح جلب الحلاقين!</strong></p>
+                                <p>النقطة النهائية المستخدمة: ${endpoint}</p>
+                                <p>الاستجابة: ${response.status} ${response.statusText}</p>
+                                <p>الوقت: ${duration}ms</p>
+                                <p>عدد الحلاقين: ${data.barbers ? data.barbers.length : "غير محدد"}</p>
+                                <details>
+                                    <summary>عرض البيانات الكاملة</summary>
+                                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                                </details>
+                            `;
+                return; // Success, exit the loop
+              } else {
+                lastError = new Error(
+                  `HTTP ${response.status}: ${response.statusText} from ${endpoint}`,
+                );
+              }
+            } catch (error) {
+              lastError = error;
+              console.log(`فشل ${endpoint}:`, error.message);
+            }
+          }
+
+          // If we get here, all endpoints failed
+          throw lastError || new Error("جميع النقاط النهائية فشلت");
+        } catch (error) {
+          setStatus("barbers-status", "error");
+          updateSection("barbers-section", "error");
+          resultDiv.innerHTML = `
+                    <p>❌ <strong>فشل جلب الحلاقين!</strong></p>
+                    <p>الخطأ: ${error.message}</p>
+                    <p>يُرجى التحقق من:</p>
+                    <ul>
+                        <li>الخادم يعم�� بشكل صحيح</li>
+                        <li>قاعدة البيانات متصلة</li>
+                        <li>المسار الصحيح للـ API</li>
+                    </ul>
+                `;
+        }
+      }
+
+      async function runAllTests() {
+        await testPing();
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+        await testBarbers();
+      }
+
+      function clearResults() {
+        ["ping-result", "barbers-result"].forEach((id) => {
+          document.getElementById(id).innerHTML = "";
+        });
+
+        ["ping-status", "barbers-status"].forEach((id) => {
+          const element = document.getElementById(id);
+          element.className = "status-indicator";
+        });
+
+        ["ping-section", "barbers-section"].forEach((id) => {
+          updateSection(id, "");
+        });
+      }
+
+      // Auto-run tests on page load
+      window.addEventListener("load", () => {
+        console.log("🔧 API Debug page loaded");
+        setTimeout(runAllTests, 1000);
+      });
+    </script>
+  </body>
+</html>

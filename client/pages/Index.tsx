@@ -1,8 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Scissors, Star, Clock, MapPin } from "lucide-react";
+import { useAppStore } from "@/lib/store";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const [state] = useAppStore();
+  const navigate = useNavigate();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (state.user) {
+      navigate("/dashboard");
+    }
+  }, [state.user, navigate]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-golden-900/10">
       {/* Header */}
