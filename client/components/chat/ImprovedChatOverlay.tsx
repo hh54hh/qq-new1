@@ -157,7 +157,7 @@ export default function ImprovedChatOverlay({
     setConnectionError(null);
 
     try {
-      await chatManager.sendMessage(
+      await realChatManager.sendMessage(
         {
           receiver_id: selectedConversation.user.id,
           content: messageContent,
