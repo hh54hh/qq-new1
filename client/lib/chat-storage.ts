@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+
 interface StoredMessage {
   id: string;
   sender_id: string;
@@ -45,7 +47,7 @@ class ChatStorage {
       const allMessages = this.getAllStoredMessages();
       return allMessages[conversationId] || [];
     } catch (error) {
-      console.error("خطأ في جلب الرسائل:", error);
+      console.error("خطأ في جلب ��لرسائل:", error);
       return [];
     }
   }
@@ -128,7 +130,7 @@ class ChatStorage {
       const stored = localStorage.getItem(this.CONVERSATIONS_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error("خطأ في جلب المحادثات:", error);
+      console.error("خطأ في جلب ال��حادثات:", error);
       return [];
     }
   }
