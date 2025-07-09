@@ -79,7 +79,7 @@ class ApiClient {
 
     // إذا كان على Netlify، استخدم مسار Functions مباشرة دون اختبار
     if (hostname.includes("netlify")) {
-      this.baseUrl = window.location.origin + "/.netlify/functions";
+      this.baseUrl = window.location.origin + "/.netlify/functions/api";
       this.apiUrlVerified = true;
       console.log("✅ Netlify detected - using functions path directly");
       return;
