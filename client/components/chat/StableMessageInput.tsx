@@ -324,6 +324,7 @@ export default function StableMessageInput({
         <AnimatePresence>
           {isTyping && (
             <motion.div
+              key="typing-indicator"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
