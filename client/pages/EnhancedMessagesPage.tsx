@@ -22,15 +22,17 @@ export default function EnhancedMessagesPage({
   >(initialConversationId);
 
   useEffect(() => {
-    initializeChatSystem();
-  }, [state.user]);
+    const initializeSystem = async () => {
+      await initializeChatSystem();
 
-  useEffect(() => {
-    // Handle target user from URL parameters
-    if (targetUserId && state.user) {
-      handleTargetUser(targetUserId);
-    }
-  }, [targetUserId, state.user]);
+      // Handle target user after chat system is initialized
+      if (targetUserId && state.user) {
+        await handleTargetUser(targetUserId);
+      }
+    };
+
+    initializeSystem();
+  }, [state.user, targetUserId]);
 
   const initializeChatSystem = async () => {
     try {
