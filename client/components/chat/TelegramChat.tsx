@@ -93,23 +93,11 @@ export default function TelegramChat({
   const loadConversations = async () => {
     try {
       setIsLoading(true);
-
-      // Try to load from network first
-      const response = await offlineAPI.get("/api/conversations");
-
-      if (response.success && response.data) {
-        setConversations(response.data);
-      } else {
-        // Load from offline storage
-        const storage = await getOfflineStorage();
-        const cachedConversations = await storage.getAllData("conversations");
-        setConversations(cachedConversations);
-      }
+      const conversations = await chatManager.getConversations();
+      setConversations(conversations);
     } catch (error) {
-      console.log("📱 Loading conversations from offline storage");
-      const storage = await getOfflineStorage();
-      const cachedConversations = await storage.getAllData("conversations");
-      setConversations(cachedConversations);
+      console.error("Failed to load conversations:", error);
+      setConversations([]);
     } finally {
       setIsLoading(false);
     }
@@ -117,66 +105,24 @@ export default function TelegramChat({
 
   const loadMessages = async (conversationId: string) => {
     try {
-      // Try to load from network first
-      const response = await offlineAPI.get(
-        `/api/conversations/${conversationId}/messages`,
-      );
-
-      if (response.success && response.data) {
-        setMessages(
-          response.data.map((msg: any) => ({
-            ...msg,
-            isOwn: msg.senderId === currentUserId,
-            timestamp: new Date(msg.createdAt).getTime(),
-          })),
-        );
-      } else {
-        // Load from offline storage
-        const storage = await getOfflineStorage();
-        const cachedMessages = await storage.getAllData("messages");
-        const conversationMessages = cachedMessages.filter(
-          (msg: any) => msg.conversationId === conversationId,
-        );
-        setMessages(
-          conversationMessages.map((msg: any) => ({
-            ...msg,
-            isOwn: msg.senderId === currentUserId,
-            timestamp: new Date(msg.createdAt || msg.timestamp).getTime(),
-          })),
-        );
-      }
-    } catch (error) {
-      console.log("📱 Loading messages from offline storage");
-      const storage = await getOfflineStorage();
-      const cachedMessages = await storage.getAllData("messages");
-      const conversationMessages = cachedMessages.filter(
-        (msg: any) => msg.conversationId === conversationId,
-      );
+      const messages = await chatManager.getMessages(conversationId);
       setMessages(
-        conversationMessages.map((msg: any) => ({
+        messages.map((msg: any) => ({
           ...msg,
           isOwn: msg.senderId === currentUserId,
-          timestamp: new Date(msg.createdAt || msg.timestamp).getTime(),
+          timestamp: msg.timestamp || new Date(msg.createdAt).getTime(),
         })),
       );
+    } catch (error) {
+      console.error("Failed to load messages:", error);
+      setMessages([]);
     }
   };
 
   const sendMessage = useCallback(async () => {
     if (!newMessage.trim() || !activeConversation) return;
 
-    const tempMessage: Message = {
-      id: `temp_${Date.now()}`,
-      content: newMessage.trim(),
-      senderId: currentUserId,
-      timestamp: Date.now(),
-      isOwn: true,
-      status: "sending",
-      isOffline: !navigator.onLine,
-    };
-
-    // Add message to UI immediately
-    setMessages((prev) => [...prev, tempMessage]);
+    const messageContent = newMessage.trim();
     setNewMessage("");
 
     // Keep input focused
@@ -185,57 +131,18 @@ export default function TelegramChat({
     }
 
     try {
-      // Try to send to server
-      const response = await offlineAPI.post("/api/messages", {
-        conversationId: activeConversation.id,
-        content: tempMessage.content,
-        recipientId: activeConversation.id, // This should be the other user's ID
-      });
+      // Use chat manager to send message
+      const sentMessage = await chatManager.sendMessage(
+        activeConversation.id,
+        messageContent,
+      );
 
-      if (response.success) {
-        // Update message with server response
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === tempMessage.id
-              ? { ...tempMessage, id: response.data.id, status: "sent" }
-              : msg,
-          ),
-        );
-      } else {
-        // Mark as failed
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === tempMessage.id
-              ? { ...tempMessage, status: "failed" }
-              : msg,
-          ),
-        );
-      }
+      // Message will be added via the real-time handler
+      console.log("✨ Message sent:", sentMessage.id);
     } catch (error) {
-      // Store for offline sync
-      const storage = await getOfflineStorage();
-      await storage.saveData(
-        "pendingMessages",
-        {
-          conversationId: activeConversation.id,
-          content: tempMessage.content,
-          senderId: currentUserId,
-          timestamp: tempMessage.timestamp,
-        },
-        tempMessage.id,
-      );
-
-      // Update status based on network
-      const status = navigator.onLine ? "failed" : "sending";
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === tempMessage.id
-            ? { ...tempMessage, status, isOffline: !navigator.onLine }
-            : msg,
-        ),
-      );
+      console.error("Failed to send message:", error);
     }
-  }, [newMessage, activeConversation, currentUserId]);
+  }, [newMessage, activeConversation]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
