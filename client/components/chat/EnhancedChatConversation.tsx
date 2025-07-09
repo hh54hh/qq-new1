@@ -104,7 +104,7 @@ export default function EnhancedChatConversation({
     scrollToBottom();
   }, [messages]);
 
-  // محاولة إرسال الر��ائل المعلقة عند الاتصال
+  // محاولة إرسال ��لرسائل المعلقة عند الاتصال
   useEffect(() => {
     if (isOnline) {
       retryPendingMessages();
@@ -159,26 +159,19 @@ export default function EnhancedChatConversation({
       if (isOnline) {
         const response = await apiClient.getMessages(conversation.user.id);
 
-        const enhancedMessages: Message[] = (response.messages || []).map(
-          (msg: any) => {
-            // تصحيح: التأكد من وجود محتوى الرسالة
-            const content = msg.content || msg.message || msg.text || "";
+        const rawMessages = response.messages || [];
+        console.log("رسائل خام من API:", rawMessages);
 
-            console.log("تحويل رسالة من API:", {
-              id: msg.id,
-              content: content,
-              originalData: msg,
-            });
-
-            return {
-              ...msg,
-              content: content, // التأكد من حقل المحتوى
-              delivery_status: msg.sender_id === user.id ? "read" : "delivered",
-              is_starred: false,
-              isOffline: false,
-            };
-          },
+        const enhancedMessages: Message[] = normalizeMessages(rawMessages).map(
+          (msg: Message) => ({
+            ...msg,
+            delivery_status: msg.sender_id === user.id ? "read" : "delivered",
+            is_starred: false,
+            isOffline: false,
+          }),
         );
+
+        console.log("رسائل معالجة:", enhancedMessages);
 
         setMessages(enhancedMessages);
         chatStorage.saveMessages(conversation.user.id, enhancedMessages);
@@ -592,7 +585,7 @@ export default function EnhancedChatConversation({
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-3"
                 >
-                  {/* فا��ل التاريخ */}
+                  {/* فاصل التاريخ */}
                   <div className="flex items-center justify-center my-6">
                     <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm">
                       <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
@@ -993,7 +986,7 @@ export default function EnhancedChatConversation({
         </div>
       </div>
 
-      {/* النقر خارج منتقي الرموز التعبيرية لإغلاقه */}
+      {/* النقر خارج منتقي ا��رموز التعبيرية لإغلاقه */}
       {showEmojiPicker && (
         <div
           className="fixed inset-0 z-40"
