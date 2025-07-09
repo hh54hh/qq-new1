@@ -375,6 +375,36 @@ class OfflineStorageManager {
     return null;
   }
 
+  private async cleanupOldBooleanData(): Promise<void> {
+    if (!this.db) return;
+
+    console.log("🧩 تنظيف البيانات القديمة...");
+
+    try {
+      for (const storeName of this.options.stores) {
+        if (this.db.objectStoreNames.contains(storeName)) {
+          const transaction = this.db.transaction([storeName], "readwrite");
+          const store = transaction.objectStore(storeName);
+          const request = store.getAll();
+
+          request.onsuccess = () => {
+            const allData = request.result;
+            for (const item of allData) {
+              if (typeof item.synced === "boolean") {
+                // تحويل boolean إلى number
+                item.synced = item.synced ? 1 : 0;
+                store.put(item);
+                console.log(`🔄 تحويل synced لـ ${item.id}`);
+              }
+            }
+          };
+        }
+      }
+    } catch (error) {
+      console.warn("⚠️ فشل في تنظيف البيانات القديمة:", error);
+    }
+  }
+
   private generateId(): string {
     return `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
