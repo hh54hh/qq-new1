@@ -1,0 +1,589 @@
+<!doctype html>
+<html dir="rtl" lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>اختبار شامل - تسجيل الدخول ولوحة التحكم</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        direction: rtl;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: #f9f9f9;
+      }
+      .success {
+        border-color: #4caf50;
+        background-color: #f8fff8;
+      }
+      .error {
+        border-color: #f44336;
+        background-color: #fff8f8;
+      }
+      .warning {
+        border-color: #ff9800;
+        background-color: #fffbf0;
+      }
+      .loading {
+        border-color: #2196f3;
+        background-color: #f8f9ff;
+      }
+      button {
+        background: #007cba;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #005a87;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      button.secondary {
+        background: #6c757d;
+      }
+      button.danger {
+        background: #dc3545;
+      }
+      button.success {
+        background: #28a745;
+      }
+      pre {
+        background: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+        max-height: 200px;
+        overflow-y: auto;
+        font-size: 12px;
+      }
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 10px;
+      }
+      .status-ok {
+        background: #4caf50;
+      }
+      .status-error {
+        background: #f44336;
+      }
+      .status-warning {
+        background: #ff9800;
+      }
+      .status-loading {
+        background: #2196f3;
+        animation: pulse 1s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      .user-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        background: white;
+        display: inline-block;
+        vertical-align: top;
+        width: 300px;
+      }
+      .user-card h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+      }
+      .credentials {
+        font-family: monospace;
+        background: #f0f0f0;
+        padding: 5px;
+        border-radius: 3px;
+        margin: 5px 0;
+      }
+      .navigation-buttons {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .navigation-buttons button {
+        font-size: 16px;
+        padding: 15px 25px;
+        margin: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 اختبار شامل للتطبيق</h1>
+      <p>هذه الصفحة تساعد في اختبار جميع وظائف التطبيق خطوة بخطوة</p>
+
+      <!-- Navigation Links -->
+      <div class="navigation-buttons">
+        <button onclick="window.open('/', '_blank')" class="success">
+          🏠 الصفحة الرئيسية
+        </button>
+        <button onclick="window.open('/auth', '_blank')" class="secondary">
+          🔑 صفحة تسجيل الدخول
+        </button>
+        <button onclick="window.open('/dashboard', '_blank')" class="secondary">
+          📊 لوحة التحكم
+        </button>
+        <button onclick="window.open('/debug-api.html', '_blank')">
+          🔧 فحص API
+        </button>
+      </div>
+
+      <!-- Test Users -->
+      <div class="test-section">
+        <h3>👥 المستخدمين التجريبيين</h3>
+        <p>
+          <strong>كلمة المرور لجميع المستخدمين:</strong>
+          <span class="credentials">123456</span>
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 10px">
+          <!-- Customers -->
+          <div class="user-card">
+            <h4>👤 أحمد محمد (عمي��)</h4>
+            <div class="credentials">ahmed.customer@example.com</div>
+            <button onclick="testLogin('ahmed.customer@example.com', '123456')">
+              🔑 تسجيل دخول
+            </button>
+            <button onclick="copyToClipboard('ahmed.customer@example.com')">
+              📋 نسخ الإيميل
+            </button>
+          </div>
+
+          <div class="user-card">
+            <h4>👤 فهد العتيبي (عميل)</h4>
+            <div class="credentials">fahad.customer@example.com</div>
+            <button onclick="testLogin('fahad.customer@example.com', '123456')">
+              🔑 تسجيل دخول
+            </button>
+            <button onclick="copyToClipboard('fahad.customer@example.com')">
+              📋 نسخ الإيميل
+            </button>
+          </div>
+
+          <!-- Barbers -->
+          <div class="user-card">
+            <h4>✂️ عبدالرحمن الحلاق (حلاق)</h4>
+            <div class="credentials">barber1@halaga.app</div>
+            <button onclick="testLogin('barber1@halaga.app', '123456')">
+              🔑 تسجيل دخول
+            </button>
+            <button onclick="copyToClipboard('barber1@halaga.app')">
+              📋 نسخ الإيميل
+            </button>
+          </div>
+
+          <div class="user-card">
+            <h4>✂️ محمد الماهر (حلاق)</h4>
+            <div class="credentials">barber2@halaga.app</div>
+            <button onclick="testLogin('barber2@halaga.app', '123456')">
+              🔑 تسجيل دخول
+            </button>
+            <button onclick="copyToClipboard('barber2@halaga.app')">
+              📋 نسخ الإيميل
+            </button>
+          </div>
+
+          <!-- Admin -->
+          <div class="user-card">
+            <h4>👑 إدارة النظام (مدير)</h4>
+            <div class="credentials">super.admin@halaga.app</div>
+            <button onclick="testLogin('super.admin@halaga.app', '123456')">
+              🔑 تسجيل دخول
+            </button>
+            <button onclick="copyToClipboard('super.admin@halaga.app')">
+              📋 نسخ الإيميل
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Login Test Results -->
+      <div class="test-section" id="login-section">
+        <h3>
+          <span class="status-indicator" id="login-status"></span>
+          🔑 نتائج اختبار تسجيل الدخول
+        </h3>
+        <div id="login-result"></div>
+      </div>
+
+      <!-- API Tests -->
+      <div class="test-section" id="api-section">
+        <h3>
+          <span class="status-indicator" id="api-status"></span>
+          🌐 اختبارات API
+        </h3>
+        <button onclick="testAllAPIs()">🚀 اختبار جميع APIs</button>
+        <button onclick="testBarbersAPI()">👥 اختبار API الحلاقين</button>
+        <button onclick="testAuthAPI()">🔐 اختبار API المصادقة</button>
+        <div id="api-result"></div>
+      </div>
+
+      <!-- System Status -->
+      <div class="test-section" id="system-section">
+        <h3>📊 حالة النظام</h3>
+        <button onclick="checkSystemStatus()">🔍 فحص حالة النظام</button>
+        <button onclick="clearLocalStorage()">🧹 مسح البيانات المحلية</button>
+        <div id="system-result"></div>
+      </div>
+
+      <!-- Debug Tools -->
+      <div class="test-section">
+        <h3>🛠️ أدوات التشخيص</h3>
+        <button onclick="exportLogs()">📤 تصدير السجلات</button>
+        <button onclick="showLocalStorage()">💾 عرض البيانات المحلية</button>
+        <button onclick="testCookies()">🍪 اختبار Cookies</button>
+        <button onclick="testNetworkSpeed()">🌐 اخت��ار سرعة الشبكة</button>
+      </div>
+    </div>
+
+    <script>
+      let testLogs = [];
+
+      function log(message, type = "info") {
+        const timestamp = new Date().toLocaleString("ar-SA");
+        const logEntry = { timestamp, message, type };
+        testLogs.push(logEntry);
+        console.log(`[${type.toUpperCase()}] ${message}`);
+      }
+
+      function setStatus(elementId, status) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.className = "status-indicator";
+          element.classList.add(`status-${status}`);
+        }
+      }
+
+      function updateSection(sectionId, className) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.className = "test-section " + className;
+        }
+      }
+
+      async function testLogin(email, password) {
+        setStatus("login-status", "loading");
+        updateSection("login-section", "loading");
+
+        const resultDiv = document.getElementById("login-result");
+        resultDiv.innerHTML = "<p>جاري اختبار تسجيل الدخول...</p>";
+
+        try {
+          log(`محاولة تسجيل دخول: ${email}`);
+
+          const response = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.user) {
+            setStatus("login-status", "ok");
+            updateSection("login-section", "success");
+
+            log(`نجح تسجيل الدخول: ${data.user.name} (${data.user.role})`);
+
+            resultDiv.innerHTML = `
+                        <p>✅ <strong>نجح تسجيل الدخول!</strong></p>
+                        <p>المستخدم: ${data.user.name}</p>
+                        <p>النوع: ${data.user.role}</p>
+                        <p>البريد: ${data.user.email}</p>
+                        <p>الحالة: ${data.user.status}</p>
+                        <button onclick="openDashboard('${data.token}', '${data.user.role}')">
+                            📊 فتح لوحة التحكم
+                        </button>
+                        <button onclick="logout()">🚪 تسجيل خروج</button>
+                        <details>
+                            <summary>عرض البيانات الكاملة</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+
+            // Save login info
+            localStorage.setItem("authToken", data.token);
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+          } else {
+            throw new Error(data.error || "فشل تسجيل الدخول");
+          }
+        } catch (error) {
+          setStatus("login-status", "error");
+          updateSection("login-section", "error");
+
+          log(`فشل تسجيل الدخول: ${error.message}`, "error");
+
+          resultDiv.innerHTML = `
+                    <p>❌ <strong>فشل تسجيل الدخول!</strong></p>
+                    <p>الخطأ: ${error.message}</p>
+                    <button onclick="testLogin('${email}', '${password}')">🔄 إعادة المحاولة</button>
+                `;
+        }
+      }
+
+      async function testBarbersAPI() {
+        setStatus("api-status", "loading");
+        updateSection("api-section", "loading");
+
+        const resultDiv = document.getElementById("api-result");
+        resultDiv.innerHTML = "<p>جاري اختبار API الحلاقين...</p>";
+
+        try {
+          const token = localStorage.getItem("authToken");
+          const headers = {
+            "Content-Type": "application/json",
+          };
+
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
+          const response = await fetch("/api/barbers", { headers });
+          const data = await response.json();
+
+          if (response.ok) {
+            setStatus("api-status", "ok");
+            updateSection("api-section", "success");
+
+            log(`نجح تحميل ${data.barbers?.length || 0} حلاق`);
+
+            resultDiv.innerHTML = `
+                        <p>✅ <strong>نجح تحميل الحلاقين!</strong></p>
+                        <p>عدد الحلاقين: ${data.barbers?.length || 0}</p>
+                        ${
+                          data.barbers && data.barbers.length > 0
+                            ? `
+                            <h4>الحلاقين المتاحين:</h4>
+                            <ul>
+                                ${data.barbers
+                                  .map(
+                                    (barber) =>
+                                      `<li>${barber.name} - ${barber.status} - المستوى: ${barber.level}</li>`,
+                                  )
+                                  .join("")}
+                            </ul>
+                        `
+                            : "<p>⚠️ لا توجد حلاقين في قاعدة البيانات</p>"
+                        }
+                        <details>
+                            <summary>عرض البيانات الكاملة</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+          } else {
+            throw new Error(
+              data.error || `HTTP ${response.status}: ${response.statusText}`,
+            );
+          }
+        } catch (error) {
+          setStatus("api-status", "error");
+          updateSection("api-section", "error");
+
+          log(`فشل تحميل الحلاقين: ${error.message}`, "error");
+
+          resultDiv.innerHTML = `
+                    <p>❌ <strong>فشل تحميل الحلاقين!</strong></p>
+                    <p>الخطأ: ${error.message}</p>
+                    <button onclick="testBarbersAPI()">🔄 إعادة المحاولة</button>
+                `;
+        }
+      }
+
+      async function testAllAPIs() {
+        const endpoints = [
+          { name: "Ping", url: "/api/ping", method: "GET" },
+          { name: "Barbers", url: "/api/barbers", method: "GET" },
+          { name: "Posts", url: "/api/posts", method: "GET" },
+        ];
+
+        const resultDiv = document.getElementById("api-result");
+        resultDiv.innerHTML = "<p>جاري اختبار جميع APIs...</p>";
+
+        let results = [];
+
+        for (const endpoint of endpoints) {
+          try {
+            const token = localStorage.getItem("authToken");
+            const headers = {};
+
+            if (token && endpoint.name !== "Ping") {
+              headers["Authorization"] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(endpoint.url, {
+              method: endpoint.method,
+              headers,
+            });
+
+            const data =
+              endpoint.name === "Ping"
+                ? await response.text()
+                : await response.json();
+
+            results.push({
+              name: endpoint.name,
+              status: response.ok ? "نجح" : "فشل",
+              statusCode: response.status,
+              data: data,
+            });
+
+            log(`${endpoint.name} API: ${response.ok ? "نجح" : "فشل"}`);
+          } catch (error) {
+            results.push({
+              name: endpoint.name,
+              status: "خطأ",
+              error: error.message,
+            });
+
+            log(`${endpoint.name} API: خطأ - ${error.message}`, "error");
+          }
+        }
+
+        const allSuccess = results.every((r) => r.status === "نجح");
+        setStatus("api-status", allSuccess ? "ok" : "error");
+        updateSection("api-section", allSuccess ? "success" : "error");
+
+        resultDiv.innerHTML = `
+                <h4>نتائج اختبار APIs:</h4>
+                <ul>
+                    ${results
+                      .map(
+                        (result) => `
+                        <li>
+                            <strong>${result.name}:</strong> 
+                            ${result.status === "نجح" ? "✅" : "❌"} 
+                            ${result.status}
+                            ${result.statusCode ? ` (${result.statusCode})` : ""}
+                            ${result.error ? ` - ${result.error}` : ""}
+                        </li>
+                    `,
+                      )
+                      .join("")}
+                </ul>
+                <details>
+                    <summary>عرض النتائج التفصيلية</summary>
+                    <pre>${JSON.stringify(results, null, 2)}</pre>
+                </details>
+            `;
+      }
+
+      function openDashboard(token, role) {
+        localStorage.setItem("authToken", token);
+        window.open("/dashboard", "_blank");
+      }
+
+      function logout() {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("currentUser");
+        document.getElementById("login-result").innerHTML =
+          "<p>✅ تم تسجيل الخروج بنجاح</p>";
+        log("تم تسجيل الخروج");
+      }
+
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert(`تم نسخ: ${text}`);
+        });
+      }
+
+      function checkSystemStatus() {
+        const resultDiv = document.getElementById("system-result");
+        const user = JSON.parse(localStorage.getItem("currentUser") || "null");
+        const token = localStorage.getItem("authToken");
+
+        resultDiv.innerHTML = `
+                <h4>📊 معلومات النظام:</h4>
+                <p><strong>المضيف:</strong> ${window.location.hostname}</p>
+                <p><strong>الرابط:</strong> ${window.location.href}</p>
+                <p><strong>نوع النشر:</strong> ${window.location.hostname.includes("netlify") ? "Netlify" : "محلي"}</p>
+                <p><strong>المستخدم الحالي:</strong> ${user ? `${user.name} (${user.role})` : "غير مسجل"}</p>
+                <p><strong>رمز المصادقة:</strong> ${token ? "موجود" : "غير موجود"}</p>
+                <p><strong>Local Storage:</strong> ${Object.keys(localStorage).length} عنصر</p>
+                <p><strong>وقت الاختبار:</strong> ${new Date().toLocaleString("ar-SA")}</p>
+            `;
+      }
+
+      function clearLocalStorage() {
+        localStorage.clear();
+        alert("تم مسح جميع البيانات المحلية");
+        log("تم مسح Local Storage");
+      }
+
+      function exportLogs() {
+        const logsText = testLogs
+          .map(
+            (log) =>
+              `[${log.timestamp}] ${log.type.toUpperCase()}: ${log.message}`,
+          )
+          .join("\n");
+
+        const blob = new Blob([logsText], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `test-logs-${new Date().toISOString().split("T")[0]}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function showLocalStorage() {
+        const storage = {};
+        for (let key of Object.keys(localStorage)) {
+          storage[key] = localStorage.getItem(key);
+        }
+
+        const resultDiv = document.getElementById("system-result");
+        resultDiv.innerHTML = `
+                <h4>💾 محتويات Local Storage:</h4>
+                <pre>${JSON.stringify(storage, null, 2)}</pre>
+            `;
+      }
+
+      // Initialize
+      window.addEventListener("load", () => {
+        log("��م تحميل صفحة الاختبار الشامل");
+        checkSystemStatus();
+
+        // Auto-run basic tests
+        setTimeout(() => {
+          testBarbersAPI();
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
