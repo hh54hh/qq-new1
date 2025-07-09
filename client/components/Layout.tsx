@@ -15,6 +15,7 @@ import { User as UserType, UserRole } from "@shared/api";
 import { useAppStore } from "@/lib/store";
 import LocationBar from "./LocationBar";
 import apiClient from "@/lib/api";
+import { useNetworkStatus } from "@/lib/chat-storage";
 
 interface LayoutProps {
   children: ReactNode;
