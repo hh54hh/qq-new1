@@ -249,7 +249,7 @@ export default function ImprovedChatOverlay({
     async (messageId: string) => {
       if (!selectedConversation) return;
       try {
-        await chatManager.retryMessage(messageId, selectedConversation.id);
+        await realChatManager.retryMessage(messageId, selectedConversation.id);
       } catch (error) {
         console.error("فشل في إعادة الإرسال:", error);
       }
