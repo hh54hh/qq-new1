@@ -277,7 +277,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة، يرجى الت��قق من جميع الحقول";
+                "البيانات المد��لة غير صحيحة، يرجى الت���قق من جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -302,7 +302,8 @@ class ApiClient {
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
-              errorMessage = "خ��مة API غير متوف��ة - مشكلة في ��عدادات الخادم";
+              errorMessage =
+                "خ��مة API غير ��توف��ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
@@ -324,7 +325,7 @@ class ApiClient {
                 "إذا اس��مرت المشكلة، اتصل بالدعم الفني على: 07800657822";
               break;
             case 502:
-              errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لاح��اً";
+              errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لا����اً";
               errorType = "BAD_GATEWAY_ERROR";
               break;
             case 503:
@@ -432,9 +433,10 @@ class ApiClient {
           : typeof error === "object"
             ? JSON.stringify(error)
             : String(error);
-      console.error("Unexpected API error:", {
-        error: errorMessage,
-        errorObject: error,
+      console.error("❌ Unexpected API error:", {
+        message: errorMessage,
+        errorDetails: error?.message || error?.toString() || "Unknown error",
+        errorType: error?.name || "Unknown",
         url,
         endpoint,
       });
@@ -492,7 +494,7 @@ class ApiClient {
 
       // إذا وجدت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
       if (fallbackData !== undefined) {
-        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
+        console.log(`🔄 استخدام البيانات الاحتيا��ية لـ ${endpoint}`);
         return fallbackData;
       }
 
