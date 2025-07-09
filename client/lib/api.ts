@@ -49,7 +49,7 @@ class ApiClient {
         return window.location.origin + "/api";
       }
 
-      // في بيئة الإنتاج - تحقق من نوع النشر
+      // في ��يئة الإنتاج - تحقق من نوع النشر
       const hostname = window.location.hostname;
 
       // إذا كان على Netlify (أي موقع يحتوي ��لى netlify في الاسم)
@@ -86,7 +86,7 @@ class ApiClient {
       return;
     }
 
-    // للبيئات الأخرى، اختبر ال�����سارات المختلفة
+    // للبيئات الأخرى، اختبر ال����سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -279,7 +279,8 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكت��وني أو ��لمة المرور ��ير صحيحة";
+                errorMessage =
+                  "البريد الإلكت��وني أو ����لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -302,10 +303,10 @@ class ApiClient {
               errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
-                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
+                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لف��ي على: 07800657822";
               break;
             case 409:
-              errorMessage = "البيانات موج��دة بالفعل في النظام";
+              errorMessage = "البيانات موجودة بالفعل في النظام";
               errorType = "CONFLICT_ERROR";
               break;
             case 429:
@@ -375,7 +376,7 @@ class ApiClient {
 
       // Handle AbortError (timeout or cancellation)
       if (error instanceof Error && error.name === "AbortError") {
-        console.warn(`⏰ تم ��لغاء الطلب أو انتهت المهلة: ${endpoint}`);
+        console.warn(`⏰ تم إلغاء الطلب أو انتهت المهلة: ${endpoint}`);
 
         const timeoutError = new Error(
           "انتهت مهلة الاتصال (30 ثانية)، يرجى المحاولة مرة أخرى",
@@ -422,15 +423,21 @@ class ApiClient {
       }
 
       // Handle unexpected errors
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "object"
+            ? JSON.stringify(error)
+            : String(error);
       console.error("Unexpected API error:", {
-        error: error instanceof Error ? error.message : String(error),
+        error: errorMessage,
         errorObject: error,
         url,
         endpoint,
       });
 
       const unexpectedError = new Error(
-        "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى",
+        "حدث خطأ غير متوقع، يرجى المحاولة ��رة أخرى",
       ) as any;
       unexpectedError.errorType = "UNEXPECTED_ERROR";
       unexpectedError.originalError =
@@ -465,11 +472,11 @@ class ApiClient {
       // إذا كان يمكن إعادة المحاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
-          console.log(`🔄 إعادة المحاولة لـ ${endpoint}`);
+          console.log(`🔄 إعاد�� المحاولة لـ ${endpoint}`);
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return await this.request<T>(endpoint, options);
         } catch (retryError) {
-          console.error(`��� فشلت إعادة المحاولة لـ ${endpoint}`);
+          console.error(`❌ فشلت إعادة المحاولة لـ ${endpoint}`);
           if (fallbackData !== undefined) {
             return fallbackData;
           }
@@ -924,7 +931,7 @@ class ApiClient {
       return { messages: [] };
     }
 
-    console.log("📥 تحم���� الرسائل للمستخدم:", otherUserId);
+    console.log("📥 تحم��ل الرسائل للمستخدم:", otherUserId);
 
     const fallbackData = { messages: [] };
 
