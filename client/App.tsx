@@ -164,6 +164,7 @@ const AppContent = () => {
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
+            onStartChat={handleStartChat}
           />
         ) : state.user.role === "admin" ? (
           <AdminDashboard
@@ -178,7 +179,7 @@ const AppContent = () => {
         )}
       </Layout>
 
-      {/* نظام الدردشة المحسن */}
+      {/* نظام الدردشة ��لمحسن */}
       <StableChatManager
         user={state.user}
         targetUser={chatTargetUser}
@@ -289,7 +290,7 @@ const App = () => {
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
-      console.log("🔧 تم فتح صف��ة التشخيص");
+      console.log("🔧 تم فتح صفحة التشخيص");
     };
 
     // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
