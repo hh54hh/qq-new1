@@ -217,13 +217,23 @@ class ApiClient {
     });
 
     try {
+      // إضافة timeout للطلبات (30 ثانية)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        console.warn(`⏰ انتهت مهلة الطلب: ${endpoint}`);
+        controller.abort();
+      }, 30000);
+
       const response = await fetch(url, {
         ...options,
         headers: {
           ...this.getHeaders(),
           ...options.headers,
         },
+        signal: options.signal || controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       console.log(`API Response: ${response.status} ${response.statusText}`);
 
@@ -263,7 +273,7 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكت��وني أو ��لمة المرور غير صحيحة";
+                errorMessage = "البريد الإلكت��وني أو ��لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -311,7 +321,7 @@ class ApiClient {
             case 503:
               errorMessage = "الخدمة غير متاحة مؤقتاً للصيانة";
               errorType = "SERVICE_UNAVAILABLE_ERROR";
-              suggestion = "يرجى المحاولة خلال بضع دقائق";
+              suggestion = "يرج�� المحاولة خلال بضع دقائق";
               break;
             case 504:
               errorMessage = "انتهت مهلة الاتصا��، يرجى المحاولة مرة أخرى";
