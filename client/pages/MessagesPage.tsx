@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Send,
@@ -86,7 +86,7 @@ export default function MessagesPage({
             (u) => u.id === otherUserId,
           ) || {
             id: otherUserId,
-            name: "مستخدم غير معروف",
+            name: "مستخدم غير مع��وف",
             email: "",
             role: "customer" as const,
             location: null,
@@ -415,7 +415,7 @@ export default function MessagesPage({
               <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="h-12 w-12 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-medium mb-2">اختر ��حادثة</h3>
+              <h3 className="text-lg font-medium mb-2">اختر محادثة</h3>
               <p className="text-muted-foreground">
                 اختر محادثة من القائمة لبدء المراسلة
               </p>
