@@ -30,20 +30,26 @@ class NetworkAwareAPIWrapper {
     fallback?: T,
   ): Promise<T | null> {
     try {
+      // Update online status before making request
+      this.isOnline = navigator.onLine;
       return await operation();
     } catch (error: any) {
       // Handle network errors gracefully
       if (this.isNetworkError(error)) {
+        // Update online status after error
+        this.isOnline = navigator.onLine;
+
         if (!this.isOnline) {
-          console.log("📱 Offline mode - operation skipped silently");
-          return fallback || null;
+          console.log("📱 Offline mode - using cached data");
         } else {
-          console.warn("⚠️ Network error while online:", error.message);
-          return fallback || null;
+          console.log("🌐 Network issue detected - using fallback data");
         }
+
+        return fallback || null;
       }
 
-      // For non-network errors, let them bubble up
+      // For non-network errors, log and let them bubble up
+      console.error("❌ API Error:", error);
       throw error;
     }
   }
@@ -51,9 +57,13 @@ class NetworkAwareAPIWrapper {
   private isNetworkError(error: any): boolean {
     return (
       error?.errorType === "NETWORK_ERROR" ||
+      error?.isNetworkError === true ||
       (error instanceof TypeError && error.message.includes("fetch")) ||
       error.message?.includes("Failed to fetch") ||
-      error.message?.includes("NetworkError")
+      error.message?.includes("NetworkError") ||
+      error.message?.includes("فشل في الاتصال") ||
+      error.name === "NetworkError" ||
+      error.name === "TypeError"
     );
   }
 
