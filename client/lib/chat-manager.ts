@@ -288,7 +288,7 @@ class ChatManager {
 
   // Offline sync
   async syncPendingMessages(): Promise<void> {
-    if (this.syncInProgress || !navigator.onLine) return;
+    if (this.syncInProgress || !navigator.onLine || this.fallbackMode) return;
 
     this.syncInProgress = true;
     console.log("🔄 Syncing pending messages...");
@@ -529,7 +529,7 @@ class ChatManager {
           return updatedConversation;
         }
       } catch (error) {
-        console.log("📱 العمل في وضع ع��م الاتصال");
+        console.log("📱 العمل في وضع عدم الاتصال");
       }
 
       this.emit("conversation:created", newConversation);
