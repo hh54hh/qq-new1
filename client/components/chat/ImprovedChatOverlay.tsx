@@ -284,7 +284,7 @@ export default function ImprovedChatOverlay({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
+        className="chat-overlay fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         {/* شريط الاتصال */}
@@ -440,7 +440,7 @@ export default function ImprovedChatOverlay({
                       </h3>
                       <p className="text-sm text-slate-400">
                         {selectedConversation.isOnline
-                          ? "متصل الآن"
+                          ? "متصل ا��آن"
                           : selectedConversation.lastSeen
                             ? `آخر ظهور ${formatTime(selectedConversation.lastSeen)}`
                             : "غير متصل"}
