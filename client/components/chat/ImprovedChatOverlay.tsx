@@ -53,6 +53,8 @@ export default function ImprovedChatOverlay({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
+  const keyboardState = useKeyboardHandler();
+
   // مراقبة حالة الاتصال
   useEffect(() => {
     const handleOnline = () => {
@@ -83,7 +85,7 @@ export default function ImprovedChatOverlay({
     }
   }, []);
 
-  // تحميل المحاد��ات
+  // تحميل المحادثات
   const loadConversations = useCallback(async () => {
     if (!isVisible) return;
 
@@ -546,7 +548,7 @@ export default function ImprovedChatOverlay({
                   onSend={sendMessage}
                   disabled={isSending || !isOnline}
                   placeholder={
-                    isOnline ? "اكتب رسالة..." : "لا يوجد اتصال بالإنترنت"
+                    isOnline ? "اكتب رسا��ة..." : "لا يوجد اتصال بالإنترنت"
                   }
                 />
               </>
