@@ -1211,7 +1211,7 @@ export default function CustomerDashboard({
     );
 
     return (
-      <div className="p-4 space-y-4 sm:space-y-6">
+      <div className="w-full max-w-full overflow-hidden p-3 sm:p-4 space-y-4 sm:space-y-6">
         {/* Location & Welcome Section */}
         <div className="space-y-4">
           {/* Location Bar */}
@@ -1967,7 +1967,7 @@ export default function CustomerDashboard({
             {profileFollowing.length === 0 && (
               <div className="text-center py-8">
                 <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">لا تتابع أحداً حالياً</p>
+                <p className="text-muted-foreground">لا تتابع أحداً حاليا��</p>
               </div>
             )}
           </div>
