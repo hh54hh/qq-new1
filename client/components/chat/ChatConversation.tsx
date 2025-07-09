@@ -33,8 +33,8 @@ import { User } from "@shared/api";
 import apiClient from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import data from "@emoji-mart/data/i18n/ar.json";
-import Picker from "@emoji-mart/react";
+// import data from "@emoji-mart/data/i18n/ar.json";
+// import Picker from "@emoji-mart/react";
 
 interface Message {
   id: string;
@@ -282,7 +282,7 @@ export default function ChatConversation({
     }
   };
 
-  const handleEmojiSelect = (emoji: any) => {
+  const handleEmojiSelect = (emoji: { native: string }) => {
     setNewMessage((prev) => prev + emoji.native);
     setShowEmojiPicker(false);
     textareaRef.current?.focus();
@@ -814,16 +814,38 @@ export default function ChatConversation({
                             initial={{ opacity: 0, scale: 0.8, y: 10 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                            className="absolute bottom-full right-0 mb-2 z-50"
+                            className="absolute bottom-full right-0 mb-2 z-50 bg-card border border-border rounded-lg p-4 shadow-xl"
                           >
-                            <Picker
-                              data={data}
-                              onEmojiSelect={handleEmojiSelect}
-                              theme="light"
-                              locale="ar"
-                              perLine={8}
-                              maxFrequentRows={2}
-                            />
+                            <div className="grid grid-cols-8 gap-2">
+                              {[
+                                "😀",
+                                "😂",
+                                "❤️",
+                                "👍",
+                                "👏",
+                                "🔥",
+                                "💯",
+                                "🎉",
+                                "😍",
+                                "🤔",
+                                "😊",
+                                "👌",
+                                "🙏",
+                                "💪",
+                                "✨",
+                                "🎊",
+                              ].map((emoji) => (
+                                <button
+                                  key={emoji}
+                                  onClick={() =>
+                                    handleEmojiSelect({ native: emoji })
+                                  }
+                                  className="text-xl hover:bg-muted rounded p-1 transition-colors"
+                                >
+                                  {emoji}
+                                </button>
+                              ))}
+                            </div>
                           </motion.div>
                         )}
                       </AnimatePresence>
