@@ -293,7 +293,7 @@ export default function CustomerDashboard({
         id: "friend_req_1",
         type: "friend_request" as const,
         title: "طلب صداقة جديد",
-        message: "أحمد الحلاق يري�� متابعتك",
+        message: "أحمد الحلاق يريد متابعتك",
         data: {
           senderId: "barber_1",
           senderName: "أحمد الحلاق",
@@ -414,7 +414,7 @@ export default function CustomerDashboard({
 
       // More detailed error logging
       if (error instanceof Error) {
-        console.error("�� Error message:", error.message);
+        console.error("❌ Error message:", error.message);
         console.error("❌ Error stack:", error.stack);
       }
 
@@ -1265,7 +1265,7 @@ export default function CustomerDashboard({
 
         {/* Debug Info */}
         {process.env.NODE_ENV === "development" && (
-          <div className="bg-muted p-4 rounded-lg text-sm">
+          <div className="bg-muted p-4 rounded-lg text-sm space-y-2">
             <p>🔍 Debug Info:</p>
             <p>• User ID: {user?.id}</p>
             <p>• All Barbers: {allBarbers.length}</p>
@@ -1277,6 +1277,23 @@ export default function CustomerDashboard({
                 ? `${userLocation.lat}, ${userLocation.lng}`
                 : "Not available"}
             </p>
+            <div className="flex gap-2 mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => loadBarbers()}
+                disabled={state.isLoading}
+              >
+                🔄 إعادة تحميل الحلاقين
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => console.log("All barbers data:", allBarbers)}
+              >
+                📋 طباعة البيانات
+              </Button>
+            </div>
           </div>
         )}
 
@@ -2030,7 +2047,7 @@ export default function CustomerDashboard({
             onClick={() => setShowEditProfile(true)}
           >
             <UserIcon className="h-4 w-4" />
-            تع���يل ��لملف الشخصي
+            تع��يل ��لملف الشخصي
           </Button>
           <Button
             variant="destructive"
