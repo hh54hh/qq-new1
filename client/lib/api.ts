@@ -384,7 +384,7 @@ class ApiClient {
           "انتهت مهلة الاتصال (30 ثانية)، يرجى المحاولة مرة أخرى",
         ) as any;
         timeoutError.errorType = "TIMEOUT_ERROR";
-        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة أخرى";
+        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة ��خرى";
         throw timeoutError;
       }
 
@@ -414,8 +414,9 @@ class ApiClient {
         networkError.errorType = "NETWORK_ERROR";
         networkError.suggestion = suggestion;
         networkError.originalError = error.message;
+        networkError.isNetworkError = true;
 
-        ErrorHandler.handle(networkError, "API Request");
+        // Don't log network errors here - let the wrapper handle them gracefully
         throw networkError;
       }
 
