@@ -13,11 +13,30 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
-import type { User, Message, Conversation } from "@shared/api";
+import type { User } from "@shared/api";
 
 interface MessagesPageProps {
   user: User;
   targetUserId?: string;
+}
+
+interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  type: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface Conversation {
+  id: string;
+  user1Id: string;
+  user2Id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  lastMessage?: Message;
 }
 
 interface MessageWithUser extends Message {
@@ -201,7 +220,7 @@ export default function MessagesPage({
         ),
       );
     } catch (error) {
-      console.error("فش�� إرسال الرسالة:", error);
+      console.error("فشل إرسال الرسالة:", error);
     } finally {
       setIsSending(false);
     }
