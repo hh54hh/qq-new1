@@ -49,7 +49,7 @@ class ApiClient {
         return window.location.origin + "/api";
       }
 
-      // في بيئة الإنتاج - تحقق من ��وع النشر
+      // في بيئة الإنتاج - تحقق من نوع النشر
       const hostname = window.location.hostname;
 
       // إذا كان على Netlify (أي موقع يحتوي على netlify في الاسم)
@@ -86,7 +86,7 @@ class ApiClient {
       return;
     }
 
-    // للبيئات الأخرى، اختبر ال��سارات المختلفة
+    // للبيئات الأخرى، اختبر ال����سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -387,7 +387,12 @@ class ApiClient {
       }
 
       // Handle unexpected errors
-      console.error("Unexpected API error:", { error, url, endpoint });
+      console.error("Unexpected API error:", {
+        error: error instanceof Error ? error.message : String(error),
+        errorObject: error,
+        url,
+        endpoint,
+      });
 
       const unexpectedError = new Error(
         "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى",
@@ -881,7 +886,7 @@ class ApiClient {
       return { messages: [] };
     }
 
-    console.log("📥 تحميل الرسائل للمستخدم:", otherUserId);
+    console.log("📥 تحم��ل الرسائل للمستخدم:", otherUserId);
 
     const fallbackData = { messages: [] };
 
