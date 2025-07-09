@@ -204,8 +204,14 @@ export default function TelegramChat({
     <div className="flex h-screen bg-background">
       {/* Conversations Sidebar */}
       <div className="w-80 bg-card border-r border-border flex flex-col">
+        <style jsx>{`
+          .chat-container {
+            height: 100vh;
+            height: 100dvh;
+          }
+        `}</style>
         {/* Header */}
-        <div className="p-4 border-b border-border bg-card">
+        <div className="sidebar-header p-4 border-b border-border bg-card">
           <div className="flex items-center gap-3 mb-4">
             {onBack && (
               <Button
@@ -228,7 +234,7 @@ export default function TelegramChat({
               placeholder="بحث..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pr-10 pl-3 py-2 bg-muted rounded-lg border-0 focus:ring-2 focus:ring-primary/20 focus:bg-background transition-colors"
+              className="search-input w-full pr-10 pl-3 py-2 bg-muted rounded-lg border-0 focus:ring-2 focus:ring-primary/20 focus:bg-background transition-colors"
             />
           </div>
         </div>
@@ -253,9 +259,10 @@ export default function TelegramChat({
                   loadMessages(conversation.id);
                 }}
                 className={cn(
-                  "p-3 cursor-pointer transition-colors border-b border-border/50",
+                  "conversation-item p-3 cursor-pointer transition-colors border-b border-border/50",
                   "hover:bg-muted/50",
-                  activeConversation?.id === conversation.id && "bg-muted",
+                  activeConversation?.id === conversation.id &&
+                    "active bg-muted",
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -266,7 +273,7 @@ export default function TelegramChat({
                       </AvatarFallback>
                     </Avatar>
                     {conversation.isOnline && (
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-background rounded-full"></div>
+                      <div className="online-indicator"></div>
                     )}
                   </div>
 
@@ -288,7 +295,7 @@ export default function TelegramChat({
                       </p>
                       {conversation.unreadCount &&
                         conversation.unreadCount > 0 && (
-                          <span className="bg-primary text-primary-foreground text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                          <span className="unread-badge">
                             {conversation.unreadCount > 99
                               ? "99+"
                               : conversation.unreadCount}
@@ -308,7 +315,7 @@ export default function TelegramChat({
         {activeConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-border bg-card">
+            <div className="chat-header p-4 border-b border-border bg-card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
@@ -342,7 +349,7 @@ export default function TelegramChat({
             {/* Messages */}
             <div
               ref={messagesContainerRef}
-              className="flex-1 overflow-y-auto p-4 space-y-1"
+              className="chat-messages flex-1 overflow-y-auto p-4 space-y-1"
               style={{ scrollBehavior: "auto" }}
             >
               {messages.map((message) => (
@@ -355,10 +362,10 @@ export default function TelegramChat({
                 >
                   <div
                     className={cn(
-                      "max-w-[70%] px-3 py-2 rounded-xl text-sm",
+                      "message-bubble max-w-[70%] px-3 py-2 rounded-xl text-sm",
                       message.isOwn
-                        ? "bg-primary text-primary-foreground rounded-br-sm"
-                        : "bg-muted rounded-bl-sm",
+                        ? "own bg-primary text-primary-foreground rounded-br-sm"
+                        : "other bg-muted rounded-bl-sm",
                     )}
                   >
                     <p className="whitespace-pre-wrap break-words">
@@ -372,25 +379,29 @@ export default function TelegramChat({
                           : "text-muted-foreground",
                       )}
                     >
-                      <span className="text-xs">
+                      <span className="message-time text-xs">
                         {formatTime(message.timestamp)}
                       </span>
                       {message.isOwn && (
                         <div className="flex items-center">
                           {message.status === "sending" && (
-                            <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                            <div className="message-status sending w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
                           )}
                           {message.status === "sent" && (
-                            <span className="text-xs">✓</span>
+                            <span className="message-status text-xs">✓</span>
                           )}
                           {message.status === "delivered" && (
-                            <span className="text-xs">✓✓</span>
+                            <span className="message-status text-xs">✓✓</span>
                           )}
                           {message.status === "read" && (
-                            <span className="text-xs text-blue-400">✓✓</span>
+                            <span className="message-status read text-xs">
+                              ✓✓
+                            </span>
                           )}
                           {message.status === "failed" && (
-                            <span className="text-xs text-destructive">!</span>
+                            <span className="message-status text-xs text-destructive">
+                              !
+                            </span>
                           )}
                         </div>
                       )}
@@ -402,7 +413,7 @@ export default function TelegramChat({
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-border bg-card">
+            <div className="input-container p-4 border-t border-border bg-card">
               <div className="flex items-end gap-2">
                 <div className="flex-1 bg-muted rounded-full px-4 py-2 max-h-32">
                   <input
@@ -412,7 +423,7 @@ export default function TelegramChat({
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className="w-full bg-transparent border-0 outline-none resize-none placeholder:text-muted-foreground"
+                    className="chat-input w-full bg-transparent border-0 outline-none resize-none placeholder:text-muted-foreground"
                     style={{ caretColor: "currentColor" }}
                   />
                 </div>
@@ -420,7 +431,7 @@ export default function TelegramChat({
                   onClick={sendMessage}
                   disabled={!newMessage.trim()}
                   size="sm"
-                  className="rounded-full w-10 h-10 p-0"
+                  className="send-button rounded-full w-10 h-10 p-0"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
