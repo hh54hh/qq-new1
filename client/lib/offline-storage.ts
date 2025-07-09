@@ -8,7 +8,7 @@ interface OfflineData {
   type: string;
   data: any;
   timestamp: number;
-  synced: boolean;
+  synced: number; // 0 = false, 1 = true
 }
 
 interface StorageOptions {
