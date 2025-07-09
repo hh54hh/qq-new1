@@ -62,7 +62,7 @@ class ApiClient {
         return window.location.origin + "/.netlify/functions/api";
       }
 
-      // لجميع البيئات الأخ��ى (fly.dev وغيرها) استخدم /api العادي
+      // لجميع البيئات ال��خ��ى (fly.dev وغيرها) استخدم /api العادي
       return window.location.origin + "/api";
     }
     // للخادم أو SSR
@@ -96,7 +96,7 @@ class ApiClient {
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
-          console.log(`⏰ انتهت مهلة الاختبار لـ ${path} (5 ثواني)`);
+          console.log(`⏰ انتهت مهلة الاخت��ار لـ ${path} (5 ثواني)`);
           controller.abort();
         }, 5000);
 
@@ -132,7 +132,7 @@ class ApiClient {
       }
     }
 
-    console.warn("⚠️ لم يتم العث��ر على API على أي من المسارات المت��قعة");
+    console.warn("⚠️ لم يتم العث��ر على API على أي من المسار��ت المت��قعة");
     // في حالة عدم العثور على API، استخدم المسار الا��تراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
@@ -338,7 +338,7 @@ class ApiClient {
               errorType = "TIMEOUT_ERROR";
               break;
             default:
-              errorMessage = "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى";
+              errorMessage = "حدث خ��أ غير متوقع، يرجى المحاولة مرة أخرى";
               errorType = "UNKNOWN_ERROR";
           }
         }
@@ -440,7 +440,7 @@ class ApiClient {
       });
 
       const unexpectedError = new Error(
-        "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى",
+        "حدث خطأ غير متوقع، يرجى المحا��لة مرة أخرى",
       ) as any;
       unexpectedError.errorType = "UNEXPECTED_ERROR";
       unexpectedError.originalError =
@@ -475,7 +475,7 @@ class ApiClient {
       // إذا كان يمكن إعادة المحاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
-          console.log(`🔄 إعادة المحاولة لـ ${endpoint}`);
+          console.log(`�� إعادة المحاولة لـ ${endpoint}`);
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return await this.request<T>(endpoint, options);
         } catch (retryError) {
@@ -1109,6 +1109,45 @@ class ApiClient {
     }
 
     return response.json();
+  }
+
+  // Helper function لعرض أخطاء واضحة بدلاً من [object Object]
+  private logErrorDetails(title: string, error: any, context?: any) {
+    console.error(`❌ ${title}`);
+
+    if (error?.message) {
+      console.error(`  Message: ${error.message}`);
+    }
+
+    if (error?.name) {
+      console.error(`  Type: ${error.name}`);
+    }
+
+    if (error?.status || error?.statusCode) {
+      console.error(`  Status: ${error.status || error.statusCode}`);
+    }
+
+    if (context) {
+      console.error(`  Context:`, context);
+    }
+
+    if (error?.stack && process.env.NODE_ENV === "development") {
+      console.error(`  Stack: ${error.stack}`);
+    }
+
+    // إذا كان الخطأ كائن معقد، اطبعه بشكل منسق
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      !error.message &&
+      !error.name
+    ) {
+      try {
+        console.error(`  Raw Error:`, JSON.stringify(error, null, 2));
+      } catch {
+        console.error(`  Raw Error: [Complex Object - cannot stringify]`);
+      }
+    }
   }
 }
 
