@@ -31,7 +31,6 @@ import WorkingHours from "./WorkingHours";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
-import MessagesPage from "./MessagesPage";
 
 interface BarberDashboardProps {
   user: User;
@@ -280,7 +279,7 @@ export default function BarberDashboard({
     );
 
     if (diffInHours < 1) return "منذ دقائق";
-    if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
+    if (diffInHours < 24) return `منذ ${diffInHours} سا��ة`;
     const diffInDays = Math.floor(diffInHours / 24);
     return `منذ ${diffInDays} يوم`;
   };
@@ -404,7 +403,7 @@ export default function BarberDashboard({
           <CardContent className="p-4 text-center">
             <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
             <p className="text-2xl font-bold text-foreground">{user.points}</p>
-            <p className="text-sm text-muted-foreground">نقاط</p>
+            <p className="text-sm text-muted-foreground">نقا��</p>
           </CardContent>
         </Card>
 
