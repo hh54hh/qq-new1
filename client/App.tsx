@@ -25,6 +25,7 @@ import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
 import MessagesPage from "./pages/MessagesPage";
+import EnhancedMessagesPage from "./pages/EnhancedMessagesPage";
 import PWAManager from "./components/PWAManager";
 import PWAUpdateNotification, {
   PWAStatusBar,
@@ -203,7 +204,8 @@ const MessagesRoute = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  return <MessagesPage user={state.user} />;
+  // Use enhanced Telegram-style messages page
+  return <EnhancedMessagesPage />;
 };
 
 const DebugRoute = () => {
