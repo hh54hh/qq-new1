@@ -200,7 +200,7 @@ class OfflineStorageManager {
       const transaction = this.db!.transaction([storeName], "readonly");
       const store = transaction.objectStore(storeName);
       const index = store.index("synced");
-      const request = index.getAll(IDBKeyRange.only(false));
+      const request = index.getAll(IDBKeyRange.only(0)); // استخدام 0 بدلاً من false
 
       request.onsuccess = () => {
         resolve(request.result);
