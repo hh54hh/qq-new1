@@ -73,53 +73,46 @@ export default function UserProfile({
   }, [profileUser.id]);
 
   const loadUserStats = async () => {
-    try {
-      setIsLoadingStats(true);
+    setIsLoadingStats(true);
 
-      // Use safe network-aware API calls
-      const followersResponse = await networkAwareAPI.safeRequest(
-        () => apiClient.getFollows("followers"),
-        { follows: [], total: 0 },
-      );
-      const followingResponse = await networkAwareAPI.safeRequest(
-        () => apiClient.getFollows("following"),
-        { follows: [], total: 0 },
-      );
+    // Use safe network-aware API calls - they handle errors gracefully
+    const followersResponse = await networkAwareAPI.safeRequest(
+      () => apiClient.getFollows("followers"),
+      { follows: [], total: 0 },
+    );
+    const followingResponse = await networkAwareAPI.safeRequest(
+      () => apiClient.getFollows("following"),
+      { follows: [], total: 0 },
+    );
 
-      setFollowerCount(followersResponse?.total || 0);
-      setFollowingCount(followingResponse?.total || 0);
-    } catch (error) {
-      console.log("📱 استخدام بيانات محفوظة لإحصائيات المستخدم");
-      setFollowerCount(0);
-      setFollowingCount(0);
-    } finally {
-      setIsLoadingStats(false);
-    }
+    setFollowerCount(followersResponse?.total || 0);
+    setFollowingCount(followingResponse?.total || 0);
+    console.log("📈 User stats loaded:", {
+      followers: followersResponse?.total || 0,
+      following: followingResponse?.total || 0,
+    });
+
+    setIsLoadingStats(false);
   };
 
   const loadUserPosts = async () => {
-    try {
-      setIsLoadingPosts(true);
+    setIsLoadingPosts(true);
 
-      // Use safe network-aware API call
-      const response = await networkAwareAPI.safeRequest(
-        () => apiClient.getPosts(),
-        { posts: [], total: 0 },
-      );
+    // Use safe network-aware API call - it handles errors gracefully
+    const response = await networkAwareAPI.safeRequest(
+      () => apiClient.getPosts(),
+      { posts: [], total: 0 },
+    );
 
-      const userSpecificPosts = (response?.posts || []).filter(
-        (post) => post.user_id === profileUser.id,
-      );
-      setUserPosts(userSpecificPosts);
-      console.log(
-        `Loaded ${userSpecificPosts.length} posts for user ${profileUser.name}`,
-      );
-    } catch (error) {
-      console.log("📱 استخدام بيانات محفوظة للمنشورات");
-      setUserPosts([]);
-    } finally {
-      setIsLoadingPosts(false);
-    }
+    const userSpecificPosts = (response?.posts || []).filter(
+      (post) => post.user_id === profileUser.id,
+    );
+    setUserPosts(userSpecificPosts);
+    console.log(
+      `📝 Loaded ${userSpecificPosts.length} posts for user ${profileUser.name}`,
+    );
+
+    setIsLoadingPosts(false);
   };
 
   const formatRelativeTime = (dateString: string) => {
