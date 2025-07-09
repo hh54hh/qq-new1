@@ -210,7 +210,7 @@ export default function EnhancedChatConversation({
           },
         ];
         setMessages(mockMessages);
-        chatStorage.saveMessages(conversation.user.id, mockMessages);
+        chatStorage.saveMessages(conversation.user.id, mockMessages as any);
       }
     } finally {
       setIsLoading(false);
