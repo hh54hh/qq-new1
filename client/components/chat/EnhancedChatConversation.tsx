@@ -104,7 +104,7 @@ export default function EnhancedChatConversation({
     scrollToBottom();
   }, [messages]);
 
-  // محاولة إرسال الرسائل المعلقة عند الاتصال
+  // محاولة إرسال الر��ائل المعلقة عند الاتصال
   useEffect(() => {
     if (isOnline) {
       retryPendingMessages();
@@ -434,6 +434,26 @@ export default function EnhancedChatConversation({
 
   const messageGroups = groupMessagesByDate(messages);
 
+  // دالة تنظيف الرسائل لضمان وجود محتوى
+  const normalizeMessages = (rawMessages: any[]): Message[] => {
+    return rawMessages.map((msg) => ({
+      ...msg,
+      content: msg.content || msg.message || msg.text || "[رسالة فارغة]",
+      id: msg.id || `temp_${Date.now()}_${Math.random()}`,
+      sender_id: msg.sender_id || msg.senderId || "",
+      receiver_id: msg.receiver_id || msg.receiverId || "",
+      created_at: msg.created_at || msg.createdAt || new Date().toISOString(),
+      read:
+        msg.read !== undefined
+          ? msg.read
+          : msg.is_read !== undefined
+            ? msg.is_read
+            : false,
+      message_type: msg.message_type || msg.messageType || "text",
+      delivery_status: msg.delivery_status || "delivered",
+    }));
+  };
+
   const adjustTextareaHeight = useCallback(() => {
     const textarea = textareaRef.current;
     if (textarea) {
@@ -572,7 +592,7 @@ export default function EnhancedChatConversation({
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-3"
                 >
-                  {/* فاصل التاريخ */}
+                  {/* فا��ل التاريخ */}
                   <div className="flex items-center justify-center my-6">
                     <div className="bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm px-4 py-2 rounded-full border border-gray-200 dark:border-gray-600 shadow-sm">
                       <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
