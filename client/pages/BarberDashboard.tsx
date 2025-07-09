@@ -246,20 +246,6 @@ export default function BarberDashboard({
     );
   }
 
-  // Show messages
-  if (showMessages) {
-    return (
-      <MessagesPage
-        user={user}
-        targetUser={messageTargetUser}
-        onBack={() => {
-          setShowMessages(false);
-          setMessageTargetUser(null);
-        }}
-      />
-    );
-  }
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("ar-SA", {
