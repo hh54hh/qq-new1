@@ -156,7 +156,7 @@ class ApiClient {
       "/messages",
       "/barbers",
       "/notifications",
-      "/api/auth/profile",
+      "/auth/profile",
       "/posts",
       "/follows",
       "/ratings",
@@ -250,7 +250,7 @@ class ApiClient {
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
-              if (endpoint.includes("/api/auth/login")) {
+              if (endpoint.includes("/auth/login")) {
                 errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
@@ -290,7 +290,7 @@ class ApiClient {
               errorMessage = "خطأ في الخادم، يرجى المحاولة مرة أخرى";
               errorType = "SERVER_ERROR";
               suggestion =
-                "إذا استمرت المشكلة، اتصل بالدعم الفني على: 07800657822";
+                "إذا اس��مرت المشكلة، اتصل بالدعم الفني على: 07800657822";
               break;
             case 502:
               errorMessage = "الخادم غير متاح حالياً، يرجى المحاولة لاح��اً";
@@ -353,10 +353,10 @@ class ApiClient {
           networkErrorMessage = "فشل في الاتصال بالخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
-          networkErrorMessage = "خطأ في ا��شبكة";
+          networkErrorMessage = "خطأ في ا����شبكة";
           suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
         } else if (error.message.includes("timeout")) {
-          networkErrorMessage = "انتهت مهلة الاتصال";
+          networkErrorMessage = "ا��تهت مهلة الاتصال";
           suggestion = "الاتصال بطيء، يرجى المحاولة مرة أخرى";
         }
 
@@ -401,7 +401,7 @@ class ApiClient {
     });
 
     try {
-      const result = await this.request<AuthResponse>("/api/auth/login", {
+      const result = await this.request<AuthResponse>("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password } as LoginRequest),
       });
@@ -410,7 +410,7 @@ class ApiClient {
     } catch (error) {
       console.error("Login failed:", error);
       console.error("Login attempt details:", {
-        endpoint: "/api/auth/login",
+        endpoint: "/auth/login",
         email,
         emailTrimmed: email.trim(),
         passwordProvided: !!password,
@@ -421,14 +421,14 @@ class ApiClient {
   }
 
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    return this.request<AuthResponse>("/api/auth/register", {
+    return this.request<AuthResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify(userData),
     });
   }
 
   async getProfile(): Promise<{ user: User }> {
-    return this.request<{ user: User }>("/api/auth/profile");
+    return this.request<{ user: User }>("/auth/profile");
   }
 
   async updateProfile(profileData: {
@@ -436,7 +436,7 @@ class ApiClient {
     name?: string;
     email?: string;
   }): Promise<{ user: User }> {
-    return this.request<{ user: User }>("/api/auth/profile", {
+    return this.request<{ user: User }>("/auth/profile", {
       method: "PUT",
       body: JSON.stringify(profileData),
     });

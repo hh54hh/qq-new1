@@ -1211,7 +1211,7 @@ export default function CustomerDashboard({
     );
 
     return (
-      <div className="p-4 space-y-4 sm:space-y-6">
+      <div className="w-full max-w-full overflow-hidden p-3 sm:p-4 space-y-4 sm:space-y-6">
         {/* Location & Welcome Section */}
         <div className="space-y-4">
           {/* Location Bar */}
@@ -1979,19 +1979,26 @@ export default function CustomerDashboard({
       <div className="p-4 space-y-6">
         <Card className="border-border/50 bg-card/50">
           <CardContent className="p-6">
-            <div className="flex items-center gap-4 mb-6">
-              <Avatar className="h-20 w-20">
+            <div className="flex items-center gap-3 sm:gap-4 mb-6">
+              <Avatar className="h-16 w-16 sm:h-20 sm:w-20 shrink-0">
                 <AvatarImage src={user.avatar_url} />
-                <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                <AvatarFallback className="bg-primary/10 text-primary text-lg sm:text-xl">
                   {user.name ? user.name.charAt(0) : "م"}
                 </AvatarFallback>
               </Avatar>
-              <div className="space-y-1">
-                <h3 className="text-xl font-bold text-foreground">
+              <div className="space-y-1 min-w-0 flex-1">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground truncate">
                   {user.name}
                 </h3>
-                <p className="text-muted-foreground">{user.email}</p>
-                <Badge variant="outline">زبون</Badge>
+                <p
+                  className="text-sm sm:text-base text-muted-foreground truncate"
+                  title={user.email}
+                >
+                  {user.email}
+                </p>
+                <Badge variant="outline" className="text-xs sm:text-sm">
+                  زبون
+                </Badge>
               </div>
             </div>
 

@@ -4,6 +4,7 @@ import { Scissors, Star, Clock, MapPin } from "lucide-react";
 import { useAppStore } from "@/lib/store";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import PWAManager from "@/components/PWAManager";
 
 const Index = () => {
   const [state] = useAppStore();
@@ -20,64 +21,87 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-golden-900/10">
       {/* Header */}
       <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Scissors className="h-8 w-8 text-golden-500" />
-            <span className="text-2xl font-bold text-golden-500">
-              BarberApp
-            </span>
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          {/* Main header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Scissors className="h-6 w-6 sm:h-8 sm:w-8 text-golden-500" />
+              <span className="text-lg sm:text-2xl font-bold text-golden-500">
+                BarberApp
+              </span>
+            </div>
+
+            {/* Mobile: Only login button */}
+            <div className="sm:hidden">
+              <Button
+                size="sm"
+                onClick={() => (window.location.href = "/auth")}
+              >
+                دخول
+              </Button>
+            </div>
+
+            {/* Desktop: All buttons */}
+            <div className="hidden sm:flex gap-2">
+              <Button onClick={() => (window.location.href = "/auth")}>
+                تسجيل الدخول
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                (window.location.href = "/network-diagnostic-test")
-              }
-            >
-              اختبار التشخيص
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => (window.location.href = "/network-diagnostic")}
-            >
-              التشخيص الشامل
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => (window.location.href = "/debug")}
-            >
-              التشخيص السريع
-            </Button>
-            <Button onClick={() => (window.location.href = "/auth")}>
-              تسجيل الدخول
-            </Button>
+
+          {/* Debug buttons - only for development */}
+          {import.meta.env.DEV && (
+            <div className="mt-2 flex flex-wrap gap-1 justify-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+                onClick={() => (window.location.href = "/debug")}
+              >
+                تشخيص
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+                onClick={() => (window.location.href = "/network-diagnostic")}
+              >
+                شبكة
+              </Button>
+            </div>
+          )}
+
+          {/* PWA Manager - compact */}
+          <div className="mt-2">
+            <PWAManager className="w-full max-w-md mx-auto" />
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 sm:py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
             أفضل حلاقين في
-            <span className="text-golden-500"> مدينتك</span>
+            <span className="text-golden-500 block sm:inline"> مدينتك</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
             احجز موعدك مع أمهر الحلاقين، واستمتع بخدمة عالية الجودة وأسعار
             مناسبة
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
             <Button
               size="lg"
-              className="px-8"
+              className="w-full sm:w-auto px-6 sm:px-8"
               onClick={() => (window.location.href = "/auth")}
             >
               ابدأ الآن
             </Button>
-            <Button variant="outline" size="lg" className="px-8">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto px-6 sm:px-8"
+            >
               تعرف على المزيد
             </Button>
           </div>
@@ -123,7 +147,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  اختر من بين العديد من المحلات في مختلف أنحاء المدينة
+                  اختر من بين ��لعديد من المحلات في مختلف أنحاء المدينة
                 </p>
               </CardContent>
             </Card>

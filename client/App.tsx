@@ -23,11 +23,20 @@ import SystemDiagnostic from "./pages/SystemDiagnostic";
 import NetworkDiagnostic from "./pages/NetworkDiagnostic";
 import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
+import OfflinePage from "./pages/OfflinePage";
+import PWAManager from "./components/PWAManager";
+import PWAUpdateNotification, {
+  PWAStatusBar,
+} from "./components/PWAUpdateNotification";
+import PWAPerformanceMonitor, {
+  usePWAMonitorConsole,
+} from "./components/PWAPerformanceMonitor";
 import { Button } from "@/components/ui/button";
 import { User } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
 import { useMessageNotifications } from "./hooks/use-message-notifications";
+import { usePWA, useNetworkStatus } from "./hooks/use-pwa";
 
 const queryClient = new QueryClient();
 
@@ -224,6 +233,9 @@ const IndexRoute = () => {
 const App = () => {
   const [state, store] = useAppStore();
 
+  // Initialize PWA monitor console commands
+  usePWAMonitorConsole();
+
   // Initialize global functions
   useEffect(() => {
     // إضافة دالة عالمية لفتح صفحة التشخيص
@@ -247,6 +259,9 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
+          <PWAStatusBar />
+          <PWAUpdateNotification />
+          <PWAPerformanceMonitor />
           <Toaster />
           <Sonner />
           <Routes>
@@ -268,6 +283,7 @@ const App = () => {
               path="/network-diagnostic-test"
               element={<NetworkDiagnosticTest />}
             />
+            <Route path="/offline" element={<OfflinePage />} />
 
             {/* Authenticated routes */}
             <Route path="/dashboard" element={<AppContent />} />

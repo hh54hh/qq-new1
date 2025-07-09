@@ -443,7 +443,7 @@ function createAppWithRoutes(app: express.Application) {
       res.status(501).json({
         error: "رفع الملفات غير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
-        suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
+        suggestion: "استخدم خدمة رفع ملفات خارجية م��ل Cloudinary أو AWS S3",
       });
     });
   } else {
@@ -464,6 +464,35 @@ function createAppWithRoutes(app: express.Application) {
 
     app.post("/api/upload/profile", upload.single("image"), uploadProfileImage);
   }
+
+  // PWA Push Notifications routes
+  app.post("/api/notifications/subscribe", async (req, res) => {
+    try {
+      // محاكاة تسجيل اشتراك Push
+      console.log("Push subscription registered:", req.body);
+      res.json({ success: true, message: "تم تسجيل الاشتراك بنجاح" });
+    } catch (error) {
+      res.status(500).json({ error: "خطأ في تسجيل الاشتراك" });
+    }
+  });
+
+  app.delete("/api/notifications/subscribe", async (req, res) => {
+    try {
+      console.log("Push subscription removed");
+      res.json({ success: true, message: "تم إلغاء الاشتراك" });
+    } catch (error) {
+      res.status(500).json({ error: "خطأ في إلغاء الاشتراك" });
+    }
+  });
+
+  app.post("/api/notifications/test", async (req, res) => {
+    try {
+      console.log("Test notification sent");
+      res.json({ success: true, message: "تم إرسال الإشعار التجريبي" });
+    } catch (error) {
+      res.status(500).json({ error: "خطأ في إرسال الإشعار" });
+    }
+  });
 
   // Messages routes
   app.get("/api/messages/conversations", getConversations);
