@@ -104,7 +104,7 @@ export default function EnhancedChatConversation({
     scrollToBottom();
   }, [messages]);
 
-  // محاولة إرسال ��لرسائل المعلقة عند الاتصال
+  // محاولة إرسال الرسائل المعلقة عند الاتصال
   useEffect(() => {
     if (isOnline) {
       retryPendingMessages();
@@ -662,10 +662,18 @@ export default function EnhancedChatConversation({
                             {/* محتوى الرسالة */}
                             <div className="flex items-end gap-2">
                               <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                                {message.content ||
-                                  message.message ||
-                                  (message as any).text ||
-                                  "[رسالة فارغة]"}
+                                {(() => {
+                                  const content =
+                                    message.content ||
+                                    (message as any).message ||
+                                    (message as any).text ||
+                                    "";
+                                  if (!content || content.trim() === "") {
+                                    console.warn("رسالة فارغة وجدت:", message);
+                                    return "[رسالة فارغة - يرجى الإبلاغ]";
+                                  }
+                                  return content;
+                                })()}
                               </p>
 
                               {/* أيقونة النجمة للرسائل المحفوظة */}
@@ -986,7 +994,7 @@ export default function EnhancedChatConversation({
         </div>
       </div>
 
-      {/* النقر خارج منتقي ا��رموز التعبيرية لإغلاقه */}
+      {/* النقر خارج منتقي الرموز التعبيرية لإغلاقه */}
       {showEmojiPicker && (
         <div
           className="fixed inset-0 z-40"
