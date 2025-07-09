@@ -111,11 +111,6 @@ const AppContent = () => {
     setShowLocationDialog(false);
   };
 
-  const handleStartChat = (targetUser: User) => {
-    setChatTargetUser(targetUser);
-    setShowChat(true);
-  };
-
   // Show loading while checking authentication
   if (isAuthLoading) {
     return (
@@ -266,7 +261,7 @@ const App = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
-    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
+    // إضافة دا��ة عالمية لفتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
