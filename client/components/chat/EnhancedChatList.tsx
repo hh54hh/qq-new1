@@ -168,13 +168,13 @@ export default function EnhancedChatList({
   const getMessagePreview = (message?: Message) => {
     if (!message) return "لا توجد رسائل";
 
-    if (message.isOffline) {
+    if ((message as any)?.isOffline) {
       return `📤 ${message.content}`;
     }
 
     switch (message.message_type) {
       case "image":
-        return "📷 صور��";
+        return "📷 صورة";
       case "voice":
         return "🎵 رسالة صوتية";
       case "location":
@@ -186,7 +186,7 @@ export default function EnhancedChatList({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 relative overflow-hidden">
-      {/* خلفية التطبيق */}
+      {/* خلفي�� التطبيق */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900"></div>
         <div
@@ -200,7 +200,7 @@ export default function EnhancedChatList({
       {!isOnline && (
         <div className="relative z-50 bg-red-500 text-white text-center py-2 text-sm">
           <WifiOff className="h-4 w-4 inline mr-2" />
-          وضع عدم الاتصال - يتم عرض الرسائل المحف��ظة
+          وضع عدم الاتصال - يتم عرض الرسائل المحفوظة
         </div>
       )}
 
@@ -314,7 +314,7 @@ export default function EnhancedChatList({
                 <div className="text-center py-16">
                   <div className="w-12 h-12 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
                   <p className="text-gray-600 dark:text-gray-400">
-                    جاري تحميل المحا��ثات...
+                    جاري تحميل المحادثات...
                   </p>
                 </div>
               ) : sortedConversations.length === 0 ? (
