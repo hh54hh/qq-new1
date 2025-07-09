@@ -547,12 +547,7 @@ class ChatManager {
     return {
       async saveData(storeName: string, data: any, id: string) {
         const key = `${storeName}:${id}`;
-        memoryStorage.set(key, {
-          id,
-          data,
-          timestamp: Date.now(),
-          synced: false,
-        });
+        memoryStorage.set(key, { id, data, timestamp: Date.now(), synced: 0 });
         console.log(`🧠 حفظ في الذاكرة: ${key}`);
         return id;
       },
