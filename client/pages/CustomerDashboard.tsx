@@ -749,7 +749,7 @@ export default function CustomerDashboard({
   const getBookingStatusLabel = (status: string) => {
     switch (status) {
       case "pending":
-        return "با����تظار";
+        return "با�����تظار";
       case "accepted":
         return "مق��ول";
       case "rejected":
@@ -1195,6 +1195,23 @@ export default function CustomerDashboard({
             </p>
           </div>
         </div>
+
+        {/* Debug Info */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="bg-muted p-4 rounded-lg text-sm">
+            <p>🔍 Debug Info:</p>
+            <p>• User ID: {user?.id}</p>
+            <p>• All Barbers: {allBarbers.length}</p>
+            <p>• Filtered Barbers: {filteredBarbers.length}</p>
+            <p>• Loading: {state.isLoading ? "Yes" : "No"}</p>
+            <p>
+              • Location:{" "}
+              {userLocation
+                ? `${userLocation.lat}, ${userLocation.lng}`
+                : "Not available"}
+            </p>
+          </div>
+        )}
 
         {/* Followed Barbers Section */}
         {followedBarbers.length > 0 && (
