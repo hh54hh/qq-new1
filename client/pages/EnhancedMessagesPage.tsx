@@ -6,10 +6,12 @@ import { useAppStore } from "@/lib/store";
 
 interface EnhancedMessagesPageProps {
   targetUserId?: string;
+  initialConversationId?: string;
 }
 
 export default function EnhancedMessagesPage({
   targetUserId,
+  initialConversationId,
 }: EnhancedMessagesPageProps) {
   const navigate = useNavigate();
   const [state] = useAppStore();
@@ -110,7 +112,11 @@ export default function EnhancedMessagesPage({
 
   return (
     <div className="h-screen overflow-hidden">
-      <TelegramChat currentUserId={state.user.id} onBack={handleBack} />
+      <TelegramChat
+        currentUserId={state.user.id}
+        onBack={handleBack}
+        initialConversationId={initialConversationId}
+      />
     </div>
   );
 }
