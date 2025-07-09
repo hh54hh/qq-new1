@@ -174,20 +174,6 @@ export default function Layout({
               </div>
             )}
 
-            {onShowMessages && (
-              <button
-                onClick={onShowMessages}
-                className="relative p-1.5 sm:p-2 hover:bg-muted/50 rounded-lg transition-colors"
-              >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" />
-                {unreadMessages > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
-                    {unreadMessages > 9 ? "9+" : unreadMessages}
-                  </span>
-                )}
-              </button>
-            )}
-
             {onShowNotifications && (
               <button
                 onClick={onShowNotifications}
