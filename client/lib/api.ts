@@ -117,7 +117,7 @@ class ApiClient {
           console.log(`❌ API غير متاح على ${path}: ${response.status}`);
         }
       } catch (error) {
-        // تجاهل أخطاء AbortController timeout العادية
+        // تجا��ل أخطاء AbortController timeout العادية
         if (error instanceof Error && error.name === "AbortError") {
           console.log(`⏰ انتهت مهلة الاختبار لـ ${path} (طبيعي)`);
         } else {
@@ -303,7 +303,7 @@ class ApiClient {
               break;
             case 404:
               errorMessage =
-                "خ��مة API غير متوف���ة - مشكلة في ��عدادات الخادم";
+                "خ��مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
@@ -388,11 +388,12 @@ class ApiClient {
 
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        console.error("Network error details:", {
-          message: error.message,
-          url,
-          endpoint,
-        });
+        console.error("🌐 Network error details:");
+        console.error("  Message:", error.message);
+        console.error("  URL:", url);
+        console.error("  Endpoint:", endpoint);
+        console.error("  Error Type:", error.name);
+        console.error("  Stack:", error.stack);
 
         let networkErrorMessage = "خطأ في الاتصال بالخادم";
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
