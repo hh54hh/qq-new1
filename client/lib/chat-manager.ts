@@ -71,52 +71,33 @@ export class ChatManager {
       const conversationsMap = new Map<string, Conversation>();
 
       response.conversations?.forEach((conv: any) => {
-        const otherUserId =
-          msg.sender_id === userId ? msg.receiver_id : msg.sender_id;
-        const otherUser = msg.sender_id === userId ? msg.receiver : msg.sender;
-
-        if (!conversationsMap.has(otherUserId)) {
-          conversationsMap.set(otherUserId, {
-            id: otherUserId,
-            user: otherUser || {
-              id: otherUserId,
-              name: `مستخدم ${otherUserId}`,
-              email: `${otherUserId}@example.com`,
-              role: "customer" as any,
-              status: "active",
-              level: 50,
-              points: 1000,
-              is_verified: false,
-              created_at: new Date().toISOString(),
-            },
-            unreadCount: 0,
-            isOnline: Math.random() > 0.5,
-          });
-        }
-
-        const conversation = conversationsMap.get(otherUserId)!;
-
-        // تحديث آخر رسالة
-        if (
-          !conversation.lastMessage ||
-          new Date(msg.created_at) >
-            new Date(conversation.lastMessage.created_at)
-        ) {
-          conversation.lastMessage = {
-            id: msg.id,
-            sender_id: msg.sender_id,
-            receiver_id: msg.receiver_id,
-            content: msg.content || msg.message,
-            created_at: msg.created_at,
-            read: msg.read || false,
-            delivery_status: msg.read ? "read" : "delivered",
-          };
-        }
-
-        // حساب الرسائل غير المقروءة
-        if (msg.receiver_id === userId && !msg.read) {
-          conversation.unreadCount++;
-        }
+        conversationsMap.set(conv.id, {
+          id: conv.id,
+          user: conv.user || {
+            id: conv.id,
+            name: conv.name || `مستخدم ${conv.id}`,
+            email: `${conv.id}@example.com`,
+            role: "customer" as any,
+            status: "active",
+            level: 50,
+            points: 1000,
+            is_verified: false,
+            created_at: new Date().toISOString(),
+          },
+          lastMessage: conv.lastMessage
+            ? {
+                id: conv.lastMessage.id,
+                sender_id: conv.lastMessage.sender_id,
+                receiver_id: conv.lastMessage.receiver_id,
+                content: conv.lastMessage.content || conv.lastMessage.message,
+                created_at: conv.lastMessage.created_at,
+                read: conv.lastMessage.read || false,
+                delivery_status: conv.lastMessage.read ? "read" : "delivered",
+              }
+            : undefined,
+          unreadCount: conv.unreadCount || 0,
+          isOnline: Math.random() > 0.5,
+        });
       });
 
       const conversations = Array.from(conversationsMap.values());
@@ -204,7 +185,7 @@ export class ChatManager {
       message_type: "text",
     };
 
-    // إضافة الر��الة فوراً للواجهة
+    // إضافة الرسالة فوراً للواجهة
     const conversationMessages = this.messages.get(data.receiver_id) || [];
     conversationMessages.push(tempMessage);
     this.messages.set(data.receiver_id, conversationMessages);
