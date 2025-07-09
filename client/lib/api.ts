@@ -351,7 +351,7 @@ class ApiClient {
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
 
         if (error.message.includes("Failed to fetch")) {
-          networkErrorMessage = "فشل في الاتصال بالخادم";
+          networkErrorMessage = "فشل في الاتصال ��الخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
           networkErrorMessage = "خطأ في ا����شبكة";
@@ -887,23 +887,49 @@ class ApiClient {
     content: string;
     message_type?: string;
   }): Promise<{ message: any; success: boolean }> {
-    const response = await this.request<{ message: any; success: boolean }>(
-      "/messages",
-      {
-        method: "POST",
-        body: JSON.stringify(messageData),
-      },
-    );
-
-    // تصحيح: تحويل حقل 'message' إلى 'content' في الاستجابة
-    if (response.message) {
-      response.message = {
-        ...response.message,
-        content: response.message.content || response.message.message || "",
-      };
+    // التحقق من صحة البيانات
+    if (!messageData.receiver_id || messageData.receiver_id === "undefined") {
+      throw new Error("معرف المستقبل غير صحيح");
     }
 
-    return response;
+    if (!messageData.content || messageData.content.trim() === "") {
+      throw new Error("محتوى الرسالة فارغ");
+    }
+
+    console.log("📤 إرسال رسالة عبر API:", {
+      receiver_id: messageData.receiver_id,
+      content_length: messageData.content.length,
+      message_type: messageData.message_type || "text",
+    });
+
+    try {
+      const response = await this.request<{ message: any; success: boolean }>(
+        "/messages",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            ...messageData,
+            content: messageData.content.trim(),
+            message_type: messageData.message_type || "text",
+          }),
+        },
+      );
+
+      console.log("✅ نجح إرسال الرسالة:", response);
+
+      // تصحيح: تحويل حقل 'message' إلى 'content' ف�� الاستجابة
+      if (response.message) {
+        response.message = {
+          ...response.message,
+          content: response.message.content || response.message.message || "",
+        };
+      }
+
+      return response;
+    } catch (error) {
+      console.error("❌ فشل إرسال الرسالة:", error);
+      throw error;
+    }
   }
 
   async markMessagesAsRead(senderId: string): Promise<{ success: boolean }> {
