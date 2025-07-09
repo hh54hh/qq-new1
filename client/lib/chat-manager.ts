@@ -439,6 +439,76 @@ class ChatManager {
     }
   }
 
+  // Get or create a conversation with a specific user
+  async getOrCreateConversationWithUser(
+    userId: string,
+    userName: string,
+  ): Promise<ChatConversation | null> {
+    try {
+      // First check if conversation already exists
+      const conversations = await this.getConversations();
+      const existingConversation = conversations.find(
+        (conv) =>
+          conv.type === "direct" &&
+          conv.participantIds.includes(userId) &&
+          conv.participantIds.includes(this.currentUserId),
+      );
+
+      if (existingConversation) {
+        return existingConversation;
+      }
+
+      // Create new conversation
+      const response = await offlineAPI.post("/api/conversations", {
+        type: "direct",
+        participantIds: [this.currentUserId, userId],
+        name: userName,
+      });
+
+      if (response.success && response.data) {
+        const newConversation: ChatConversation = {
+          id: response.data.id,
+          name: userName,
+          participantIds: [this.currentUserId, userId],
+          lastActivity: Date.now(),
+          unreadCount: 0,
+          type: "direct",
+          isOnline: false,
+        };
+
+        await this.storage.saveData(
+          "conversations",
+          newConversation,
+          newConversation.id,
+        );
+        this.emit("conversation:created", newConversation);
+        return newConversation;
+      }
+    } catch (error) {
+      console.error("Failed to create conversation:", error);
+
+      // Create a temporary conversation for offline use
+      const tempConversation: ChatConversation = {
+        id: `temp_conv_${userId}_${Date.now()}`,
+        name: userName,
+        participantIds: [this.currentUserId, userId],
+        lastActivity: Date.now(),
+        unreadCount: 0,
+        type: "direct",
+        isOnline: false,
+      };
+
+      await this.storage.saveData(
+        "conversations",
+        tempConversation,
+        tempConversation.id,
+      );
+      return tempConversation;
+    }
+
+    return null;
+  }
+
   // Cleanup
   destroy() {
     this.listeners.clear();
