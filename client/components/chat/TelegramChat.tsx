@@ -33,6 +33,8 @@ interface Conversation {
   lastMessageTime?: number;
   unreadCount?: number;
   isOnline?: boolean;
+  participantIds?: string[];
+  type?: string;
 }
 
 interface TelegramChatProps {
@@ -113,11 +115,23 @@ export default function TelegramChat({
     try {
       setIsLoading(true);
       const conversations = await chatManager.getConversations();
-      setConversations(conversations);
+      // Convert ChatConversation to Conversation interface
+      const convertedConversations = conversations.map((conv) => ({
+        id: conv.id,
+        name: conv.name,
+        avatar: conv.avatar,
+        lastMessage: conv.lastMessage?.content || "لا توجد رسائل",
+        lastMessageTime: conv.lastMessage?.timestamp || conv.lastActivity,
+        unreadCount: conv.unreadCount,
+        isOnline: conv.isOnline,
+        participantIds: conv.participantIds,
+        type: conv.type,
+      }));
+      setConversations(convertedConversations);
 
       // Auto-select initial conversation if provided
       if (initialConversationId && conversations.length > 0) {
-        const targetConversation = conversations.find(
+        const targetConversation = convertedConversations.find(
           (c) => c.id === initialConversationId,
         );
         if (targetConversation) {
@@ -207,7 +221,7 @@ export default function TelegramChat({
   };
 
   // Real-time message handlers
-  const handleNewMessage = (message: Message) => {
+  const handleNewMessage = (message: any) => {
     if (
       activeConversation &&
       message.conversationId === activeConversation.id
@@ -243,12 +257,6 @@ export default function TelegramChat({
           isMobile ? (showConversations ? "w-full" : "hidden") : "w-80",
         )}
       >
-        <style jsx>{`
-          .chat-container {
-            height: 100vh;
-            height: 100dvh;
-          }
-        `}</style>
         {/* Header */}
         <div className="sidebar-header p-4 border-b border-border bg-card">
           <div className="flex items-center gap-3 mb-4">
