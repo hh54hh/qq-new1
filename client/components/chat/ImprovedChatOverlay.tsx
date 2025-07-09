@@ -93,7 +93,9 @@ export default function ImprovedChatOverlay({
     setConnectionError(null);
 
     try {
-      const loadedConversations = await chatManager.loadConversations(user.id);
+      const loadedConversations = await realChatManager.loadConversations(
+        user.id,
+      );
 
       // إضافة المحادثة المستهدفة إذا كانت موجودة
       if (targetUser) {
@@ -170,7 +172,7 @@ export default function ImprovedChatOverlay({
     }
   }, [newMessage, selectedConversation, user.id, isSending]);
 
-  // معالجة أحداث م��ير الدردشة
+  // معالجة أحداث مدير الدردشة
   useEffect(() => {
     const handleMessageAdded = (data: any) => {
       if (
