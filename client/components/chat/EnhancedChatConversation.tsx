@@ -160,12 +160,24 @@ export default function EnhancedChatConversation({
         const response = await apiClient.getMessages(conversation.user.id);
 
         const enhancedMessages: Message[] = (response.messages || []).map(
-          (msg: any) => ({
-            ...msg,
-            delivery_status: msg.sender_id === user.id ? "read" : "delivered",
-            is_starred: false,
-            isOffline: false,
-          }),
+          (msg: any) => {
+            // تصحيح: التأكد من وجود محتوى الرسالة
+            const content = msg.content || msg.message || msg.text || "";
+
+            console.log("تحويل رسالة من API:", {
+              id: msg.id,
+              content: content,
+              originalData: msg,
+            });
+
+            return {
+              ...msg,
+              content: content, // التأكد من حقل المحتوى
+              delivery_status: msg.sender_id === user.id ? "read" : "delivered",
+              is_starred: false,
+              isOffline: false,
+            };
+          },
         );
 
         setMessages(enhancedMessages);
@@ -190,7 +202,7 @@ export default function EnhancedChatConversation({
             id: "welcome_msg",
             sender_id: conversation.user.id,
             receiver_id: user.id,
-            content: "مرحباً بك! 👋 كيف يمكنني مساعدتك اليوم؟",
+            content: "مرح��اً بك! 👋 كيف يمكنني مساعدتك اليوم؟",
             created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
             read: true,
             message_type: "text",
@@ -623,7 +635,10 @@ export default function EnhancedChatConversation({
                             {/* محتوى الرسالة */}
                             <div className="flex items-end gap-2">
                               <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                                {message.content}
+                                {message.content ||
+                                  message.message ||
+                                  (message as any).text ||
+                                  "[رسالة فارغة]"}
                               </p>
 
                               {/* أيقونة النجمة للرسائل المحفوظة */}
@@ -631,7 +646,7 @@ export default function EnhancedChatConversation({
                                 <Star className="h-3 w-3 text-yellow-400 fill-current shrink-0" />
                               )}
 
-                              {/* مؤشر الرسالة غير المتصلة */}
+                              {/* مؤشر ��لرسالة غير المتصلة */}
                               {message.isOffline && (
                                 <WifiOff className="h-3 w-3 text-gray-400 shrink-0" />
                               )}
