@@ -49,8 +49,7 @@ const AppContent = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [showChat, setShowChat] = useState(false);
-  const [chatTargetUser, setChatTargetUser] = useState<User | undefined>();
+
   const { isPermissionRequested } = useLocation();
 
   // Enable message notifications
