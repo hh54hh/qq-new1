@@ -1078,6 +1078,8 @@ export default function BarberDashboard({
       return <FriendsPage user={user} />;
     case "requests":
       return renderRequests();
+    case "messages":
+      return <EnhancedMessagesPage />;
     case "new-post":
       return renderNewPost();
     case "profile":
