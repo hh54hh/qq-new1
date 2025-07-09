@@ -65,16 +65,16 @@ export default function MessagesPage({
 
   // Open specific conversation if targetUserId provided
   useEffect(() => {
-    if (targetUserId && conversations.length > 0) {
+    if (urlTargetUserId && conversations.length > 0) {
       const targetConversation = conversations.find(
-        (conv) => conv.otherUser.id === targetUserId,
+        (conv) => conv.otherUser.id === urlTargetUserId,
       );
       if (targetConversation) {
         setActiveConversation(targetConversation);
         loadMessages(targetConversation.id);
       }
     }
-  }, [targetUserId, conversations]);
+  }, [urlTargetUserId, conversations]);
 
   const loadConversations = async () => {
     try {
@@ -201,7 +201,7 @@ export default function MessagesPage({
         ),
       );
     } catch (error) {
-      console.error("فشل إرسال الرسالة:", error);
+      console.error("فش�� إرسال الرسالة:", error);
     } finally {
       setIsSending(false);
     }
@@ -421,7 +421,7 @@ export default function MessagesPage({
               </div>
               <h3 className="text-lg font-medium mb-2">اختر محادثة</h3>
               <p className="text-muted-foreground">
-                اختر محاد��ة من القائمة لبدء المراسلة
+                اختر محادثة من القائمة لبدء المراسلة
               </p>
             </div>
           </div>
