@@ -1140,6 +1140,15 @@ export default function CustomerDashboard({
             setShowMessages(true);
           }
         }}
+        onStartChat={
+          onStartChat
+            ? (userId: string, userName: string) => {
+                setShowProfile(false);
+                const user = { id: userId, name: userName };
+                onStartChat(user as any);
+              }
+            : undefined
+        }
       />
     );
   }
