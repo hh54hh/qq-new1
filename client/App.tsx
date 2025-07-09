@@ -179,12 +179,12 @@ const AppContent = () => {
         )}
       </Layout>
 
-      {/* نظام الدردشة ��لمحسن */}
-      <StableChatManager
+      {/* نظام الدردشة المحسن */}
+      <ChatOverlay
         user={state.user}
         targetUser={chatTargetUser}
         isVisible={showChat}
-        onBack={() => {
+        onClose={() => {
           setShowChat(false);
           setChatTargetUser(undefined);
         }}
