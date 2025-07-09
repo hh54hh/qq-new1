@@ -156,7 +156,7 @@ class ApiClient {
       "/messages",
       "/barbers",
       "/notifications",
-      "/api/auth/profile",
+      "/auth/profile",
       "/posts",
       "/follows",
       "/ratings",
@@ -250,7 +250,7 @@ class ApiClient {
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
-              if (endpoint.includes("/api/auth/login")) {
+              if (endpoint.includes("/auth/login")) {
                 errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
@@ -410,7 +410,7 @@ class ApiClient {
     } catch (error) {
       console.error("Login failed:", error);
       console.error("Login attempt details:", {
-        endpoint: "/api/auth/login",
+        endpoint: "/auth/login",
         email,
         emailTrimmed: email.trim(),
         passwordProvided: !!password,
