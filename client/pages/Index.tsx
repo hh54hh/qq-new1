@@ -79,25 +79,29 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 sm:py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
             أفضل حلاقين في
-            <span className="text-golden-500"> مدينتك</span>
+            <span className="text-golden-500 block sm:inline"> مدينتك</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto px-2">
             احجز موعدك مع أمهر الحلاقين، واستمتع بخدمة عالية الجودة وأسعار
             مناسبة
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
             <Button
               size="lg"
-              className="px-8"
+              className="w-full sm:w-auto px-6 sm:px-8"
               onClick={() => (window.location.href = "/auth")}
             >
               ابدأ الآن
             </Button>
-            <Button variant="outline" size="lg" className="px-8">
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto px-6 sm:px-8"
+            >
               تعرف على المزيد
             </Button>
           </div>
