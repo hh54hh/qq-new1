@@ -24,7 +24,7 @@ class OfflineStorageManager {
   constructor(options?: Partial<StorageOptions>) {
     this.options = {
       dbName: "BarberAppOfflineDB",
-      version: 1,
+      version: 2,
       stores: [
         "bookings",
         "messages",
