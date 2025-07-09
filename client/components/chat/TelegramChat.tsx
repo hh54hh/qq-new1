@@ -38,11 +38,13 @@ interface Conversation {
 interface TelegramChatProps {
   currentUserId: string;
   onBack?: () => void;
+  initialConversationId?: string;
 }
 
 export default function TelegramChat({
   currentUserId,
   onBack,
+  initialConversationId,
 }: TelegramChatProps) {
   // State management
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -52,6 +54,8 @@ export default function TelegramChat({
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showConversations, setShowConversations] = useState(true);
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -62,6 +66,19 @@ export default function TelegramChat({
   useEffect(() => {
     loadConversations();
 
+    // Check if mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth <= 768 && activeConversation) {
+        setShowConversations(false);
+      } else {
+        setShowConversations(true);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
     // Listen for real-time updates
     const unsubscribeNew = chatManager.on("message:new", handleNewMessage);
     const unsubscribeSent = chatManager.on("message:sent", handleMessageSent);
@@ -71,6 +88,7 @@ export default function TelegramChat({
     );
 
     return () => {
+      window.removeEventListener("resize", checkMobile);
       unsubscribeNew();
       unsubscribeSent();
       unsubscribeFailed();
@@ -96,6 +114,20 @@ export default function TelegramChat({
       setIsLoading(true);
       const conversations = await chatManager.getConversations();
       setConversations(conversations);
+
+      // Auto-select initial conversation if provided
+      if (initialConversationId && conversations.length > 0) {
+        const targetConversation = conversations.find(
+          (c) => c.id === initialConversationId,
+        );
+        if (targetConversation) {
+          setActiveConversation(targetConversation);
+          loadMessages(targetConversation.id);
+          if (isMobile) {
+            setShowConversations(false);
+          }
+        }
+      }
     } catch (error) {
       console.error("Failed to load conversations:", error);
       setConversations([]);
@@ -205,7 +237,12 @@ export default function TelegramChat({
     <div className="flex h-screen bg-background">
       <ChatPerformanceMonitor />
       {/* Conversations Sidebar */}
-      <div className="w-80 bg-card border-r border-border flex flex-col">
+      <div
+        className={cn(
+          "bg-card border-r border-border flex flex-col transition-all duration-300",
+          isMobile ? (showConversations ? "w-full" : "hidden") : "w-80",
+        )}
+      >
         <style jsx>{`
           .chat-container {
             height: 100vh;
@@ -215,11 +252,19 @@ export default function TelegramChat({
         {/* Header */}
         <div className="sidebar-header p-4 border-b border-border bg-card">
           <div className="flex items-center gap-3 mb-4">
-            {onBack && (
+            {(onBack || (isMobile && !showConversations)) && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={onBack}
+                onClick={() => {
+                  if (isMobile && !showConversations) {
+                    // Go back to conversations list on mobile
+                    setShowConversations(true);
+                    setActiveConversation(null);
+                  } else if (onBack) {
+                    onBack();
+                  }
+                }}
                 className="p-2"
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -259,6 +304,10 @@ export default function TelegramChat({
                 onClick={() => {
                   setActiveConversation(conversation);
                   loadMessages(conversation.id);
+                  // Hide conversations list on mobile when a chat is selected
+                  if (isMobile) {
+                    setShowConversations(false);
+                  }
                 }}
                 className={cn(
                   "conversation-item p-3 cursor-pointer transition-colors border-b border-border/50",
@@ -313,13 +362,31 @@ export default function TelegramChat({
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div
+        className={cn(
+          "flex-1 flex flex-col",
+          isMobile && showConversations ? "hidden" : "flex",
+        )}
+      >
         {activeConversation ? (
           <>
             {/* Chat Header */}
             <div className="chat-header p-4 border-b border-border bg-card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
+                  {isMobile && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setShowConversations(true);
+                        setActiveConversation(null);
+                      }}
+                      className="p-2 mr-2"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                  )}
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                       {activeConversation.name.charAt(0)}
