@@ -24,6 +24,7 @@ import NetworkDiagnostic from "./pages/NetworkDiagnostic";
 import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
+import MessagesPage from "./pages/MessagesPage";
 import PWAManager from "./components/PWAManager";
 import PWAUpdateNotification, {
   PWAStatusBar,
