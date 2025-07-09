@@ -277,7 +277,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة، يرجى الت���قق من جميع الحقول";
+                "البيانات المد��لة غير صحيحة، يرجى الت��قق م�� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -303,7 +303,7 @@ class ApiClient {
               break;
             case 404:
               errorMessage =
-                "خ��مة API غير ��توف��ة - مشكلة في ��عدادات الخادم";
+                "خ��مة API غير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
@@ -325,7 +325,7 @@ class ApiClient {
                 "إذا اس��مرت المشكلة، اتصل بالدعم الفني على: 07800657822";
               break;
             case 502:
-              errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لا����اً";
+              errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لاح��اً";
               errorType = "BAD_GATEWAY_ERROR";
               break;
             case 503:
@@ -343,14 +343,11 @@ class ApiClient {
           }
         }
 
-        console.error(`API Error [${response.status}]:`, {
-          message: errorMessage,
-          details: errorDetails,
-          errorType,
-          suggestion,
-          url,
-          method: options.method || "GET",
-        });
+        // طباعة مبسطة للخطأ
+        console.warn(`⚠️ API [${response.status}]: ${errorMessage}`);
+        if (suggestion) {
+          console.info(`💡 ${suggestion}`);
+        }
 
         // إنشاء خطأ مخصص مع معلومات إضافية
         const customError = new Error(errorMessage) as any;
@@ -494,7 +491,7 @@ class ApiClient {
 
       // إذا وجدت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
       if (fallbackData !== undefined) {
-        console.log(`🔄 استخدام البيانات الاحتيا��ية لـ ${endpoint}`);
+        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
         return fallbackData;
       }
 
