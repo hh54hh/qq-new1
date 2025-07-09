@@ -28,6 +28,9 @@ import PWAManager from "./components/PWAManager";
 import PWAUpdateNotification, {
   PWAStatusBar,
 } from "./components/PWAUpdateNotification";
+import PWAPerformanceMonitor, {
+  usePWAMonitorConsole,
+} from "./components/PWAPerformanceMonitor";
 import { Button } from "@/components/ui/button";
 import { User } from "@shared/api";
 import { useAppStore } from "./lib/store";
@@ -65,7 +68,7 @@ const AppContent = () => {
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
-      console.log("🔧 تم فت�� صفحة التشخيص");
+      console.log("🔧 تم فتح صفحة التشخيص");
     };
 
     // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
@@ -236,6 +239,9 @@ const IndexRoute = () => {
 const App = () => {
   const [state, store] = useAppStore();
 
+  // Initialize PWA monitor console commands
+  usePWAMonitorConsole();
+
   // Initialize global functions
   useEffect(() => {
     // إضافة دالة عالمية لفتح صفحة التشخيص
@@ -261,6 +267,7 @@ const App = () => {
         <BrowserRouter>
           <PWAStatusBar />
           <PWAUpdateNotification />
+          <PWAPerformanceMonitor />
           <Toaster />
           <Sonner />
           <Routes>
