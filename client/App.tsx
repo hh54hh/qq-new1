@@ -32,6 +32,7 @@ import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
 import NetworkStatusBanner from "./components/NetworkStatusBanner";
+import StableChatManager from "./components/chat/StableChatManager";
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
@@ -47,6 +48,8 @@ const AppContent = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [showChat, setShowChat] = useState(false);
+  const [chatTargetUser, setChatTargetUser] = useState<User | undefined>();
   const { isPermissionRequested } = useLocation();
 
   // Enable message notifications
@@ -66,7 +69,7 @@ const AppContent = () => {
 
     initAuth();
 
-    // إضافة دالة عالمية لفتح صفحة التشخيص
+    // إضافة دالة عالمية لفتح صفحة الت��خيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
@@ -139,7 +142,10 @@ const AppContent = () => {
         onTabChange={setActiveTab}
         onLogout={handleLogout}
         onShowNotifications={() => (window.location.href = "/notifications")}
-        onShowMessages={() => (window.location.href = "/messages")}
+        onShowMessages={() => {
+          setShowChat(true);
+          setChatTargetUser(undefined);
+        }}
       >
         {state.user.role === "customer" ? (
           <CustomerDashboard
