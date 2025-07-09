@@ -257,7 +257,7 @@ export default function EnhancedChatList({
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Users className="mr-2 h-4 w-4" />
-                    مجموعات جديدة
+                    مجم��عات جديدة
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Archive className="mr-2 h-4 w-4" />
