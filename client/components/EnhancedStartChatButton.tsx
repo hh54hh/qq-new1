@@ -1,164 +1,132 @@
-import { Button } from "@/components/ui/button";
-import { MessageCircle, Send } from "lucide-react";
-import { User } from "@shared/api";
-import { cn } from "@/lib/utils";
+import React from "react";
 import { motion } from "framer-motion";
+import { MessageCircle, Send } from "lucide-react";
 
-interface EnhancedStartChatButtonProps {
-  targetUser: User;
-  currentUser: User;
-  onStartChat: (targetUser: User) => void;
+interface ProfileChatButtonProps {
+  userId: string;
+  userName: string;
+  onStartChat: (userId: string, userName: string) => void;
   className?: string;
-  variant?: "default" | "outline" | "ghost" | "link";
-  size?: "default" | "sm" | "lg" | "icon";
-  showIcon?: boolean;
-  children?: React.ReactNode;
-  fullWidth?: boolean;
 }
 
-export default function EnhancedStartChatButton({
-  targetUser,
-  currentUser,
-  onStartChat,
-  className,
-  variant = "default",
-  size = "default",
-  showIcon = true,
-  children,
-  fullWidth = false,
-}: EnhancedStartChatButtonProps) {
-  // لا نعرض الزر للمستخدم نفسه
-  if (targetUser.id === currentUser.id) {
-    return null;
-  }
+interface CompactChatButtonProps {
+  userId: string;
+  userName: string;
+  onStartChat: (userId: string, userName: string) => void;
+  size?: "sm" | "md";
+  variant?: "primary" | "secondary";
+}
 
+export const ProfileChatButton: React.FC<ProfileChatButtonProps> = ({
+  userId,
+  userName,
+  onStartChat,
+  className = "",
+}) => {
   const handleClick = () => {
-    onStartChat(targetUser);
+    onStartChat(userId, userName);
   };
 
   return (
-    <motion.div
+    <motion.button
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={fullWidth ? "w-full" : ""}
+      onClick={handleClick}
+      className={`
+        w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800
+        text-white font-medium py-3 px-6 rounded-xl shadow-lg hover:shadow-xl
+        transition-all duration-200 flex items-center justify-center gap-2
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        ${className}
+      `}
     >
-      <Button
-        variant={variant}
+      <MessageCircle size={20} />
+      <span>Send Message</span>
+    </motion.button>
+  );
+};
+
+export const CompactChatButton: React.FC<CompactChatButtonProps> = ({
+  userId,
+  userName,
+  onStartChat,
+  size = "md",
+  variant = "primary",
+}) => {
+  const handleClick = () => {
+    onStartChat(userId, userName);
+  };
+
+  const sizeClasses = {
+    sm: "p-2",
+    md: "p-3",
+  };
+
+  const variantClasses = {
+    primary:
+      "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg",
+    secondary:
+      "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 hover:border-slate-400",
+  };
+
+  const iconSize = size === "sm" ? 16 : 18;
+
+  return (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={handleClick}
+      className={`
+        rounded-full transition-all duration-200 flex items-center justify-center
+        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        ${sizeClasses[size]} ${variantClasses[variant]}
+      `}
+      title={`Send message to ${userName}`}
+    >
+      <Send size={iconSize} />
+    </motion.button>
+  );
+};
+
+interface StartChatButtonProps {
+  userId: string;
+  userName: string;
+  onStartChat: (userId: string, userName: string) => void;
+  variant?: "profile" | "compact";
+  size?: "sm" | "md";
+  buttonVariant?: "primary" | "secondary";
+  className?: string;
+}
+
+export const StartChatButton: React.FC<StartChatButtonProps> = ({
+  userId,
+  userName,
+  onStartChat,
+  variant = "profile",
+  size = "md",
+  buttonVariant = "primary",
+  className,
+}) => {
+  if (variant === "compact") {
+    return (
+      <CompactChatButton
+        userId={userId}
+        userName={userName}
+        onStartChat={onStartChat}
         size={size}
-        onClick={handleClick}
-        className={cn(
-          "transition-all duration-300 border-0 shadow-lg hover:shadow-xl",
-          variant === "default" &&
-            "bg-gradient-to-r from-blue-600 via-blue-700 to-purple-700 hover:from-blue-700 hover:via-blue-800 hover:to-purple-800 text-white",
-          variant === "outline" &&
-            "border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/20",
-          variant === "ghost" &&
-            "hover:bg-blue-100 dark:hover:bg-blue-950/20 text-blue-600 dark:text-blue-400",
-          fullWidth && "w-full",
-          className,
-        )}
-      >
-        <div className="flex items-center gap-2">
-          {showIcon && (
-            <motion.div
-              initial={{ rotate: 0 }}
-              whileHover={{ rotate: 15 }}
-              transition={{ duration: 0.2 }}
-            >
-              <MessageCircle className="h-4 w-4" />
-            </motion.div>
-          )}
-          <span className="font-medium">{children || "بدء محادثة"}</span>
-          <motion.div
-            initial={{ x: 0 }}
-            whileHover={{ x: 2 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Send className="h-3 w-3 opacity-60" />
-          </motion.div>
-        </div>
-      </Button>
-    </motion.div>
-  );
-}
-
-// مكون خاص للملفات الشخصية
-interface ProfileChatButtonProps {
-  targetUser: User;
-  currentUser: User;
-  onStartChat: (targetUser: User) => void;
-  className?: string;
-}
-
-export function ProfileChatButton({
-  targetUser,
-  currentUser,
-  onStartChat,
-  className,
-}: ProfileChatButtonProps) {
-  if (targetUser.id === currentUser.id) {
-    return null;
+        variant={buttonVariant}
+      />
+    );
   }
 
   return (
-    <div className={cn("relative group", className)}>
-      <motion.div
-        whileHover={{ y: -2 }}
-        whileTap={{ y: 0 }}
-        className="relative"
-      >
-        <EnhancedStartChatButton
-          targetUser={targetUser}
-          currentUser={currentUser}
-          onStartChat={onStartChat}
-          variant="default"
-          size="lg"
-          fullWidth
-          className="relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-white/10 to-blue-600/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-          <span className="relative z-10">دردشة الآن</span>
-        </EnhancedStartChatButton>
-      </motion.div>
-
-      {/* تأثير الخلفية المضيئة */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur-lg opacity-0 group-hover:opacity-30 transition-opacity duration-300 -z-10" />
-    </div>
+    <ProfileChatButton
+      userId={userId}
+      userName={userName}
+      onStartChat={onStartChat}
+      className={className}
+    />
   );
-}
+};
 
-// مكون مصغر للقوائم
-interface CompactChatButtonProps {
-  targetUser: User;
-  currentUser: User;
-  onStartChat: (targetUser: User) => void;
-  className?: string;
-}
-
-export function CompactChatButton({
-  targetUser,
-  currentUser,
-  onStartChat,
-  className,
-}: CompactChatButtonProps) {
-  if (targetUser.id === currentUser.id) {
-    return null;
-  }
-
-  return (
-    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => onStartChat(targetUser)}
-        className={cn(
-          "h-8 w-8 rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-950/20 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 transition-all duration-200",
-          className,
-        )}
-        title={`دردشة مع ${targetUser.name}`}
-      >
-        <MessageCircle className="h-4 w-4" />
-      </Button>
-    </motion.div>
-  );
-}
+export default StartChatButton;
