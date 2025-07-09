@@ -220,7 +220,9 @@ export default function NativeHeader({
       {/* Large header additional content space */}
       {large && (
         <div className="px-4 pb-2">
-          {/* This space can be used for additional content like search bars, filters, etc. */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>نظام إدارة صالونات الحلاقة</span>
+          </div>
         </div>
       )}
     </header>
