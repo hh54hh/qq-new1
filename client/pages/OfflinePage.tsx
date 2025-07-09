@@ -6,22 +6,39 @@ import {
   Smartphone,
   Monitor,
   Download,
+  Database,
+  HardDrive,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import offlineAPI from "@/lib/offline-api";
+import { getOfflineStorage } from "@/lib/offline-storage";
 
 interface OfflinePageProps {
   onRetry?: () => void;
+}
+
+interface StorageInfo {
+  totalSize: number;
+  storesSizes: Record<string, number>;
+  itemCounts: Record<string, number>;
 }
 
 export default function OfflinePage({ onRetry }: OfflinePageProps) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [retrying, setRetrying] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null);
+  const [loadingStorage, setLoadingStorage] = useState(true);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
+    const handleOnline = () => {
+      setIsOnline(true);
+      // Start syncing when coming online
+      offlineAPI.syncPendingActions();
+    };
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener("online", handleOnline);
@@ -35,6 +52,9 @@ export default function OfflinePage({ onRetry }: OfflinePageProps) {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
+    // Load storage information
+    loadStorageInfo();
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
@@ -44,6 +64,43 @@ export default function OfflinePage({ onRetry }: OfflinePageProps) {
       );
     };
   }, []);
+
+  const loadStorageInfo = async () => {
+    try {
+      setLoadingStorage(true);
+      const storage = await getOfflineStorage();
+      const info = await storage.getStorageInfo();
+
+      // Get item counts for each store
+      const stores = [
+        "bookings",
+        "messages",
+        "barbershops",
+        "services",
+        "notifications",
+        "users",
+      ];
+      const itemCounts: Record<string, number> = {};
+
+      for (const store of stores) {
+        try {
+          const data = await storage.getAllData(store);
+          itemCounts[store] = data.length;
+        } catch {
+          itemCounts[store] = 0;
+        }
+      }
+
+      setStorageInfo({
+        ...info,
+        itemCounts,
+      });
+    } catch (error) {
+      console.error("Failed to load storage info:", error);
+    } finally {
+      setLoadingStorage(false);
+    }
+  };
 
   const handleRetry = async () => {
     setRetrying(true);
@@ -72,16 +129,25 @@ export default function OfflinePage({ onRetry }: OfflinePageProps) {
     }
   };
 
-  const getCachedData = () => {
-    // محاولة الحصول على البيانات المخزنة محلياً
-    const cached = localStorage.getItem("app_cache_info");
-    if (cached) {
-      return JSON.parse(cached);
-    }
-    return null;
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const cachedData = getCachedData();
+  const clearOfflineData = async () => {
+    if (confirm("هل تريد حقاً مسح جميع البيانات المحفوظة محلياً؟")) {
+      try {
+        await offlineAPI.clearOfflineData();
+        await loadStorageInfo();
+        alert("تم مسح البيانات بنجاح");
+      } catch (error) {
+        alert("فشل في مسح البيانات");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-muted/20 p-4">
@@ -184,54 +250,115 @@ export default function OfflinePage({ onRetry }: OfflinePageProps) {
           )}
 
           {/* البيانات المحفوظة */}
-          {cachedData && (
-            <Card>
-              <CardHeader>
-                <CardTitle>البيانات المتاحة محلياً</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">الحجوزات:</span>
-                    <span className="ml-2 font-medium">
-                      {cachedData.bookings || 0}
-                    </span>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="h-5 w-5" />
+                البيانات المحفوظة محلياً
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loadingStorage ? (
+                <div className="text-center py-4">
+                  <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    جاري تحميل معلومات التخزين...
+                  </p>
+                </div>
+              ) : storageInfo ? (
+                <div className="space-y-4">
+                  {/* إحصائيات البيانات */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">الحجوزات:</span>
+                      <span className="ml-2 font-medium">
+                        {storageInfo.itemCounts.bookings || 0}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">الرسائل:</span>
+                      <span className="ml-2 font-medium">
+                        {storageInfo.itemCounts.messages || 0}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">الحلاقين:</span>
+                      <span className="ml-2 font-medium">
+                        {storageInfo.itemCounts.barbershops || 0}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">الخدمات:</span>
+                      <span className="ml-2 font-medium">
+                        {storageInfo.itemCounts.services || 0}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">الرسائل:</span>
-                    <span className="ml-2 font-medium">
-                      {cachedData.messages || 0}
-                    </span>
+
+                  {/* معلومات التخزين */}
+                  <div className="border-t pt-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <HardDrive className="h-4 w-4" />
+                      <span className="text-sm font-medium">
+                        استخدام التخزين
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs">
+                        <span>الحجم الإجمالي</span>
+                        <span>{formatBytes(storageInfo.totalSize)}</span>
+                      </div>
+                      <Progress
+                        value={Math.min(
+                          (storageInfo.totalSize / (1024 * 1024 * 10)) * 100,
+                          100,
+                        )}
+                        className="h-2"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        من أصل ~10 MB مساحة تخزين متوقعة
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">الحلاقين:</span>
-                    <span className="ml-2 font-medium">
-                      {cachedData.barbers || 0}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">آخر تحديث:</span>
-                    <span className="ml-2 font-medium text-xs">
-                      {cachedData.lastUpdate
-                        ? new Date(cachedData.lastUpdate).toLocaleDateString(
-                            "ar",
-                          )
-                        : "غير متوفر"}
-                    </span>
+
+                  {/* أزرار الإجراءات */}
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => (window.location.href = "/dashboard")}
+                    >
+                      عرض البيانات
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadStorageInfo}
+                      disabled={loadingStorage}
+                    >
+                      <RefreshCw
+                        className={`h-4 w-4 ${loadingStorage ? "animate-spin" : ""}`}
+                      />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={clearOfflineData}
+                    >
+                      مسح
+                    </Button>
                   </div>
                 </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full mt-4"
-                  onClick={() => (window.location.href = "/dashboard")}
-                >
-                  عرض البيانات المحفوظة
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-sm text-muted-foreground">
+                    لا توجد بيانات محفوظة
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* نصائح */}
