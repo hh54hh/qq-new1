@@ -119,7 +119,7 @@ class ApiClient {
     }
 
     console.warn("⚠️ لم يتم العث��ر على API على أي من المسارات المت��قعة");
-    // في حالة عدم العثور على API، استخدم المسار الافتراضي
+    // في حالة عدم العثور على API، استخدم المسار الا��تراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
 
@@ -351,7 +351,7 @@ class ApiClient {
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
 
         if (error.message.includes("Failed to fetch")) {
-          networkErrorMessage = "فشل في الاتصال ��الخادم";
+          networkErrorMessage = "فشل في الاتصال بالخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
           networkErrorMessage = "خطأ في ا����شبكة";
@@ -402,7 +402,7 @@ class ApiClient {
     } catch (error) {
       const apiError = ApiErrorHandler.createErrorFromException(error);
 
-      // إذا كان خطأ شبكة وتوجد بيانات احتياطية، استخدمها
+      // إذا كان خطأ شبكة وتوجد بيا��ات احتياطية، استخدمها
       if (apiError.isNetworkError && fallbackData !== undefined) {
         console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
         return fallbackData;
@@ -864,22 +864,38 @@ class ApiClient {
   }
 
   async getMessages(otherUserId: string): Promise<{ messages: any[] }> {
-    const fallbackData = { messages: [] };
-    const response = await this.requestWithFallback<{ messages: any[] }>(
-      `/messages/${otherUserId}`,
-      {},
-      fallbackData,
-    );
-
-    // تصحيح: تحويل حقل 'message' إلى 'content'
-    if (response.messages) {
-      response.messages = response.messages.map((msg) => ({
-        ...msg,
-        content: msg.content || msg.message || "", // استخدام 'message' إذا لم يوجد 'content'
-      }));
+    // التحقق من صحة معرف المستخدم
+    if (!otherUserId || otherUserId === "undefined") {
+      console.error("❌ معرف المستخدم غير صحيح:", otherUserId);
+      return { messages: [] };
     }
 
-    return response;
+    console.log("📥 تحميل الرسائل للمستخدم:", otherUserId);
+
+    const fallbackData = { messages: [] };
+
+    try {
+      const response = await this.requestWithFallback<{ messages: any[] }>(
+        `/messages/${otherUserId}`,
+        {},
+        fallbackData,
+      );
+
+      console.log("✅ تم تحميل الرسائل:", response.messages?.length || 0);
+
+      // تصحيح: تحويل حقل 'message' إلى 'content'
+      if (response.messages) {
+        response.messages = response.messages.map((msg) => ({
+          ...msg,
+          content: msg.content || msg.message || "", // استخدام 'message' إذا لم يوجد 'content'
+        }));
+      }
+
+      return response;
+    } catch (error) {
+      console.error("❌ خطأ في تحميل الرسائل:", error);
+      return fallbackData;
+    }
   }
 
   async sendMessage(messageData: {
@@ -917,7 +933,7 @@ class ApiClient {
 
       console.log("✅ نجح إرسال الرسالة:", response);
 
-      // تصحيح: تحويل حقل 'message' إلى 'content' ف�� الاستجابة
+      // تصحيح: تحويل حقل 'message' إلى 'content' في الاستجابة
       if (response.message) {
         response.message = {
           ...response.message,
