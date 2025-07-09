@@ -42,7 +42,7 @@ import RatingPage from "./RatingPage";
 import SearchPage from "./SearchPage";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
-import MessagesPage from "./MessagesPage";
+
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
 
@@ -50,12 +50,14 @@ interface CustomerDashboardProps {
   user: User;
   activeTab: string;
   onLogout?: () => void;
+  onStartChat?: (targetUser: User) => void; // دالة بدء الدردشة الجديدة
 }
 
 export default function CustomerDashboard({
   user,
   activeTab,
   onLogout,
+  onStartChat,
 }: CustomerDashboardProps) {
   const [state, store] = useAppStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -429,7 +431,7 @@ export default function CustomerDashboard({
         const dummyBarbers = [
           {
             id: "dummy-1",
-            name: "حلاق تجريبي 1",
+            name: "حلاق تجر��بي 1",
             email: "test1@test.com",
             role: "barber" as const,
             status: "active" as const,
@@ -634,7 +636,7 @@ export default function CustomerDashboard({
           id: Date.now().toString(),
           type: "friend_request",
           title: "خطأ في المتابعة",
-          message: "حدث خطأ أثناء تحديث حالة المتابعة، يرجى المحاولة مرة أخرى",
+          message: "حدث خطأ أثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
           read: false,
           created_at: new Date().toISOString(),
@@ -1130,9 +1132,23 @@ export default function CustomerDashboard({
         }}
         onMessage={() => {
           setShowProfile(false);
-          setMessageTargetUser(selectedProfile);
-          setShowMessages(true);
+          if (onStartChat && selectedProfile) {
+            onStartChat(selectedProfile);
+          } else {
+            // الط��يقة القديمة كبديل
+            setMessageTargetUser(selectedProfile);
+            setShowMessages(true);
+          }
         }}
+        onStartChat={
+          onStartChat
+            ? (userId: string, userName: string) => {
+                setShowProfile(false);
+                const user = { id: userId, name: userName };
+                onStartChat(user as any);
+              }
+            : undefined
+        }
       />
     );
   }
@@ -1183,20 +1199,6 @@ export default function CustomerDashboard({
         onSave={(updatedUser) => {
           // User is already updated in store by EditProfilePage
           setShowEditProfile(false);
-        }}
-      />
-    );
-  }
-
-  // Show messages
-  if (showMessages) {
-    return (
-      <MessagesPage
-        user={user}
-        targetUser={messageTargetUser}
-        onBack={() => {
-          setShowMessages(false);
-          setMessageTargetUser(null);
         }}
       />
     );
@@ -1593,7 +1595,7 @@ export default function CustomerDashboard({
                 لا توجد حلا��ين قريبين
               </h3>
               <p className="text-muted-foreground mb-4">
-                سنعرض لك الحلاقين ا��متاحين في منطقتك قريباً
+                سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
                 تحديث الموقع
@@ -1631,7 +1633,7 @@ export default function CustomerDashboard({
 
   const renderSearch = () => (
     <div className="p-4 space-y-4">
-      {/* شريط البحث */}
+      {/* شريط البح�� */}
       <div className="relative">
         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input

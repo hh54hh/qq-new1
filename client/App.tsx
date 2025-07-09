@@ -15,7 +15,7 @@ import BarberDashboard from "./pages/BarberDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotificationService from "./components/NotificationService";
 import NotificationsCenter from "./pages/NotificationsCenter";
-import MessagesPage from "./pages/MessagesPage";
+
 import LocationPermissionDialog from "./components/LocationPermissionDialog";
 import DebugPage from "./pages/DebugPage";
 import DiagnosticPage from "./pages/DiagnosticPage";
@@ -24,6 +24,7 @@ import NetworkDiagnostic from "./pages/NetworkDiagnostic";
 import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
+import MessagesPage from "./pages/MessagesPage";
 import PWAManager from "./components/PWAManager";
 import PWAUpdateNotification, {
   PWAStatusBar,
@@ -31,8 +32,10 @@ import PWAUpdateNotification, {
 import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
+import NetworkStatusBanner from "./components/NetworkStatusBanner";
+
 import { Button } from "@/components/ui/button";
-import { User } from "@shared/api";
+import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
 import { useMessageNotifications } from "./hooks/use-message-notifications";
@@ -46,6 +49,7 @@ const AppContent = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+
   const { isPermissionRequested } = useLocation();
 
   // Enable message notifications
@@ -138,19 +142,27 @@ const AppContent = () => {
         onTabChange={setActiveTab}
         onLogout={handleLogout}
         onShowNotifications={() => (window.location.href = "/notifications")}
-        onShowMessages={() => (window.location.href = "/messages")}
+        onShowMessages={() => {
+          window.location.href = "/messages";
+        }}
       >
         {state.user.role === "customer" ? (
           <CustomerDashboard
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
+            onStartChat={(user) =>
+              (window.location.href = `/messages?user=${user.id}`)
+            }
           />
         ) : state.user.role === "barber" ? (
           <BarberDashboard
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
+            onStartChat={(user) =>
+              (window.location.href = `/messages?user=${user.id}`)
+            }
           />
         ) : state.user.role === "admin" ? (
           <AdminDashboard
@@ -191,9 +203,7 @@ const MessagesRoute = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  return (
-    <MessagesPage user={state.user} onBack={() => window.history.back()} />
-  );
+  return <MessagesPage user={state.user} />;
 };
 
 const DebugRoute = () => {
@@ -259,6 +269,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
+          <NetworkStatusBanner />
           <PWAStatusBar />
           <PWAUpdateNotification />
           <PWAPerformanceMonitor />

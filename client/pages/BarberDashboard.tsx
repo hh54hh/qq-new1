@@ -31,18 +31,19 @@ import WorkingHours from "./WorkingHours";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
-import MessagesPage from "./MessagesPage";
 
 interface BarberDashboardProps {
   user: User;
   activeTab: string;
   onLogout?: () => void;
+  onStartChat?: (targetUser: User) => void;
 }
 
 export default function BarberDashboard({
   user,
   activeTab,
   onLogout,
+  onStartChat,
 }: BarberDashboardProps) {
   const [state, store] = useAppStore();
   const [newPostCaption, setNewPostCaption] = useState("");
@@ -183,9 +184,22 @@ export default function BarberDashboard({
         }}
         onMessage={() => {
           setShowProfile(false);
-          setMessageTargetUser(selectedProfile);
-          setShowMessages(true);
+          if (onStartChat && selectedProfile) {
+            onStartChat(selectedProfile);
+          } else {
+            setMessageTargetUser(selectedProfile);
+            setShowMessages(true);
+          }
         }}
+        onStartChat={
+          onStartChat
+            ? (userId: string, userName: string) => {
+                setShowProfile(false);
+                const user = { id: userId, name: userName };
+                onStartChat(user as any);
+              }
+            : undefined
+        }
       />
     );
   }
@@ -232,20 +246,6 @@ export default function BarberDashboard({
     );
   }
 
-  // Show messages
-  if (showMessages) {
-    return (
-      <MessagesPage
-        user={user}
-        targetUser={messageTargetUser}
-        onBack={() => {
-          setShowMessages(false);
-          setMessageTargetUser(null);
-        }}
-      />
-    );
-  }
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("ar-SA", {
@@ -265,7 +265,7 @@ export default function BarberDashboard({
     );
 
     if (diffInHours < 1) return "منذ دقائق";
-    if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
+    if (diffInHours < 24) return `منذ ${diffInHours} سا��ة`;
     const diffInDays = Math.floor(diffInHours / 24);
     return `منذ ${diffInDays} يوم`;
   };
@@ -389,7 +389,7 @@ export default function BarberDashboard({
           <CardContent className="p-4 text-center">
             <TrendingUp className="h-8 w-8 text-primary mx-auto mb-2" />
             <p className="text-2xl font-bold text-foreground">{user.points}</p>
-            <p className="text-sm text-muted-foreground">نقاط</p>
+            <p className="text-sm text-muted-foreground">نقا��</p>
           </CardContent>
         </Card>
 

@@ -15,6 +15,7 @@ import { User as UserType, UserRole } from "@shared/api";
 import { useAppStore } from "@/lib/store";
 import LocationBar from "./LocationBar";
 import apiClient from "@/lib/api";
+import { useNetworkStatus } from "@/lib/chat-storage";
 
 interface LayoutProps {
   children: ReactNode;
@@ -83,20 +84,38 @@ export default function Layout({
 }: LayoutProps) {
   const [state] = useAppStore();
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [messageLoadErrors, setMessageLoadErrors] = useState(0);
   const unreadNotifications = state.notifications.filter((n) => !n.read).length;
+  const isOnline = useNetworkStatus();
 
-  // Load unread message count
+  // Load unread message count with better error handling
   useEffect(() => {
     const loadUnreadCount = async () => {
+      // لا تحمّل إذا لم يكن هناك اتصال
+      if (!isOnline) {
+        return;
+      }
+
       try {
         const response = await apiClient.getUnreadMessageCount();
         setUnreadMessages(response.count);
-      } catch (error) {
-        console.error("Error loading unread messages count:", error);
+        setMessageLoadErrors(0); // إعادة تعيين عداد الأخطاء
+      } catch (error: any) {
+        setMessageLoadErrors((prev) => prev + 1);
+
+        // طباعة أقل للأخطاء المتكررة
+        if (messageLoadErrors < 2) {
+          console.warn(
+            `⚠️ فشل تحميل عدد الرسائل (${messageLoadErrors + 1}/3):`,
+            error.message,
+          );
+        }
       }
     };
 
-    loadUnreadCount();
+    if (isOnline) {
+      loadUnreadCount();
+    }
 
     // Refresh every 30 seconds
     const interval = setInterval(loadUnreadCount, 30000);
