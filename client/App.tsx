@@ -171,6 +171,7 @@ const AppContent = () => {
               setTargetChatUserId(user.id);
               setActiveTab("messages");
             }}
+            targetChatUserId={targetChatUserId}
           />
         ) : state.user.role === "barber" ? (
           <BarberDashboard
@@ -181,6 +182,7 @@ const AppContent = () => {
               setTargetChatUserId(user.id);
               setActiveTab("messages");
             }}
+            targetChatUserId={targetChatUserId}
           />
         ) : state.user.role === "admin" ? (
           <AdminDashboard
