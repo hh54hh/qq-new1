@@ -529,7 +529,7 @@ class ChatManager {
           return updatedConversation;
         }
       } catch (error) {
-        console.log("📱 العمل في وضع عدم الاتصال");
+        console.log("📱 العمل في وضع ع��م الاتصال");
       }
 
       this.emit("conversation:created", newConversation);
@@ -538,6 +538,50 @@ class ChatManager {
       console.error("Failed to create conversation:", error);
       return null;
     }
+  }
+
+  // Create fallback storage that works in memory
+  private createFallbackStorage() {
+    const memoryStorage = new Map();
+
+    return {
+      async saveData(storeName: string, data: any, id: string) {
+        const key = `${storeName}:${id}`;
+        memoryStorage.set(key, {
+          id,
+          data,
+          timestamp: Date.now(),
+          synced: false,
+        });
+        console.log(`🧠 حفظ في الذاكرة: ${key}`);
+        return id;
+      },
+
+      async getData(storeName: string, id: string) {
+        const key = `${storeName}:${id}`;
+        const stored = memoryStorage.get(key);
+        return stored ? stored.data : null;
+      },
+
+      async getAllData(storeName: string) {
+        const results = [];
+        for (const [key, value] of memoryStorage.entries()) {
+          if (key.startsWith(`${storeName}:`)) {
+            results.push(value.data);
+          }
+        }
+        return results;
+      },
+
+      async getUnsyncedData(storeName: string) {
+        return []; // لا حاجة للمزامنة في fallback mode
+      },
+
+      async deleteData(storeName: string, id: string) {
+        const key = `${storeName}:${id}`;
+        memoryStorage.delete(key);
+      },
+    };
   }
 
   // Cleanup
