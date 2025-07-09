@@ -35,6 +35,9 @@ class OfflineStorageManager {
         "posts",
         "reviews",
         "pendingActions",
+        "conversations",
+        "pendingMessages",
+        "pendingConversationReads",
       ],
       ...options,
     };
