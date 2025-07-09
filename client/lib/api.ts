@@ -52,7 +52,7 @@ class ApiClient {
       // في بيئة الإنتاج - تحقق من نوع النشر
       const hostname = window.location.hostname;
 
-      // إذا كان على Netlify (أي موقع يحتوي على netlify في الاسم)
+      // إذا كان على Netlify (أي موقع يحتوي ��لى netlify في الاسم)
       if (
         hostname.includes("netlify.app") ||
         hostname.includes("netlify.com") ||
@@ -122,7 +122,7 @@ class ApiClient {
           console.log(`⏰ انتهت مهلة الاختبار لـ ${path}`);
         } else {
           console.log(
-            `❌ خطأ في الاتصال بـ ${path}:`,
+            `❌ خطأ في الات��ال بـ ${path}:`,
             error instanceof Error ? error.message : error,
           );
         }
@@ -442,7 +442,10 @@ class ApiClient {
 
       // إذا كان خطأ شبكة وتوجد بيا��ات احتياطية، استخدمها
       if (apiError.isNetworkError && fallbackData !== undefined) {
-        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
+        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}:`, {
+          errorType: apiError.type,
+          errorMessage: apiError.message,
+        });
         return fallbackData;
       }
 
