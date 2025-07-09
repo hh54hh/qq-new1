@@ -1308,72 +1308,116 @@ export default function CustomerDashboard({
             </Button>
           </div>
 
-          {nearbyBarbers.slice(0, 3).map((barber) => (
-            <Card key={barber.id} className="border-border/50 bg-card/50">
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <Avatar
-                    className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
-                    onClick={() => handleViewProfile(barber)}
-                  >
-                    <AvatarImage src={barber.avatar_url} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm sm:text-base">
-                      {barber.name ? barber.name.charAt(0) : "ح"}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4
-                        className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm sm:text-base truncate"
-                        onClick={() => handleViewProfile(barber)}
-                      >
-                        {barber.name}
-                      </h4>
-                      <span className="text-xs sm:text-sm">
-                        {getLevelIcon(barber.level)}
-                      </span>
-                      <Badge variant="outline" className="text-xs shrink-0">
-                        {getLevelLabel(barber.level)}
-                      </Badge>
+          {/* Loading State */}
+          {state.isLoading && (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="border-border/50 bg-card/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 bg-muted rounded-full animate-pulse" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-muted rounded animate-pulse" />
+                        <div className="h-3 bg-muted rounded w-3/4 animate-pulse" />
+                      </div>
+                      <div className="h-8 w-16 bg-muted rounded animate-pulse" />
                     </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
-                    <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground flex-wrap">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span>{barber.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        <span className="whitespace-nowrap">
-                          {barber.distance} كم
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        <span>{barber.followers}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2 shrink-0">
-                    <Badge
-                      className={cn("text-xs", getStatusColor(barber.status))}
-                    >
-                      {barber.status}
-                    </Badge>
-                    <Button
-                      size="sm"
-                      className="bg-primary hover:bg-primary/90 text-xs sm:text-sm"
-                      onClick={() => handleBookBarber(barber)}
-                    >
-                      حجز
-                    </Button>
-                  </div>
-                </div>
+          {/* No Barbers Message */}
+          {!state.isLoading && nearbyBarbers.length === 0 && (
+            <Card className="border-border/50 bg-card/50">
+              <CardContent className="p-8 text-center">
+                <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  لا توجد حلاقين متاحين
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  جاري البحث عن حلاقين في منطقتك...
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loadBarbers()}
+                >
+                  إعادة المحاولة
+                </Button>
               </CardContent>
             </Card>
-          ))}
+          )}
+
+          {/* Barbers List */}
+          {!state.isLoading &&
+            nearbyBarbers.slice(0, 3).map((barber) => (
+              <Card key={barber.id} className="border-border/50 bg-card/50">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <Avatar
+                      className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+                      onClick={() => handleViewProfile(barber)}
+                    >
+                      <AvatarImage src={barber.avatar_url} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-sm sm:text-base">
+                        {barber.name ? barber.name.charAt(0) : "ح"}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4
+                          className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm sm:text-base truncate"
+                          onClick={() => handleViewProfile(barber)}
+                        >
+                          {barber.name}
+                        </h4>
+                        <span className="text-xs sm:text-sm">
+                          {getLevelIcon(barber.level)}
+                        </span>
+                        <Badge variant="outline" className="text-xs shrink-0">
+                          {getLevelLabel(barber.level)}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground flex-wrap">
+                        <div className="flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          <span>{barber.rating}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span className="whitespace-nowrap">
+                            {barber.distance} كم
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          <span>{barber.followers}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 shrink-0">
+                      <Badge
+                        className={cn("text-xs", getStatusColor(barber.status))}
+                      >
+                        {barber.status}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90 text-xs sm:text-sm"
+                        onClick={() => handleBookBarber(barber)}
+                      >
+                        حجز
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
         </div>
 
         {/* Suggestions Section */}
@@ -1775,7 +1819,9 @@ export default function CustomerDashboard({
             {profileFollowers.length === 0 && (
               <div className="text-center py-8">
                 <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">لا يوجد متا��عين حالياً</p>
+                <p className="text-muted-foreground">
+                  لا يوجد متا��عين حاليا��
+                </p>
               </div>
             )}
           </div>
