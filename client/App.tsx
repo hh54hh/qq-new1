@@ -15,6 +15,7 @@ import BarberDashboard from "./pages/BarberDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotificationService from "./components/NotificationService";
 import NotificationsCenter from "./pages/NotificationsCenter";
+import ChatNotifications from "./components/ChatNotifications";
 
 import LocationPermissionDialog from "./components/LocationPermissionDialog";
 import DebugPage from "./pages/DebugPage";
@@ -132,6 +133,10 @@ const AppContent = () => {
   return (
     <>
       <NotificationService />
+      <ChatNotifications
+        currentUserId={state.user.id}
+        onMessageClick={() => (window.location.href = "/messages")}
+      />
       <LocationPermissionDialog
         open={showLocationDialog}
         onOpenChange={setShowLocationDialog}
