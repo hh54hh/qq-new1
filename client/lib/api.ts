@@ -86,7 +86,7 @@ class ApiClient {
       return;
     }
 
-    // للبيئات الأخرى، اختبر ال����سارات المختلفة
+    // للبيئات الأخرى، اختبر ال�����سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -129,7 +129,7 @@ class ApiClient {
       }
     }
 
-    console.warn("⚠️ لم يتم العث���ر على API على أي من المسارات المت��قعة");
+    console.warn("⚠️ لم يتم العث��ر على API على أي من المسارات المت��قعة");
     // في حالة عدم العثور على API، استخدم المسار الا��تراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
@@ -305,7 +305,7 @@ class ApiClient {
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
-              errorMessage = "البيانات موجودة بالفعل في النظام";
+              errorMessage = "البيانات موج��دة بالفعل في النظام";
               errorType = "CONFLICT_ERROR";
               break;
             case 429:
@@ -370,21 +370,28 @@ class ApiClient {
       });
       return data;
     } catch (error) {
+      // تنظيف timeout في حالة الخطأ
+      if (timeoutId) clearTimeout(timeoutId);
+
       // Handle AbortError (timeout or cancellation)
       if (error instanceof Error && error.name === "AbortError") {
-        console.warn(`⏰ تم إلغاء الطلب أو انتهت المهلة: ${endpoint}`);
+        console.warn(`⏰ تم ��لغاء الطلب أو انتهت المهلة: ${endpoint}`);
 
         const timeoutError = new Error(
-          "انتهت مهلة الاتصال، يرجى المحاولة مرة أخرى",
+          "انتهت مهلة الاتصال (30 ثانية)، يرجى المحاولة مرة أخرى",
         ) as any;
         timeoutError.errorType = "TIMEOUT_ERROR";
-        timeoutError.suggestion = "تحقق من اتصال الإنترنت وحاول مرة أخرى";
+        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة أخرى";
         throw timeoutError;
       }
 
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        console.error("Network error:", { error, url });
+        console.error("Network error details:", {
+          message: error.message,
+          url,
+          endpoint,
+        });
 
         let networkErrorMessage = "خطأ في الاتصال بالخادم";
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
@@ -462,7 +469,7 @@ class ApiClient {
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return await this.request<T>(endpoint, options);
         } catch (retryError) {
-          console.error(`❌ فشلت إعادة المحاولة لـ ${endpoint}`);
+          console.error(`��� فشلت إعادة المحاولة لـ ${endpoint}`);
           if (fallbackData !== undefined) {
             return fallbackData;
           }
@@ -917,7 +924,7 @@ class ApiClient {
       return { messages: [] };
     }
 
-    console.log("📥 تحم��ل الرسائل للمستخدم:", otherUserId);
+    console.log("📥 تحم���� الرسائل للمستخدم:", otherUserId);
 
     const fallbackData = { messages: [] };
 
