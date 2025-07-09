@@ -156,7 +156,7 @@ const AppContent = () => {
         onLogout={handleLogout}
         onShowNotifications={() => (window.location.href = "/notifications")}
         onShowMessages={() => {
-          window.location.href = "/messages";
+          setActiveTab("messages");
         }}
       >
         {state.user.role === "customer" ? (
