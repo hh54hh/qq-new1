@@ -226,7 +226,10 @@ export function usePWA(): PWAHookReturn {
 
     try {
       // تسجيل Background Sync
-      if ("sync" in window.ServiceWorkerRegistration.prototype) {
+      if (
+        state.swRegistration?.sync &&
+        "sync" in window.ServiceWorkerRegistration.prototype
+      ) {
         await state.swRegistration.sync.register("background-sync-bookings");
         await state.swRegistration.sync.register("background-sync-messages");
         await state.swRegistration.sync.register("background-sync-posts");
@@ -352,7 +355,7 @@ export function useNetworkStatus() {
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
-    // معلومات الاتصال إذا متوفرة
+    // معلومات الاتص��ل إذا متوفرة
     if ("connection" in navigator) {
       const connection = (navigator as any).connection;
       setConnectionType(connection.effectiveType || "unknown");

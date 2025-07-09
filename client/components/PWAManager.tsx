@@ -236,11 +236,16 @@ export default function PWAManager({ className }: PWAManagerProps) {
   const syncPendingData = async () => {
     if (
       pwaState.swRegistration &&
+      pwaState.swRegistration.sync &&
       "sync" in window.ServiceWorkerRegistration.prototype
     ) {
       try {
-        await pwaState.swRegistration.sync.register("background-sync-bookings");
-        await pwaState.swRegistration.sync.register("background-sync-messages");
+        await pwaState.swRegistration.sync!.register(
+          "background-sync-bookings",
+        );
+        await pwaState.swRegistration.sync!.register(
+          "background-sync-messages",
+        );
       } catch (error) {
         console.warn("Background sync registration failed:", error);
       }
@@ -318,7 +323,7 @@ export default function PWAManager({ className }: PWAManagerProps) {
             variant="outline"
           >
             <Download className="w-3 h-3 ml-1" />
-            تثب��ت التطبيق
+            تثبيت التطبيق
           </Button>
         )}
 
