@@ -95,7 +95,7 @@ class ChatManager {
   async getConversations(): Promise<ChatConversation[]> {
     try {
       // Try network first
-      const response = await offlineAPI.get("/api/conversations");
+      const response = await offlineAPI.get("/api/messages/conversations");
 
       if (response.success && response.data) {
         // Cache conversations
@@ -152,7 +152,7 @@ class ChatManager {
 
   async getConversation(id: string): Promise<ChatConversation | null> {
     try {
-      const response = await offlineAPI.get(`/api/conversations/${id}`);
+      const response = await offlineAPI.get(`/api/messages/${id}`);
       if (response.success) {
         await this.storage.saveData("conversations", response.data, id);
         return response.data;
@@ -168,9 +168,7 @@ class ChatManager {
   async getMessages(conversationId: string): Promise<ChatMessage[]> {
     try {
       // Try network first
-      const response = await offlineAPI.get(
-        `/api/conversations/${conversationId}/messages`,
-      );
+      const response = await offlineAPI.get(`/api/messages/${conversationId}`);
 
       if (response.success && response.data) {
         // Cache messages
@@ -293,8 +291,8 @@ class ChatManager {
 
   async markConversationAsRead(conversationId: string): Promise<void> {
     try {
-      const response = await offlineAPI.put(
-        `/api/conversations/${conversationId}/read`,
+      const response = await offlineAPI.patch(
+        `/api/messages/${conversationId}/read`,
       );
 
       if (response.success) {
@@ -554,10 +552,10 @@ class ChatManager {
 
       // Try to sync with server (optional)
       try {
-        const response = await offlineAPI.post("/api/conversations", {
-          type: "direct",
-          participantIds: [this.currentUserId, userId],
-          name: userName,
+        const response = await offlineAPI.post("/api/messages", {
+          receiver_id: userId,
+          content: `بدء محادثة مع ${userName}`,
+          message_type: "system",
         });
 
         if (response.success && response.data) {
