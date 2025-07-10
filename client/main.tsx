@@ -17,7 +17,7 @@ async function debugIndexedDB() {
     const request = indexedDB.open(dbName, dbVersion);
 
     request.onsuccess = (event) => {
-      const db = event.target.result;
+      const db = (event.target as IDBOpenDBRequest).result;
       console.log("✅ [STARTUP] قاعدة البيانات متاحة، نسخة:", db.version);
       console.log("📋 [STARTUP] الجداول:", Array.from(db.objectStoreNames));
 
@@ -41,7 +41,7 @@ async function debugIndexedDB() {
       );
     };
   } catch (error) {
-    console.error("❌ [STARTUP] خطأ في فحص قاعدة البيانات:", error);
+    console.error("❌ [STARTUP] خطأ في فحص قاعدة البيا��ات:", error);
   }
 }
 
