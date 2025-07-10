@@ -265,9 +265,16 @@ export default function SearchPage({
           </Select>
         </div>
 
-        {/* شبكة المنشورات */}
+                {/* شبكة المنشورات */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
-          {filteredPosts.map((post) => (
+          {isLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="aspect-square">
+                <PostCardSkeleton />
+              </div>
+            ))
+          ) : (
+            filteredPosts.map((post) => (
             <div
               key={post.id}
               className="aspect-square relative group cursor-pointer overflow-hidden rounded-lg bg-card/50 border border-border/50"
