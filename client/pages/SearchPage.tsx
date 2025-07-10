@@ -335,6 +335,7 @@ export default function SearchPage({
           <PostViewPage
             post={selectedPost}
             user={user}
+            isLiked={selectedPost ? likedPosts.has(selectedPost.id) : false}
             onBack={() => {
               setShowPostView(false);
               setSelectedPost(null);
