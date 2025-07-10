@@ -161,13 +161,23 @@ export default function SettingsPage({ user, onBack }: SettingsPageProps) {
         'للتأكيد، اكتب "حذف حسابي" في المربع أد��اه:',
       );
       if (confirmation === "حذف حسابي") {
-        try {
-          // TODO: Implement account deletion
-          // await AdvancedApiService.deleteAccount(user.id);
-          alert("تم حذف حسابك بنجاح");
-          // Logout and redirect
-        } catch (error) {
-          console.error("Error deleting account:", error);
+        const password = prompt("أدخل كلمة المرور لتأكيد حذف الحساب:");
+        if (password) {
+          try {
+            const result = await networkAwareAPI.deleteAccount(password);
+            if (result.success) {
+              alert("تم حذف حسابك بنجاح");
+              // Clear auth and redirect to home
+              localStorage.removeItem("auth_token");
+              localStorage.removeItem("user_data");
+              window.location.href = "/";
+            } else {
+              alert("فشل في حذف الحساب: " + result.message);
+            }
+          } catch (error) {
+            console.error("Error deleting account:", error);
+            alert("حدث خطأ في حذف الحساب، يرجى المحاولة مرة أخرى");
+          }
         }
       }
     }
