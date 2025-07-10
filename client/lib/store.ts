@@ -303,14 +303,27 @@ export const appStore = new AppStore();
 
 // React Hook for using the store
 export function useAppStore(): [AppState, typeof appStore] {
-  const [state, setState] = useState(appStore.getState());
+  // Defensive check to ensure useState is available
+  if (typeof useState !== "function") {
+    console.error("❌ useState is not available in useAppStore");
+    // Return a fallback state
+    return [appStore.getState(), appStore];
+  }
 
-  useEffect(() => {
-    const unsubscribe = appStore.subscribe(setState);
-    return unsubscribe;
-  }, []);
+  try {
+    const [state, setState] = useState(appStore.getState());
 
-  return [state, appStore];
+    useEffect(() => {
+      const unsubscribe = appStore.subscribe(setState);
+      return unsubscribe;
+    }, []);
+
+    return [state, appStore];
+  } catch (error) {
+    console.error("❌ Error in useAppStore:", error);
+    // Return fallback state
+    return [appStore.getState(), appStore];
+  }
 }
 
 // Initialize auth on app start
