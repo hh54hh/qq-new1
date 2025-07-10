@@ -86,7 +86,17 @@ export class ErrorHandler {
       url: window.location.href,
     };
 
-    console.error("Error logged:", errorLog);
+    console.error("Error logged:", {
+      message: errorLog.message,
+      code: errorLog.code,
+      details:
+        typeof errorLog.details === "object"
+          ? JSON.stringify(errorLog.details, null, 2)
+          : errorLog.details,
+      severity: errorLog.severity,
+      timestamp: errorLog.timestamp,
+      url: errorLog.url,
+    });
 
     // Store in localStorage for later analysis
     try {
