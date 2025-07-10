@@ -72,8 +72,6 @@ export default function CustomerDashboard({
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showFollowedBarbers, setShowFollowedBarbers] = useState(false);
   const [showNearbyBarbers, setShowNearbyBarbers] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
-  const [messageTargetUser, setMessageTargetUser] = useState<any | null>(null);
 
   const [allBarbers, setAllBarbers] = useState<any[]>([]);
   const [filteredBarbers, setFilteredBarbers] = useState<any[]>([]);
@@ -696,7 +694,7 @@ export default function CustomerDashboard({
 
   const loadProfileData = async () => {
     try {
-      // تحميل الإحصا��يات
+      // ت��ميل الإحصا��يات
       const bookingsData = await apiClient.getBookings();
 
       // تحميل المتابعين والمتابعين
@@ -820,7 +818,7 @@ export default function CustomerDashboard({
   const getBookingStatusLabel = (status: string) => {
     switch (status) {
       case "pending":
-        return "با�����تظا��";
+        return "��ا�����تظا��";
       case "accepted":
         return "مق��و��";
       case "rejected":
@@ -1704,7 +1702,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جرب البحث بكلمة أخرى من المنشورات المميزة"
+              ? "جرب البحث بكلمة أخرى من المنشورات الم��يزة"
               : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
@@ -2011,7 +2009,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">حجوزات</p>
+                <p className="text-sm text-muted-foreground">حجوز��ت</p>
               </div>
               <div
                 className="cursor-pointer"
