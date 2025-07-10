@@ -54,14 +54,10 @@ interface Message {
 }
 
 export default function MessagesPage({ user, onBack }: MessagesPageProps) {
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] =
-    useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     loadConversations();
