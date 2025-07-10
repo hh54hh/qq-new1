@@ -747,4 +747,127 @@ export const db = {
       if (error) throw error;
     },
   },
+
+  // Messages
+  messages: {
+    async getConversations(userId: string) {
+      const { data, error } = await supabase
+        .from("messages")
+        .select(
+          `
+          *,
+          sender:users!sender_id(*),
+          receiver:users!receiver_id(*)
+        `,
+        )
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Group messages by conversation (unique pairs of users)
+      const conversations = new Map();
+
+      data.forEach((message) => {
+        const otherUserId =
+          message.sender_id === userId
+            ? message.receiver_id
+            : message.sender_id;
+        const key = [userId, otherUserId].sort().join("-");
+
+        if (!conversations.has(key)) {
+          conversations.set(key, {
+            user:
+              message.sender_id === userId ? message.receiver : message.sender,
+            lastMessage: message,
+            unreadCount: 0,
+            messages: [],
+          });
+        }
+
+        const conversation = conversations.get(key);
+        conversation.messages.push(message);
+
+        // Count unread messages for current user
+        if (message.receiver_id === userId && !message.is_read) {
+          conversation.unreadCount++;
+        }
+
+        // Update last message if this is more recent
+        if (
+          new Date(message.created_at) >
+          new Date(conversation.lastMessage.created_at)
+        ) {
+          conversation.lastMessage = message;
+        }
+      });
+
+      return Array.from(conversations.values());
+    },
+
+    async getMessages(userId: string, otherUserId: string) {
+      const { data, error } = await supabase
+        .from("messages")
+        .select(
+          `
+          *,
+          sender:users!sender_id(*),
+          receiver:users!receiver_id(*)
+        `,
+        )
+        .or(
+          `and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userId})`,
+        )
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+
+    async create(messageData: {
+      sender_id: string;
+      receiver_id: string;
+      message: string;
+      message_type?: "text" | "image" | "voice" | "system";
+    }) {
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          ...messageData,
+          message_type: messageData.message_type || "text",
+        })
+        .select(
+          `
+          *,
+          sender:users!sender_id(*),
+          receiver:users!receiver_id(*)
+        `,
+        )
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+
+    async markAsRead(messageId: string, userId: string) {
+      const { error } = await supabase
+        .from("messages")
+        .update({ is_read: true })
+        .eq("id", messageId)
+        .eq("receiver_id", userId);
+
+      if (error) throw error;
+    },
+
+    async markConversationAsRead(userId: string, otherUserId: string) {
+      const { error } = await supabase
+        .from("messages")
+        .update({ is_read: true })
+        .eq("receiver_id", userId)
+        .eq("sender_id", otherUserId)
+        .eq("is_read", false);
+
+      if (error) throw error;
+    },
+  },
 };
