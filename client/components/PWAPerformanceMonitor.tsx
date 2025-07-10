@@ -275,22 +275,32 @@ export default function PWAPerformanceMonitor() {
 
 // Hook لتفعيل مراقب الأداء عبر الكونسول
 export function usePWAMonitorConsole() {
+  // Defensive check to ensure useEffect is available
+  if (typeof useEffect !== "function") {
+    console.warn("⚠️ useEffect is not available in usePWAMonitorConsole");
+    return;
+  }
+
   useEffect(() => {
-    // إضافة دالة عالمية لتفعيل المراقب
-    (window as any).showPWAMonitor = () => {
-      localStorage.setItem("show_pwa_monitor", "true");
-      window.location.reload();
-      console.log("🔍 تم تفعيل مراقب الأداء PWA");
-    };
+    try {
+      // إضافة دالة عالمية لتفعيل المراقب
+      (window as any).showPWAMonitor = () => {
+        localStorage.setItem("show_pwa_monitor", "true");
+        window.location.reload();
+        console.log("🔍 تم تفعيل مراقب الأداء PWA");
+      };
 
-    (window as any).hidePWAMonitor = () => {
-      localStorage.setItem("show_pwa_monitor", "false");
-      window.location.reload();
-      console.log("🚫 تم إخفاء مراقب الأداء PWA");
-    };
+      (window as any).hidePWAMonitor = () => {
+        localStorage.setItem("show_pwa_monitor", "false");
+        window.location.reload();
+        console.log("🚫 تم إخفاء مراقب الأداء PWA");
+      };
 
-    console.log("💡 PWA Monitor Commands:");
-    console.log("  - showPWAMonitor() لإظهار مراقب الأداء");
-    console.log("  - hidePWAMonitor() لإخفاء مراقب الأداء");
+      console.log("💡 PWA Monitor Commands:");
+      console.log("  - showPWAMonitor() لإظهار مراقب الأداء");
+      console.log("  - hidePWAMonitor() لإخفاء مراقب الأداء");
+    } catch (error) {
+      console.error("❌ Error in usePWAMonitorConsole:", error);
+    }
   }, []);
 }
