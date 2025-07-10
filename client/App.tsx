@@ -362,6 +362,9 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+
+      {/* PWA Install Prompt - يظهر عند الحاجة */}
+      <PWAInstallPrompt />
     </QueryClientProvider>
   );
 };
