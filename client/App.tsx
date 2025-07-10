@@ -404,12 +404,9 @@ const App = () => {
             <Route
               path="/dashboard"
               element={
-                <ErrorBoundary
-                  FallbackComponent={ErrorFallback}
-                  onReset={() => window.location.reload()}
-                >
+                <SimpleErrorBoundary fallback={ErrorFallback}>
                   <AppContent />
-                </ErrorBoundary>
+                </SimpleErrorBoundary>
               }
             />
             <Route path="/notifications" element={<NotificationsRoute />} />
