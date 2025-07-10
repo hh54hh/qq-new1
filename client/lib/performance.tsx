@@ -329,10 +329,6 @@ export const LazyAdminDashboard = createLazyComponent(
   () => import("../pages/AdminDashboard"),
 );
 
-export const LazyMessagesPage = createLazyComponent(
-  () => import("../pages/MessagesPage"),
-);
-
 export const LazyNotificationsCenter = createLazyComponent(
   () => import("../pages/NotificationsCenter"),
 );
