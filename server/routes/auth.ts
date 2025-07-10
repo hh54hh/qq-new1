@@ -78,7 +78,7 @@ export const handleLogin: RequestHandler = async (req, res) => {
     if (user.status !== "active") {
       let statusMessage = "الحساب غير نشط";
       if (user.status === "blocked") {
-        statusMessage = "تم حظر هذا الحساب، تواصل مع الإدارة";
+        statusMessage = "تم حظر هذا الحساب، تواص�� مع الإدارة";
       } else if (user.status === "pending") {
         statusMessage = "الحساب في انتظار التفعيل";
       }
@@ -449,5 +449,52 @@ export const handleUpdateProfile: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error("Update profile error:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const handleDeleteAccount: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        error: "كلمة المرور مطلوبة لتأكيد حذف الحساب",
+      });
+    }
+
+    // Verify user exists and get password hash
+    const user = await db.users.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "المستخدم غير موجود" });
+    }
+
+    // Verify password before deletion
+    if (user.password_hash) {
+      const passwordMatch = await bcrypt.compare(password, user.password_hash);
+      if (!passwordMatch) {
+        return res.status(401).json({
+          error: "كلمة المرور غير صحيحة",
+        });
+      }
+    }
+
+    // Delete user account (CASCADE will handle related data)
+    await db.users.delete(userId);
+
+    res.status(200).json({
+      success: true,
+      message: "تم حذف الحساب بنجاح",
+    });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    res.status(500).json({
+      error: "حدث خطأ في حذف الحساب، يرجى المحاولة مرة أخرى",
+    });
   }
 };
