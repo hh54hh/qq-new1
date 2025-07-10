@@ -195,7 +195,7 @@ export default function ChatPage() {
       </div>
 
       {/* Messages Area - Scrollable */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden chat-messages">
         <ScrollArea className="h-full">
           <div className="px-4 py-4 space-y-4 pb-4">
             {isLoading ? (
