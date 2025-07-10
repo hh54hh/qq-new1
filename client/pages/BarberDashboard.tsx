@@ -179,24 +179,6 @@ export default function BarberDashboard({
           setShowProfile(false);
           setSelectedProfile(null);
         }}
-        onMessage={() => {
-          setShowProfile(false);
-          if (onStartChat && selectedProfile) {
-            onStartChat(selectedProfile);
-          } else {
-            setMessageTargetUser(selectedProfile);
-            setShowMessages(true);
-          }
-        }}
-        onStartChat={
-          onStartChat
-            ? (userId: string, userName: string) => {
-                setShowProfile(false);
-                const user = { id: userId, name: userName };
-                onStartChat(user as any);
-              }
-            : undefined
-        }
       />
     );
   }
