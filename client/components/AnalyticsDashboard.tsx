@@ -34,6 +34,7 @@ import { DashboardCardSkeleton } from "@/components/ui/loading-skeleton";
 
 interface AnalyticsDashboardProps {
   user: User;
+  onBack?: () => void;
 }
 
 interface AnalyticsData {
@@ -428,7 +429,7 @@ export default function AnalyticsDashboard({ user }: AnalyticsDashboardProps) {
               format="currency"
             />
             <StatCard
-              title="النمو الشهري"
+              title="النمو ��لشهري"
               value={Math.round(
                 ((data.monthlyRevenue[3] - data.monthlyRevenue[2]) /
                   data.monthlyRevenue[2]) *
