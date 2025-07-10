@@ -35,15 +35,27 @@ class NetworkAwareAPIWrapper {
 
     if (error.error && typeof error.error === "string") return error.error;
 
+    // Handle specific error types
+    if (error.name && error.message) {
+      return `${error.name}: ${error.message}`;
+    }
+
     if (error.toString && typeof error.toString === "function") {
       const errorString = error.toString();
       if (errorString !== "[object Object]") return errorString;
     }
 
+    // Last resort: try to extract meaningful info
     try {
-      return JSON.stringify(error);
+      const errorInfo = {
+        type: error.constructor?.name || "Unknown",
+        message: error.message || "No message",
+        ...(error.code && { code: error.code }),
+        ...(error.status && { status: error.status }),
+      };
+      return JSON.stringify(errorInfo, null, 2);
     } catch {
-      return "خطأ غير متوقع";
+      return "خطأ غير متوقع في معالجة الخطأ";
     }
   }
 
