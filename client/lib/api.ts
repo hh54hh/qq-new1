@@ -328,7 +328,7 @@ class ApiClient {
               errorType = "BAD_GATEWAY_ERROR";
               break;
             case 503:
-              errorMessage = "الخدمة غير متاحة مؤقتاً للصيانة";
+              errorMessage = "الخدمة غ��ر متاحة مؤقتاً للصيانة";
               errorType = "SERVICE_UNAVAILABLE_ERROR";
               suggestion = "يرج�� المحاولة خلال بضع دقائق";
               break;
@@ -491,15 +491,6 @@ class ApiClient {
         });
 
         // Return appropriate empty data structure based on endpoint
-        if (endpoint.includes("messages/unread-count")) {
-          return { count: 0 } as unknown as T;
-        }
-        if (
-          endpoint.includes("messages") ||
-          endpoint.includes("conversations")
-        ) {
-          return [] as unknown as T;
-        }
         if (endpoint.includes("posts")) {
           return { posts: [], total: 0 } as unknown as T;
         }
