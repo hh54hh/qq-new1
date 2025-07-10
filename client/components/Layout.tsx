@@ -81,8 +81,7 @@ export default function Layout({
   onShowNotifications,
 }: LayoutProps) {
   const [state] = useAppStore();
-  const [unreadMessages, setUnreadMessages] = useState(0);
-  const [messageLoadErrors, setMessageLoadErrors] = useState(0);
+
   const unreadNotifications = state.notifications.filter((n) => !n.read).length;
   const isOnline = useNetworkStatus();
 
