@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import SmartMessagesPage from "./SmartMessagesPage";
+
 import {
   Clock,
   Check,
@@ -37,16 +37,12 @@ interface BarberDashboardProps {
   user: User;
   activeTab: string;
   onLogout?: () => void;
-  onStartChat?: (targetUser: User) => void;
-  targetChatUserId?: string; // معرف المستخدم المستهدف للدردشة
 }
 
 export default function BarberDashboard({
   user,
   activeTab,
   onLogout,
-  onStartChat,
-  targetChatUserId,
 }: BarberDashboardProps) {
   const [state, store] = useAppStore();
   const [newPostCaption, setNewPostCaption] = useState("");
@@ -1054,7 +1050,7 @@ export default function BarberDashboard({
         id: Date.now().toString(),
         type: "friend_request",
         title: "إلغاء المتابعة",
-        message: "تم إلغاء المتابعة بنجاح",
+        message: "تم إلغا�� المتابعة بنجاح",
         data: null,
         read: false,
         created_at: new Date().toISOString(),
