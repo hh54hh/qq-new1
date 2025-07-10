@@ -319,7 +319,7 @@ class ApiClient {
               suggestion = "انتظر دقيقة واحدة ثم حاول مرة أخرى";
               break;
             case 500:
-              errorMessage = "خطأ في الخادم، يرجى المحاولة مرة أخرى";
+              errorMessage = "خطأ في الخادم، يرجى المحاول�� مرة أخرى";
               errorType = "SERVER_ERROR";
               suggestion =
                 "إذا اس��مرت المشكلة، اتصل بالدعم الفني على: 07800657822";
@@ -382,7 +382,7 @@ class ApiClient {
           "انتهت مهلة الاتصال (30 ثانية)، يرجى المحاولة مرة أخرى",
         ) as any;
         timeoutError.errorType = "TIMEOUT_ERROR";
-        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة ��خرى";
+        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة ����خرى";
         throw timeoutError;
       }
 
@@ -446,7 +446,7 @@ class ApiClient {
       unexpectedError.originalError =
         error instanceof Error ? error.message : String(error);
       unexpectedError.suggestion =
-        "إذا استمرت المشكلة، اتصل بالدعم الفني على: 07800657822";
+        "إذا استمرت المشكلة، اتصل بالدعم الفني عل��: 07800657822";
 
       throw unexpectedError;
     }
@@ -461,6 +461,14 @@ class ApiClient {
     try {
       return await this.request<T>(endpoint, options);
     } catch (error) {
+      // Better error logging
+      console.warn("🌐 API Request failed:", {
+        endpoint,
+        method: options.method || "GET",
+        error: error instanceof Error ? error.message : String(error),
+        hasInternet: navigator.onLine,
+      });
+
       const apiError = ApiErrorHandler.createErrorFromException(error);
 
       // إذا كان خطأ شبكة وتوجد بيا��ات احتياطية، استخدمها
