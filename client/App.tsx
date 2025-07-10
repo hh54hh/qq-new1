@@ -366,7 +366,17 @@ const App = () => {
             <Route path="/offline" element={<OfflinePage />} />
 
             {/* Authenticated routes */}
-            <Route path="/dashboard" element={<AppContent />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ErrorBoundary
+                  FallbackComponent={ErrorFallback}
+                  onReset={() => window.location.reload()}
+                >
+                  <AppContent />
+                </ErrorBoundary>
+              }
+            />
             <Route path="/notifications" element={<NotificationsRoute />} />
             <Route path="/messages" element={<MessagesRoute />} />
 
