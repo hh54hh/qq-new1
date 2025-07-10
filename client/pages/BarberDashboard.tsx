@@ -14,7 +14,6 @@ import {
   Camera,
   Image as ImageIcon,
   Calendar,
-  Clock,
   TrendingUp,
   Award,
   Settings,
@@ -559,7 +558,7 @@ export default function BarberDashboard({
                 لا توجد طلبات جديدة
               </h3>
               <p className="text-muted-foreground">
-                سيظهر هنا طلبات الحجز الجديدة من العملاء
+                سيظهر هنا طلبات الحج�� الجديدة من العملاء
               </p>
             </CardContent>
           </Card>
