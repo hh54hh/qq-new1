@@ -4,7 +4,6 @@ import App from "./App";
 // Debug IndexedDB on startup
 async function debugIndexedDB() {
   console.log("🔍 [STARTUP] فحص قاعدة البيانات IndexedDB...");
-  alert("🔍 فحص قاعدة البيانات IndexedDB...");
 
   if (!("indexedDB" in window)) {
     console.error("❌ [STARTUP] IndexedDB غير متاح");
