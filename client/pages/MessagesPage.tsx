@@ -100,17 +100,7 @@ export default function MessagesPage({ user, onBack }: MessagesPageProps) {
       {/* Header */}
       <div className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border/50 px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onBack}
-              className="p-2 -ml-2"
-            >
-              <ArrowRight className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold">الرسائل</h1>
-          </div>
+          <h1 className="text-xl font-bold">الرسائل</h1>
         </div>
       </div>
 
