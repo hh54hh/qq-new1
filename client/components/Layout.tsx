@@ -104,17 +104,25 @@ export default function Layout({
 
       try {
         const response = await apiClient.getUnreadMessageCount();
-        setUnreadMessages(response.count);
+        setUnreadMessages(response.count || 0);
         setMessageLoadErrors(0); // إعادة تعيين عداد الأخطاء
       } catch (error: any) {
         setMessageLoadErrors((prev) => prev + 1);
 
-        // طباعة أقل للأخطاء المتكررة
+        // طباعة أقل للأخطاء المتكررة ومعالجة أفضل
         if (messageLoadErrors < 2) {
           console.warn(
             `⚠️ فشل تحميل عدد الرسائل (${messageLoadErrors + 1}/3):`,
-            error.message,
+            error?.message || "خطأ غير معروف",
           );
+        }
+
+        // If too many errors, stop trying
+        if (messageLoadErrors >= 5) {
+          console.warn(
+            "🚫 تم إيقاف محاولات تحميل عدد الرسائل بسبب الأخطاء المتكررة",
+          );
+          return;
         }
       }
     };
