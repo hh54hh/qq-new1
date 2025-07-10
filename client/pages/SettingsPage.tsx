@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { networkAwareAPI } from "@/lib/api-wrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -480,7 +481,7 @@ export default function SettingsPage({ user, onBack }: SettingsPageProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label>المصادقة الثنائية</Label>
+                <Label>المصادقة ال��نائية</Label>
                 <p className="text-sm text-muted-foreground">
                   تفعيل طبقة حماية إضافية لحسابك
                 </p>
