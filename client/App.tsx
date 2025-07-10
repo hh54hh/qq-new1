@@ -54,6 +54,29 @@ import { usePWA, useNetworkStatus } from "./hooks/use-pwa";
 
 const queryClient = new QueryClient();
 
+// Error Fallback Component
+function ErrorFallback({ error, resetErrorBoundary }: any) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">حدث خطأ</h2>
+        <p className="text-gray-600 mb-6">
+          عذراً، حدث خطأ غير متوقع في التطبيق
+        </p>
+        <pre className="text-sm bg-gray-100 p-4 rounded mb-4 text-left overflow-auto">
+          {error.message}
+        </pre>
+        <button
+          onClick={resetErrorBoundary}
+          className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+        >
+          إعادة تحميل الصفحة
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Main App Component with Authentication State
 const AppContent = () => {
   const [state, store] = useAppStore();
