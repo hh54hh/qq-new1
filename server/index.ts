@@ -64,6 +64,13 @@ import {
 } from "./routes/search";
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 import { getSystemDiagnostic } from "./routes/system-diagnostic";
+import {
+  getConversations,
+  getMessages,
+  createMessage,
+  markMessageAsRead,
+  markConversationAsRead,
+} from "./routes/messages";
 
 // Configure multer for file uploads
 let upload: multer.Multer;
@@ -493,7 +500,7 @@ function createAppWithRoutes(app: express.Application) {
       console.log("Push subscription removed");
       res.json({ success: true, message: "تم إلغاء الاشتراك" });
     } catch (error) {
-      res.status(500).json({ error: "خطأ في إلغاء الاشتراك" });
+      res.status(500).json({ error: "خ��أ في إلغاء الاشتراك" });
     }
   });
 
