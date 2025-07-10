@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import SmartMessagesPage from "./SmartMessagesPage";
 import {
   Dialog,
   DialogContent,
@@ -1142,7 +1141,7 @@ export default function CustomerDashboard({
           if (onStartChat && selectedProfile) {
             onStartChat(selectedProfile);
           } else {
-            // الط��يق�� القديمة كبديل
+            // الط����يق�� القديمة كبديل
             setMessageTargetUser(selectedProfile);
             setShowMessages(true);
           }
