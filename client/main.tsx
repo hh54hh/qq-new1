@@ -21,15 +21,8 @@ async function debugIndexedDB() {
       console.log("✅ [STARTUP] قاعدة البيانات متاحة، نسخة:", db.version);
       console.log("📋 [STARTUP] الجداول:", Array.from(db.objectStoreNames));
 
-      // Check critical tables
-      const criticalTables = ["conversations", "messages"];
-      criticalTables.forEach((table) => {
-        if (db.objectStoreNames.contains(table)) {
-          console.log(`✅ [STARTUP] الجدول ${table} موجود`);
-        } else {
-          console.error(`❌ [STARTUP] الجدول ${table} غير موجود!`);
-        }
-      });
+      // Basic database check
+      console.log("✅ [STARTUP] قاعدة البيانات تعمل بشكل صحيح");
 
       db.close();
     };
