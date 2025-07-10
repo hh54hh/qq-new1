@@ -15,6 +15,7 @@ import {
   handleRegister,
   handleGetProfile,
   handleUpdateProfile,
+  handleDeleteAccount,
 } from "./routes/auth";
 import { createTestUser } from "./routes/test-user";
 import { debugLogin } from "./routes/debug-auth";
@@ -439,7 +440,7 @@ function createAppWithRoutes(app: express.Application) {
     // Serverless mode - disable file uploads or handle them differently
     app.post("/api/upload/image", (req, res) => {
       res.status(501).json({
-        error: "��فع الملفات غير مدعوم في البيئة الحالية",
+        error: "��فع الملف��ت غير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
         suggestion: "استخدم خدمة رفع ملفات خارجية مثل Cloudinary أو AWS S3",
       });
