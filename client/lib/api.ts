@@ -388,12 +388,14 @@ class ApiClient {
 
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        console.error("🌐 Network error details:");
-        console.error("  Message:", error.message);
-        console.error("  URL:", url);
-        console.error("  Endpoint:", endpoint);
-        console.error("  Error Type:", error.name);
-        console.error("  Stack:", error.stack);
+        console.error("🌐 Network error details:", {
+          message: error.message,
+          url: url,
+          endpoint: endpoint,
+          errorType: error.name,
+          isOnline: navigator.onLine,
+          timestamp: new Date().toISOString(),
+        });
 
         let networkErrorMessage = "خطأ في الاتصال بالخادم";
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
@@ -1011,7 +1013,7 @@ class ApiClient {
     content: string;
     message_type?: string;
   }): Promise<{ message: any; success: boolean }> {
-    // التحقق من صحة البيانات
+    // التحقق من صحة ال��يانات
     if (!messageData.receiver_id || messageData.receiver_id === "undefined") {
       throw new Error("معرف المستقبل غير صحيح");
     }
