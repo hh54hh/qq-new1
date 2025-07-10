@@ -1,6 +1,11 @@
 import { User, Booking, Post, FriendRequest, Follow } from "@shared/api";
 import apiClient from "./api";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
+// Ensure React hooks are available
+if (typeof useState === "undefined" || typeof useEffect === "undefined") {
+  console.error("❌ React hooks are not properly imported in store.ts");
+}
 
 // Application State Types
 export interface AppState {
