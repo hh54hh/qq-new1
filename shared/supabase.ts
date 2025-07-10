@@ -267,6 +267,22 @@ export const db = {
       if (error) throw error;
       return true;
     },
+
+    async getByBarberAndDate(barberId: string, date: string) {
+      const startOfDay = `${date}T00:00:00Z`;
+      const endOfDay = `${date}T23:59:59Z`;
+
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("barber_id", barberId)
+        .gte("datetime", startOfDay)
+        .lte("datetime", endOfDay)
+        .neq("status", "cancelled");
+
+      if (error) throw error;
+      return data;
+    },
   },
 
   // Follows
