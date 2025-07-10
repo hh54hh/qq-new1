@@ -63,6 +63,7 @@ import { uploadImage, uploadProfileImage } from "./routes/upload";
 import {
   searchBarbers as advancedSearchBarbers,
   getRecommendations,
+  searchUsers,
 } from "./routes/search";
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 import { getSystemDiagnostic } from "./routes/system-diagnostic";
@@ -192,7 +193,7 @@ function createAppWithRoutes(app: express.Application) {
       }
 
       res.status(500).json({
-        error: "خطأ داخ��ي في الخادم",
+        error: "خطأ داخ��ي في ا��خادم",
         message: err instanceof Error ? err.message : "خطأ غير معروف",
         timestamp: new Date().toISOString(),
         path: req.path,
@@ -468,7 +469,7 @@ function createAppWithRoutes(app: express.Application) {
   // PWA Push Notifications routes
   app.post("/api/notifications/subscribe", async (req, res) => {
     try {
-      // محاكاة تسجيل اشتراك Push
+      // مح��كاة تسجيل اشتراك Push
       console.log("Push subscription registered:", req.body);
       res.json({ success: true, message: "تم تسجيل الاشتراك بنجاح" });
     } catch (error) {
