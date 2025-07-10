@@ -52,7 +52,7 @@ class ApiClient {
       // في بيئة الإنتاج - تحقق من نوع النشر
       const hostname = window.location.hostname;
 
-      // إذا كان على Netlify (أي موقع يحتوي ��لى netlify في الاسم)
+      // إذا كان على Netlify (أي موقع يحتو�� ��لى netlify في الاسم)
       if (
         hostname.includes("netlify.app") ||
         hostname.includes("netlify.com") ||
@@ -282,7 +282,7 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكت��وني أو ��لمة المرور ��ير صحيحة";
+                errorMessage = "البريد الإلكت��وني ��و ��لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -471,13 +471,40 @@ class ApiClient {
 
       const apiError = ApiErrorHandler.createErrorFromException(error);
 
-      // إذا كان خطأ شبكة وتوجد بيا��ات احتياطية، استخدمها
+      // إذا كان خطأ شبكة وتوجد بيانات احتياطية، استخدمها
       if (apiError.isNetworkError && fallbackData !== undefined) {
-        console.log(`🔄 استخد��م البيانات الاحتياطية لـ ${endpoint}:`, {
+        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}:`, {
           errorType: apiError.type,
           errorMessage: apiError.message,
+          hasInternet: navigator.onLine,
         });
         return fallbackData;
+      }
+
+      // إذا لم تكن هناك بيانات احتياطية ولكن هو خطأ شبكة، أرجع قيم افتراضية
+      if (apiError.isNetworkError && !navigator.onLine) {
+        console.log(`📱 وضع عدم الاتصال: إرجاع بيانات فارغة لـ ${endpoint}`);
+
+        // Return appropriate empty data structure based on endpoint
+        if (endpoint.includes("messages/unread-count")) {
+          return { count: 0 } as unknown as T;
+        }
+        if (
+          endpoint.includes("messages") ||
+          endpoint.includes("conversations")
+        ) {
+          return [] as unknown as T;
+        }
+        if (
+          endpoint.includes("barbers") ||
+          endpoint.includes("posts") ||
+          endpoint.includes("bookings")
+        ) {
+          return [] as unknown as T;
+        }
+
+        // For other endpoints, return empty object
+        return {} as unknown as T;
       }
 
       // إذا كان يمكن إعادة المحاولة، جرب مرة واحدة أخرى
@@ -964,7 +991,7 @@ class ApiClient {
 
       console.log("✅ تم تحميل الرسائل:", response.messages?.length || 0);
 
-      // تصحيح: تحويل حقل 'message' إلى 'content'
+      // تصحيح: ��حويل حقل 'message' إلى 'content'
       if (response.messages) {
         response.messages = response.messages.map((msg) => ({
           ...msg,
