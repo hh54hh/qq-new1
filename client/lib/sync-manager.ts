@@ -140,44 +140,18 @@ class SyncManager {
   }
 
   private async syncMessages(): Promise<void> {
-    try {
-      const storage = await getOfflineStorage();
-      const unsyncedMessages = await storage.getUnsyncedData("messages");
-
-      for (const message of unsyncedMessages) {
-        try {
-          if (message.data._action === "send") {
-            await this.sendMessage(message);
-          } else if (message.data._action === "mark_read") {
-            await this.markMessageAsRead(message);
-          }
-
-          await storage.markAsSynced("messages", message.id);
-          console.log(`✅ Synced message: ${message.id}`);
-        } catch (error) {
-          console.error(`❌ Failed to sync message ${message.id}:`, error);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to sync messages:", error);
-    }
+    // Messages functionality disabled
+    console.log("📵 Messages sync disabled");
   }
 
   private async sendMessage(message: any): Promise<void> {
-    const response = await offlineAPI.post("/api/messages", message.data);
-    if (!response.success) {
-      throw new Error("Failed to send message");
-    }
+    // Messages functionality disabled
+    throw new Error("Messages functionality disabled");
   }
 
   private async markMessageAsRead(message: any): Promise<void> {
-    const response = await offlineAPI.put(
-      `/api/messages/${message.data.id}/read`,
-      {},
-    );
-    if (!response.success) {
-      throw new Error("Failed to mark message as read");
-    }
+    // Messages functionality disabled
+    throw new Error("Messages functionality disabled");
   }
 
   private async syncUserData(): Promise<void> {
