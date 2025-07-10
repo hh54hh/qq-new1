@@ -33,26 +33,6 @@ interface Conversation {
   messages: any[];
 }
 
-interface Message {
-  id: string;
-  sender_id: string;
-  receiver_id: string;
-  message: string;
-  message_type: "text" | "image" | "voice" | "system";
-  is_read: boolean;
-  created_at: string;
-  sender?: {
-    id: string;
-    name: string;
-    avatar_url?: string;
-  };
-  receiver?: {
-    id: string;
-    name: string;
-    avatar_url?: string;
-  };
-}
-
 export default function MessagesPage({ user, onBack }: MessagesPageProps) {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
