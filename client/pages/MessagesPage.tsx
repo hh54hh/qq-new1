@@ -325,15 +325,9 @@ export default function MessagesPage({ user, onBack }: MessagesPageProps) {
       {/* Conversations */}
       <ScrollArea className="flex-1">
         {isLoading ? (
-          <div className="space-y-3 p-4">
+          <div className="space-y-1 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 p-3">
-                <div className="w-12 h-12 bg-muted rounded-full animate-pulse" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
-                  <div className="h-3 bg-muted rounded animate-pulse w-1/2" />
-                </div>
-              </div>
+              <MessageSkeleton key={i} />
             ))}
           </div>
         ) : filteredConversations.length === 0 ? (
