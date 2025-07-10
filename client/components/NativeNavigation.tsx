@@ -24,7 +24,6 @@ interface NativeNavigationProps {
   onTabChange: (tab: string) => void;
   userRole: "customer" | "barber" | "admin";
   className?: string;
-  unreadMessages?: number;
   unreadNotifications?: number;
 }
 
@@ -33,7 +32,6 @@ export default function NativeNavigation({
   onTabChange,
   userRole,
   className,
-  unreadMessages = 0,
   unreadNotifications = 0,
 }: NativeNavigationProps) {
   const getNavigationItems = (): NavigationItem[] => {
