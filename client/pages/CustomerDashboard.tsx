@@ -354,8 +354,12 @@ export default function CustomerDashboard({
         console.warn("⚠️ Ping failed:", pingError);
       }
 
-      // Load barbers
-      const barbersResponse = await apiClient.getBarbers();
+      // Load barbers with fallback
+      const barbersResponse = await apiClient.requestWithFallback(
+        "/barbers",
+        {},
+        { barbers: [] },
+      );
       console.log("📋 Barbers response:", barbersResponse);
       console.log("📋 Barbers data:", barbersResponse.barbers);
       console.log("📋 Barbers count:", barbersResponse.barbers?.length || 0);
@@ -1250,7 +1254,7 @@ export default function CustomerDashboard({
                     className="text-xs text-primary p-0 h-auto ml-2"
                     onClick={requestLocation}
                   >
-                    إعادة ����لمحاولة
+                    إعادة ����ل��حاولة
                   </Button>
                 </div>
               )}
