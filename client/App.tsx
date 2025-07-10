@@ -11,6 +11,7 @@ import {
   Route,
   Navigate,
   useSearchParams,
+  useLocation as useRouterLocation,
 } from "react-router-dom";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
