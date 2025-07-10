@@ -590,7 +590,7 @@ export default function CustomerDashboard({
       store.addNotification({
         id: Date.now().toString(),
         type: isFollowed ? "friend_request" : "new_follower",
-        title: isFollowed ? "إلغاء المتابعة" : "متابعة جديدة",
+        title: isFollowed ? "إلغاء المتابعة" : "متابع�� جديدة",
         message: isFollowed
           ? `تم إلغاء متابعة ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`
           : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`,
@@ -1074,7 +1074,7 @@ export default function CustomerDashboard({
               <CardContent className="p-8 text-center">
                 <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  ��ا توجد ����اقين قريبين
+                  ���ا توجد ����اقين قريبين
                 </h3>
                 <p className="text-muted-foreground">
                   جاري ��لبحث عن حلاقين في منطقت��
@@ -1988,7 +1988,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">ح��وز��ت</p>
+                <p className="text-sm text-muted-foreground">ح����وز��ت</p>
               </div>
               <div
                 className="cursor-pointer"
@@ -2056,7 +2056,8 @@ export default function CustomerDashboard({
       return renderSearch();
     case "bookings":
       return renderBookings();
-
+    case "messages":
+      return <MessagesPage user={user} onBack={() => window.history.back()} />;
     case "profile":
       return renderProfile();
     default:
