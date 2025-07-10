@@ -220,23 +220,22 @@ export default function UserProfileCard({
           {showActions && !isCurrentUser && (
             <div className="flex gap-3">
               {/* زر بدء المحادثة */}
-              {onStartChatNew ? (
-                <StartChatButton
-                  userId={user.id}
-                  userName={user.name}
-                  onStartChat={onStartChatNew}
-                  variant="profile"
-                  className="flex-1"
-                />
-              ) : (
-                <Button
-                  onClick={() => onStartChat(user)}
-                  className="flex-1 bg-gradient-to-r from-primary to-golden-600 hover:from-primary/90 hover:to-golden-500 text-primary-foreground border-0 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  بدء محادثة
-                </Button>
-              )}
+              <SmartChatButton
+                userId={user.id}
+                userName={user.name}
+                userRole={user.role}
+                variant="default"
+                className="flex-1"
+                onChatStart={() => {
+                  console.log("🚀 بدء محادثة من البطاقة مع:", user.name);
+                  // Call original callback if exists
+                  if (onStartChatNew) {
+                    onStartChatNew(user.id, user.name);
+                  } else if (onStartChat) {
+                    onStartChat(user);
+                  }
+                }}
+              />
 
               {/* أزرار الاتصال */}
               <div className="flex gap-2">
