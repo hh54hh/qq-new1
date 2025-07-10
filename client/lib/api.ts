@@ -117,7 +117,7 @@ class ApiClient {
           console.log(`❌ API غير متاح على ${path}: ${response.status}`);
         }
       } catch (error) {
-        // تجا��ل أخطاء AbortController timeout العادية
+        // تجا��ل أخطاء AbortController timeout الع��دية
         if (error instanceof Error && error.name === "AbortError") {
           console.log(`⏰ انتهت مهلة الاختبار لـ ${path} (طبيعي)`);
         } else {
@@ -851,6 +851,10 @@ class ApiClient {
     return this.request<void>(`/posts/${postId}/like`, {
       method: "DELETE",
     });
+  }
+
+  async getUserLikes(): Promise<{ liked_posts: string[] }> {
+    return this.request<{ liked_posts: string[] }>("/posts/likes/user");
   }
 
   // Post Comments
