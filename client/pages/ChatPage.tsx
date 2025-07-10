@@ -154,7 +154,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="fixed inset-0 bg-background flex flex-col z-50">
+    <div className="fixed inset-0 bg-background flex flex-col z-50 chat-container">
       {/* Chat Header - Fixed */}
       <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-md border-b border-border/50 px-4 py-3 shrink-0">
         <div className="flex items-center justify-between">
