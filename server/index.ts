@@ -48,6 +48,7 @@ import {
   deleteService,
   getWorkingHours,
   saveWorkingHours,
+  getAvailableSlots,
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
@@ -255,7 +256,7 @@ function createAppWithRoutes(app: express.Application) {
           key_configured: hasSupabaseKey,
           connection_type: isNetlify
             ? "Netlify Serverless"
-            : "��دمجة في المشروع",
+            : "مدمجة في المشروع",
           url_preview: hasSupabaseUrl
             ? getEnvVar("VITE_SUPABASE_URL")?.substring(0, 40) + "..."
             : "https://yrsvksgkxjiogjuaeyvd.supabase.co",
@@ -478,7 +479,7 @@ function createAppWithRoutes(app: express.Application) {
 
     app.post("/api/upload/profile", (req, res) => {
       res.status(501).json({
-        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        error: "ر��ع الملفات غير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
         suggestion: "استخدم خدمة رفع ملفات خارجية م��ل Cloudinary أو AWS S3",
       });
@@ -509,7 +510,7 @@ function createAppWithRoutes(app: express.Application) {
       console.log("Push subscription registered:", req.body);
       res.json({ success: true, message: "تم تسجيل الاشتراك بنجاح" });
     } catch (error) {
-      res.status(500).json({ error: "خطأ في تسجيل الاشتراك" });
+      res.status(500).json({ error: "خطأ في تسجيل الا��تراك" });
     }
   });
 
@@ -527,7 +528,7 @@ function createAppWithRoutes(app: express.Application) {
       console.log("Test notification sent");
       res.json({ success: true, message: "تم إرسال الإشعار التجريبي" });
     } catch (error) {
-      res.status(500).json({ error: "خطأ في إرسال ا��إشعار" });
+      res.status(500).json({ error: "خطأ في إرسال الإشعار" });
     }
   });
 
