@@ -24,6 +24,13 @@ export const ProfileChatButton: React.FC<ProfileChatButtonProps> = ({
   className = "",
 }) => {
   const handleClick = () => {
+    console.log("🔥 [PROFILE-CHAT-BUTTON] تم النقر على زر المحادثة!");
+    console.log(
+      "🔥 [PROFILE-CHAT-BUTTON] userId:",
+      userId,
+      "userName:",
+      userName,
+    );
     onStartChat(userId, userName);
   };
 
@@ -54,6 +61,13 @@ export const CompactChatButton: React.FC<CompactChatButtonProps> = ({
   variant = "primary",
 }) => {
   const handleClick = () => {
+    console.log("🔥 [COMPACT-CHAT-BUTTON] تم النقر على زر المحادثة!");
+    console.log(
+      "🔥 [COMPACT-CHAT-BUTTON] userId:",
+      userId,
+      "userName:",
+      userName,
+    );
     onStartChat(userId, userName);
   };
 
