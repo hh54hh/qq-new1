@@ -62,7 +62,7 @@ class ApiClient {
         return window.location.origin + "/.netlify/functions/api";
       }
 
-      // لجميع البيئات ال��خ��ى (fly.dev وغيرها) استخدم /api العادي
+      // لجميع البيئات ا����خ��ى (fly.dev وغيرها) استخدم /api العادي
       return window.location.origin + "/api";
     }
     // للخادم أو SSR
@@ -286,7 +286,7 @@ class ApiClient {
                 suggestion =
                   "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
-                errorMessage = "انتهت صلاحية ج��سة المستخدم";
+                errorMessage = "انتهت صلاحية ج��سة الم��تخدم";
                 errorType = "SESSION_EXPIRED";
                 suggestion = "يرجى تسجيل الدخول مرة أخرى";
 
@@ -1098,38 +1098,6 @@ const apiClient = new ApiClient();
 export { ApiClient };
 
 // Note: Most files should import the default export (apiClient instance)
-  // Messages
-  async getConversations(): Promise<{ conversations: any[]; total: number }> {
-    return this.request<{ conversations: any[]; total: number }>("/messages/conversations");
-  }
-
-  async getMessages(otherUserId: string): Promise<{ messages: any[]; total: number }> {
-    return this.request<{ messages: any[]; total: number }>(`/messages/${otherUserId}`);
-  }
-
-  async createMessage(messageData: {
-    receiver_id: string;
-    message: string;
-    message_type?: "text" | "image" | "voice" | "system";
-  }): Promise<any> {
-    return this.request<any>("/messages", {
-      method: "POST",
-      body: JSON.stringify(messageData),
-    });
-  }
-
-  async markMessageAsRead(messageId: string): Promise<void> {
-    return this.request<void>(`/messages/${messageId}/read`, {
-      method: "PATCH",
-    });
-  }
-
-  async markConversationAsRead(otherUserId: string): Promise<void> {
-    return this.request<void>(`/messages/conversations/${otherUserId}/read`, {
-      method: "PATCH",
-    });
-  }
-}
 
 // Example: import apiClient from './api';
 // Only import { ApiClient } if you need the class itself
