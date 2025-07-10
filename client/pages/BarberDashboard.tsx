@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import EnhancedMessagesPage from "./EnhancedMessagesPage";
+import SmartMessagesPage from "./SmartMessagesPage";
 import {
   Clock,
   Check,
@@ -413,7 +413,7 @@ export default function BarberDashboard({
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
-            طلبات الحجز الجديدة
+            طلبا�� الحجز الجديدة
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -733,7 +733,7 @@ export default function BarberDashboard({
             <Textarea
               value={newPostCaption}
               onChange={(e) => setNewPostCaption(e.target.value)}
-              placeholder="اك��ب وصفاً ل��ملك..."
+              placeholder="اكتب وصفاً ل��ملك..."
               className="min-h-[100px] text-right"
               dir="rtl"
             />
@@ -1026,7 +1026,7 @@ export default function BarberDashboard({
         {following.length === 0 && (
           <div className="text-center py-8">
             <Users className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-            <p className="text-muted-foreground">��ا تتاب�� أحد حتى الآن</p>
+            <p className="text-muted-foreground">لا تتاب�� أحد حتى الآن</p>
           </div>
         )}
       </div>
