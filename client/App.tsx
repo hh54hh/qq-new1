@@ -283,9 +283,6 @@ const IndexRoute = () => {
 const App = () => {
   const [state, store] = useAppStore();
 
-  // Initialize PWA monitor console commands
-  usePWAMonitorConsole();
-
   // Initialize global functions
   useEffect(() => {
     // إض��فة دالة عالمية لفتح صفحة التشخيص
