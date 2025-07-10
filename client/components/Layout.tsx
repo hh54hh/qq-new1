@@ -205,12 +205,6 @@ export default function Layout({
                       isActive && "scale-110",
                     )}
                   />
-                  {/* شارة الرسائل غير المقروءة */}
-                  {item.id === "messages" && unreadMessages > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center min-w-4">
-                      {unreadMessages > 9 ? "9+" : unreadMessages}
-                    </span>
-                  )}
                 </div>
                 <span className="text-xs font-medium truncate">
                   {item.label}
