@@ -47,7 +47,7 @@ import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
-import { useMessageNotifications } from "./hooks/use-message-notifications";
+
 import { usePWA, useNetworkStatus } from "./hooks/use-pwa";
 
 const queryClient = new QueryClient();
