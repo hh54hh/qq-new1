@@ -71,7 +71,7 @@ class NetworkAwareAPIWrapper {
       }
 
       // For non-network errors, provide fallback if available
-      console.warn("⚠️ API Error (non-network):", error.message || error);
+      console.warn("⚠️ API Error (non-network):", this.formatError(error));
       if (fallback !== undefined) {
         console.log("🔄 استخدام البيانات الاحتياطية لخطأ غير شبكي");
         return fallback;
