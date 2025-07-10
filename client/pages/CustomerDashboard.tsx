@@ -315,7 +315,7 @@ export default function CustomerDashboard({
       },
     ];
 
-    // إضافة طلبات الصداقة للإشعارات إذا لم تكن مو����دة
+    // إضافة طل��ات الصداقة للإشعارات إذا لم تكن مو����دة
     friendRequests.forEach((request) => {
       const exists = state.notifications.some((n) => n.id === request.id);
       if (!exists) {
@@ -348,11 +348,7 @@ export default function CustomerDashboard({
       }
 
       // Load barbers with fallback
-      const barbersResponse = await apiClient.requestWithFallback(
-        "/barbers",
-        {},
-        { barbers: [] },
-      );
+      const barbersResponse = await apiClient.getBarbers();
       console.log("📋 Barbers response:", barbersResponse);
       console.log("📋 Barbers data:", barbersResponse.barbers);
       console.log("📋 Barbers count:", barbersResponse.barbers?.length || 0);
@@ -636,7 +632,8 @@ export default function CustomerDashboard({
           id: Date.now().toString(),
           type: "friend_request",
           title: "خطأ في المتابعة",
-          message: "حدث خطأ أثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
+          message:
+            "حدث خطأ ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
           read: false,
           created_at: new Date().toISOString(),
@@ -955,7 +952,7 @@ export default function CustomerDashboard({
                   لا تت��بع أي حلاق
                 </h3>
                 <p className="text-muted-foreground">
-                  ابدأ بمتابعة الحلاقين لرؤ��تهم ه��ا
+                  ا��دأ بمتابعة الحلاقين لرؤ��تهم ه��ا
                 </p>
               </CardContent>
             </Card>
