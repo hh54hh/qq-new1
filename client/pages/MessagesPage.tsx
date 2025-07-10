@@ -1,25 +1,15 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowRight,
-  Send,
-  Search,
-  MessageCircle,
-  Phone,
-  Video,
-  MoreVertical,
-} from "lucide-react";
+import { ArrowRight, Search, MessageCircle } from "lucide-react";
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import apiClient from "@/lib/api";
-import {
-  MessageSkeleton,
-  ListSkeleton,
-} from "@/components/ui/loading-skeleton";
+import { MessageSkeleton } from "@/components/ui/loading-skeleton";
 
 interface MessagesPageProps {
   user: User;
