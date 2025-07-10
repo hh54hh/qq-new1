@@ -43,7 +43,7 @@ import SearchPage from "./SearchPage";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
 import MessagesPage from "./MessagesPage";
-// import AdvancedSearchPage from "./AdvancedSearchPage";
+import AdvancedSearchPage from "./AdvancedSearchPage";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -429,7 +429,7 @@ export default function CustomerDashboard({
         const dummyBarbers = [
           {
             id: "dummy-1",
-            name: "حلاق تجر����بي 1",
+            name: "حلاق تجر��بي 1",
             email: "test1@test.com",
             role: "barber" as const,
             status: "active" as const,
