@@ -87,13 +87,13 @@ export class ErrorHandler {
     };
 
     console.error("Error logged:", {
-      message: errorLog.message,
-      code: errorLog.code,
+      message: errorLog.error.message,
+      code: errorLog.error.code,
       details:
-        typeof errorLog.details === "object"
-          ? JSON.stringify(errorLog.details, null, 2)
-          : errorLog.details,
-      severity: errorLog.severity,
+        typeof errorLog.error.details === "object"
+          ? JSON.stringify(errorLog.error.details, null, 2)
+          : errorLog.error.details,
+      severity: errorLog.error.severity,
       timestamp: errorLog.timestamp,
       url: errorLog.url,
     });
