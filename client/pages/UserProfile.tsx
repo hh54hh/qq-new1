@@ -22,7 +22,7 @@ import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
 import networkAwareAPI from "@/lib/api-wrapper";
 import PostViewPage from "./PostViewPage";
-import { StartChatButton } from "@/components/EnhancedStartChatButton";
+import SmartChatButton from "@/components/chat/SmartChatButton";
 
 interface UserProfileProps {
   profileUser: User & {
@@ -442,7 +442,7 @@ export default function UserProfile({
               <TabsContent value="info">
                 <Card className="border-border/50 bg-card/50">
                   <CardHeader>
-                    <CardTitle>معلومات الحلاق</CardTitle>
+                    <CardTitle>معلومات ال��لاق</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
