@@ -80,10 +80,31 @@ export default function SmartMessagesPage({
   }, []);
 
   useEffect(() => {
-    if (targetUserId) {
-      handleStartConversation(targetUserId);
+    // Check URL parameters for target user
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUser = urlParams.get("targetUser") || targetUserId;
+
+    if (targetUser) {
+      console.log("🎯 هدف المحادثة من URL/props:", targetUser);
+      handleStartConversation(targetUser);
     }
   }, [targetUserId]);
+
+  // Listen for chat start events
+  useEffect(() => {
+    const handleChatStart = (event: CustomEvent) => {
+      const { userId } = event.detail;
+      if (userId) {
+        console.log("🚀 استقبال حدث بدء محادثة:", userId);
+        handleStartConversation(userId);
+      }
+    };
+
+    window.addEventListener("chatStart", handleChatStart as EventListener);
+    return () => {
+      window.removeEventListener("chatStart", handleChatStart as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
     loadConversations();
