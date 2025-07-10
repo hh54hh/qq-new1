@@ -92,8 +92,6 @@ export default function BarberDashboard({
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
-  const [messageTargetUser, setMessageTargetUser] = useState<any | null>(null);
 
   // Load data on component mount
   useEffect(() => {
@@ -167,7 +165,7 @@ export default function BarberDashboard({
   const getLevelLabel = (level: number) => {
     if (level >= 100) return "VIP";
     if (level >= 51) return "ذهبي";
-    if (level >= 21) return "محترف";
+    if (level >= 21) return "مح��رف";
     return "مبتدئ";
   };
 
@@ -1050,7 +1048,7 @@ export default function BarberDashboard({
         id: Date.now().toString(),
         type: "friend_request",
         title: "إلغاء المتابعة",
-        message: "تم إلغا�� المتابعة بنجاح",
+        message: "تم إلغاء المتابعة بنجاح",
         data: null,
         read: false,
         created_at: new Date().toISOString(),
