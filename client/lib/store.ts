@@ -1,5 +1,6 @@
 import { User, Booking, Post, FriendRequest, Follow } from "@shared/api";
 import apiClient from "./api";
+import { useState, useEffect } from "react";
 
 // Application State Types
 export interface AppState {
