@@ -115,16 +115,11 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
 const AppContent = () => {
   const [state, store] = useAppStore();
   const [activeTab, setActiveTab] = useState("home");
-  const [targetChatUserId, setTargetChatUserId] = useState<
-    string | undefined
-  >();
+
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const { isPermissionRequested } = useLocation();
-
-  // Enable message notifications
-  useMessageNotifications();
 
   // Initialize authentication on app start
   useEffect(() => {
@@ -216,15 +211,9 @@ const AppContent = () => {
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
-          if (tab !== "messages") {
-            setTargetChatUserId(undefined);
-          }
         }}
         onLogout={handleLogout}
         onShowNotifications={() => (window.location.href = "/notifications")}
-        onShowMessages={() => {
-          setActiveTab("messages");
-        }}
       >
         {state.user.role === "customer" ? (
           <CustomerDashboard
@@ -365,7 +354,7 @@ const App = () => {
 
     console.log("💡 نصا��ح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة ��لتشخيص");
-    console.log("  - اكتب openDiagnostic() في ا��كونسول لفتح التشخيص الشامل");
+    console.log("  - اكتب openDiagnostic() في ا����ونسول لفتح التشخيص الشامل");
   }, []);
 
   return (
