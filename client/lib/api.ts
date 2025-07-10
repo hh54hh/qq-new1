@@ -78,7 +78,7 @@ class ApiClient {
       currentBaseUrl: this.baseUrl,
     });
 
-    // إذا كان على Netlify، استخدم مسار Functions مباشرة دون اختبار
+    // إذا كان على Netlify، استخدم م��ار Functions مباشرة دون اختبار
     if (hostname.includes("netlify")) {
       this.baseUrl = window.location.origin + "/.netlify/functions/api";
       this.apiUrlVerified = true;
@@ -322,7 +322,7 @@ class ApiClient {
               errorMessage = "خطأ في الخادم، يرجى المحاول�� مرة أخرى";
               errorType = "SERVER_ERROR";
               suggestion =
-                "إذا اس��مرت المشكلة، اتصل بال��عم الفني على: 07800657822";
+                "إذا اس��مرت المشكلة، اتصل بال��عم الف��ي على: 07800657822";
               break;
             case 502:
               errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لاح��اً";
@@ -980,7 +980,7 @@ class ApiClient {
   }
 
   async getMessages(otherUserId: string): Promise<{ messages: any[] }> {
-    // التحقق من صحة معرف المستخدم
+    // التحقق م�� صحة معرف المستخدم
     if (!otherUserId || otherUserId === "undefined") {
       console.error("��� معرف المستخدم غير صحيح:", otherUserId);
       return { messages: [] };
@@ -1059,7 +1059,7 @@ class ApiClient {
 
       return response;
     } catch (error) {
-      console.error("❌ فشل إرسال ��لرسالة:", error);
+      console.error("❌ فشل إرسال الرسالة:", error);
       throw error;
     }
   }
@@ -1199,6 +1199,10 @@ const apiClient = new ApiClient();
 
 // Export the class for cases where it might be needed
 export { ApiClient };
+
+// Note: Most files should import the default export (apiClient instance)
+// Example: import apiClient from './api';
+// Only import { ApiClient } if you need the class itself
 
 // دالة تشخيص سريعة لاختبار API
 export const diagnoseAPI = async () => {
