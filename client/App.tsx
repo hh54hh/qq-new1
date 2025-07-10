@@ -26,7 +26,6 @@ import ChatNotifications from "./components/ChatNotifications";
 
 import LocationPermissionDialog from "./components/LocationPermissionDialog";
 import DebugPage from "./pages/DebugPage";
-import { ErrorBoundary } from "react-error-boundary";
 import DiagnosticPage from "./pages/DiagnosticPage";
 import SystemDiagnostic from "./pages/SystemDiagnostic";
 import NetworkDiagnostic from "./pages/NetworkDiagnostic";
@@ -317,7 +316,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إضافة دالة عالمية لفتح صفحة التشخيص
+    // إضا��ة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
