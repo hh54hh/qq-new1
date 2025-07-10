@@ -58,7 +58,7 @@ const SERVICES_LIST = [
   "علاج الشعر",
   "تسريحة عريس",
   "ديكوباج",
-  "ماسك للوجه",
+  "��اسك للوجه",
 ];
 
 const SORT_OPTIONS = [
@@ -245,7 +245,7 @@ export default function AdvancedSearchPage({
           </div>
 
           {/* Distance Filter */}
-          {isLocationAvailable && (
+          {userLocation && (
             <div className="space-y-2">
               <Label className="text-sm font-medium">
                 المسافة: {filters.radius} كم
@@ -262,7 +262,7 @@ export default function AdvancedSearchPage({
 
           {/* Services Filter */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">الخدمات</Label>
+            <Label className="text-sm font-medium">ا��خدمات</Label>
             <div className="grid grid-cols-2 gap-2">
               {SERVICES_LIST.map((service) => (
                 <div key={service} className="flex items-center space-x-2">
