@@ -53,6 +53,42 @@ import { usePWA, useNetworkStatus } from "./hooks/use-pwa";
 
 const queryClient = new QueryClient();
 
+// Simple Error Boundary Class Component
+class SimpleErrorBoundary extends Component<
+  { children: React.ReactNode; fallback?: React.ComponentType<any> },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error("Error Boundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const FallbackComponent = this.props.fallback || ErrorFallback;
+      return (
+        <FallbackComponent
+          error={this.state.error}
+          resetErrorBoundary={() => {
+            this.setState({ hasError: false, error: undefined });
+            window.location.reload();
+          }}
+        />
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 // Error Fallback Component
 function ErrorFallback({ error, resetErrorBoundary }: any) {
   return (
