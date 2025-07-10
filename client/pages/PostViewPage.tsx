@@ -21,6 +21,7 @@ interface PostViewPageProps {
   user: User;
   onBack: () => void;
   onLike?: (postId: string) => void;
+  isLiked?: boolean;
 }
 
 interface Comment {
