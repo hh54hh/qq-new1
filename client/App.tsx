@@ -31,6 +31,7 @@ import NetworkDiagnostic from "./pages/NetworkDiagnostic";
 import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
+import ChatPage from "./pages/ChatPage";
 
 import IndexedDBStatus from "./components/debug/IndexedDBStatus";
 
@@ -328,6 +329,7 @@ const App = () => {
               element={<NetworkDiagnosticTest />}
             />
             <Route path="/offline" element={<OfflinePage />} />
+            <Route path="/chat" element={<ChatPage />} />
 
             {/* Authenticated routes */}
             <Route

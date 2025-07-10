@@ -1,25 +1,15 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowRight,
-  Send,
-  Search,
-  MessageCircle,
-  Phone,
-  Video,
-  MoreVertical,
-} from "lucide-react";
+import { ArrowRight, Search, MessageCircle } from "lucide-react";
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import apiClient from "@/lib/api";
-import {
-  MessageSkeleton,
-  ListSkeleton,
-} from "@/components/ui/loading-skeleton";
+import { MessageSkeleton } from "@/components/ui/loading-skeleton";
 
 interface MessagesPageProps {
   user: User;
@@ -43,35 +33,11 @@ interface Conversation {
   messages: any[];
 }
 
-interface Message {
-  id: string;
-  sender_id: string;
-  receiver_id: string;
-  message: string;
-  message_type: "text" | "image" | "voice" | "system";
-  is_read: boolean;
-  created_at: string;
-  sender?: {
-    id: string;
-    name: string;
-    avatar_url?: string;
-  };
-  receiver?: {
-    id: string;
-    name: string;
-    avatar_url?: string;
-  };
-}
-
 export default function MessagesPage({ user, onBack }: MessagesPageProps) {
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] =
-    useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     loadConversations();
@@ -90,54 +56,19 @@ export default function MessagesPage({ user, onBack }: MessagesPageProps) {
     }
   };
 
-  const loadMessages = async (otherUserId: string) => {
-    try {
-      const response = await apiClient.getMessages(otherUserId);
-      setMessages(response.messages || []);
+  const openChat = (conversation: Conversation) => {
+    // Navigate to dedicated chat page
+    const params = new URLSearchParams({
+      with: conversation.user.id,
+      name: conversation.user.name,
+      role: conversation.user.role,
+    });
 
-      // Mark conversation as read
-      await apiClient.markConversationAsRead(otherUserId);
-
-      // Update conversations to reflect read messages
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.user.id === otherUserId ? { ...conv, unreadCount: 0 } : conv,
-        ),
-      );
-    } catch (error) {
-      console.error("Error loading messages:", error);
-      setMessages([]);
+    if (conversation.user.avatar_url) {
+      params.set("avatar", conversation.user.avatar_url);
     }
-  };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation || isSending) return;
-
-    try {
-      setIsSending(true);
-      const message = await apiClient.createMessage({
-        receiver_id: selectedConversation.user.id,
-        message: newMessage.trim(),
-      });
-
-      // Add to messages immediately
-      setMessages((prev) => [...prev, message]);
-
-      // Update conversation
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.user.id === selectedConversation.user.id
-            ? { ...conv, lastMessage: message }
-            : conv,
-        ),
-      );
-
-      setNewMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
-    } finally {
-      setIsSending(false);
-    }
+    navigate(`/chat?${params.toString()}`);
   };
 
   const formatTime = (dateString: string) => {
@@ -163,132 +94,6 @@ export default function MessagesPage({ user, onBack }: MessagesPageProps) {
   const filteredConversations = conversations.filter((conv) =>
     conv.user.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
-
-  if (selectedConversation) {
-    return (
-      <div className="flex flex-col h-screen bg-background">
-        {/* Chat Header */}
-        <div className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border/50 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedConversation(null)}
-                className="p-2 -ml-2"
-              >
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={selectedConversation.user.avatar_url} />
-                <AvatarFallback className="bg-primary/10 text-primary">
-                  {selectedConversation.user.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="font-semibold text-base">
-                  {selectedConversation.user.name}
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  {selectedConversation.user.role === "barber"
-                    ? "حلاق"
-                    : "عميل"}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="sm" className="p-2">
-                <Phone className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="sm" className="p-2">
-                <Video className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="sm" className="p-2">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <ScrollArea className="flex-1 px-4 py-4">
-          <div className="space-y-4">
-            {messages.map((message) => {
-              const isOwn = message.sender_id === user.id;
-              return (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "flex items-end gap-2",
-                    isOwn ? "flex-row-reverse" : "flex-row",
-                  )}
-                >
-                  {!isOwn && (
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={selectedConversation.user.avatar_url} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                        {selectedConversation.user.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div
-                    className={cn(
-                      "max-w-[70%] rounded-2xl px-4 py-2",
-                      isOwn ? "bg-primary text-primary-foreground" : "bg-muted",
-                    )}
-                  >
-                    <p className="text-sm">{message.message}</p>
-                    <p
-                      className={cn(
-                        "text-xs mt-1",
-                        isOwn
-                          ? "text-primary-foreground/70"
-                          : "text-muted-foreground",
-                      )}
-                    >
-                      {formatTime(message.created_at)}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </ScrollArea>
-
-        {/* Message Input */}
-        <div className="border-t bg-background p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 flex items-center gap-2 bg-muted rounded-full px-4 py-2">
-              <Input
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="اكتب رسالة..."
-                className="flex-1 border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-              />
-            </div>
-            <Button
-              onClick={sendMessage}
-              disabled={!newMessage.trim() || isSending}
-              size="sm"
-              className="rounded-full w-10 h-10 p-0"
-            >
-              {isSending ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -343,10 +148,7 @@ export default function MessagesPage({ user, onBack }: MessagesPageProps) {
             {filteredConversations.map((conversation) => (
               <button
                 key={conversation.user.id}
-                onClick={() => {
-                  setSelectedConversation(conversation);
-                  loadMessages(conversation.user.id);
-                }}
+                onClick={() => openChat(conversation)}
                 className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors"
               >
                 <div className="relative">

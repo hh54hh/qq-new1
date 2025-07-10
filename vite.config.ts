@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => ({
     minify: mode === "production" ? "esbuild" : false,
     target: "esnext",
   },
-  plugins: [react({ jsxInject: `import React from 'react'` }), expressPlugin()],
+  plugins: [react(), expressPlugin()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
