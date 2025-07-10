@@ -109,7 +109,7 @@ class ApiClient {
         clearTimeout(timeoutId);
 
         if (response.ok) {
-          console.log(`✅ API متاح على: ${path}`);
+          console.log(`✅ API مت��ح على: ${path}`);
           this.baseUrl = window.location.origin + path;
           this.apiUrlVerified = true;
           return;
@@ -583,6 +583,18 @@ class ApiClient {
       method: "PUT",
       body: JSON.stringify(profileData),
     });
+  }
+
+  async deleteAccount(
+    password: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(
+      "/auth/account",
+      {
+        method: "DELETE",
+        body: JSON.stringify({ password }),
+      },
+    );
   }
 
   // Barbers
