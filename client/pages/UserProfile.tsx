@@ -12,7 +12,7 @@ import {
   Calendar,
   Scissors,
   Heart,
-  MessageCircle,
+  Edit,
   UserPlus,
   UserMinus,
 } from "lucide-react";
@@ -132,7 +132,7 @@ export default function UserProfile({
       (now.getTime() - date.getTime()) / (1000 * 60 * 60),
     );
 
-    if (diffInHours < 1) return "ال��ن";
+    if (diffInHours < 1) return "ال���ن";
     if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
 
     const diffInDays = Math.floor(diffInHours / 24);
@@ -405,7 +405,7 @@ export default function UserProfile({
                               </span>
                             </button>
                             <div className="flex items-center gap-1">
-                              <MessageCircle className="h-5 w-5 fill-white" />
+                              <Edit className="h-5 w-5 fill-white" />
                               <span className="text-sm font-medium">0</span>
                             </div>
                           </div>
