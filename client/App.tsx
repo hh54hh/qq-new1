@@ -173,6 +173,7 @@ const AppContent = () => {
             activeTab={activeTab}
             onLogout={handleLogout}
             onStartChat={(user) => {
+              console.log("🔥 [APP-CUSTOMER] onStartChat تم استدعاؤها!");
               console.log(
                 "💬 [APP-CUSTOMER] بدء محادثة مع:",
                 user.id,
