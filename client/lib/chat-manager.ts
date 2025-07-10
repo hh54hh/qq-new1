@@ -191,13 +191,13 @@ class ChatManager {
   }
 
   async sendMessage(
-    conversationId: string,
+    otherUserId: string,
     content: string,
     replyTo?: string,
   ): Promise<ChatMessage> {
     const tempMessage: ChatMessage = {
       id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      conversationId,
+      conversationId: otherUserId,
       senderId: this.currentUserId,
       content: content.trim(),
       timestamp: Date.now(),
@@ -215,9 +215,9 @@ class ChatManager {
     try {
       // Try to send to server
       const response = await offlineAPI.post("/api/messages", {
-        conversationId,
+        receiver_id: otherUserId,
         content,
-        replyTo,
+        message_type: "text",
       });
 
       if (response.success && response.data) {
