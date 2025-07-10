@@ -227,6 +227,28 @@ export const db = {
       if (error) throw error;
       return data;
     },
+
+    async delete(bookingId: string, userId: string) {
+      // First, verify the booking belongs to the user (as customer or barber)
+      const { data: booking, error: fetchError } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("id", bookingId)
+        .or(`customer_id.eq.${userId},barber_id.eq.${userId}`)
+        .single();
+
+      if (fetchError) throw fetchError;
+      if (!booking) throw new Error("Booking not found or access denied");
+
+      // Delete the booking
+      const { error } = await supabase
+        .from("bookings")
+        .delete()
+        .eq("id", bookingId);
+
+      if (error) throw error;
+      return true;
+    },
   },
 
   // Follows
