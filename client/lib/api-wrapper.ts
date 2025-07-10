@@ -85,7 +85,7 @@ class NetworkAwareAPIWrapper {
       // For non-network errors, provide fallback if available
       console.warn("⚠️ API Error (non-network):", this.formatError(error));
       if (fallback !== undefined) {
-        console.log("🔄 استخدام البيانات الاحتياطية لخطأ غير شبكي");
+        console.log("🔄 استخدام البيانا�� الاحتياطية لخطأ غير شبكي");
         return fallback;
       }
       throw error;
@@ -138,7 +138,6 @@ class NetworkAwareAPIWrapper {
   async deleteBooking(id: string) {
     return this.safeRequest(() => this.apiClient.deleteBooking(id), {
       success: false,
-      error: "فشل في حذف الحجز - تحقق من الاتصال بالشبكة",
     });
   }
 
