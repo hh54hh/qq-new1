@@ -31,6 +31,7 @@ import WorkingHours from "./WorkingHours";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
+import MessagesPage from "./MessagesPage";
 
 interface BarberDashboardProps {
   user: User;
