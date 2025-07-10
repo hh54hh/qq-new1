@@ -106,21 +106,10 @@ class NetworkAwareAPIWrapper {
   }
 
   // Wrapped API methods
-  async getUnreadMessageCount() {
-    return this.safeRequest(() => this.apiClient.getUnreadMessageCount(), {
-      count: 0,
-    });
-  }
 
   async getNotifications() {
     return this.safeRequest(() => this.apiClient.getNotifications(), {
       notifications: [],
-    });
-  }
-
-  async getMessages(conversationId?: string) {
-    return this.safeRequest(() => this.apiClient.getMessages(conversationId), {
-      messages: [],
     });
   }
 
@@ -136,11 +125,6 @@ class NetworkAwareAPIWrapper {
       posts: [],
       total: 0,
     });
-  }
-
-  // Pass-through methods for non-GET operations (these should handle errors normally)
-  async sendMessage(data: any) {
-    return this.apiClient.sendMessage(data);
   }
 
   async createBooking(data: any) {
