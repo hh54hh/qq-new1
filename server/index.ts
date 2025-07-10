@@ -431,6 +431,8 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/working-hours", getWorkingHours);
   app.put("/api/working-hours", saveWorkingHours);
   app.put("/working-hours", saveWorkingHours);
+  app.get("/api/barbers/:barberId/slots", getAvailableSlots);
+  app.get("/barbers/:barberId/slots", getAvailableSlots);
 
   // Notifications routes - both paths
   app.get("/api/notifications", getNotifications);
@@ -479,7 +481,7 @@ function createAppWithRoutes(app: express.Application) {
 
     app.post("/api/upload/profile", (req, res) => {
       res.status(501).json({
-        error: "ر��ع الملفات غير مدعوم في البيئة الحالية",
+        error: "رفع الملفات غير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
         suggestion: "استخدم خدمة رفع ملفات خارجية م��ل Cloudinary أو AWS S3",
       });
@@ -510,7 +512,7 @@ function createAppWithRoutes(app: express.Application) {
       console.log("Push subscription registered:", req.body);
       res.json({ success: true, message: "تم تسجيل الاشتراك بنجاح" });
     } catch (error) {
-      res.status(500).json({ error: "خطأ في تسجيل الا��تراك" });
+      res.status(500).json({ error: "خطأ في تسجيل الاشتراك" });
     }
   });
 
