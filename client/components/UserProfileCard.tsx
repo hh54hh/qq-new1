@@ -15,7 +15,7 @@ import {
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { StartChatButton } from "@/components/EnhancedStartChatButton";
+import SmartChatButton from "@/components/chat/SmartChatButton";
 
 interface UserProfileCardProps {
   user: User;
