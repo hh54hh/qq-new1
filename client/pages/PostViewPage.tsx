@@ -40,8 +40,9 @@ export default function PostViewPage({
   user,
   onBack,
   onLike,
+  isLiked: initialIsLiked = false,
 }: PostViewPageProps) {
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likesCount, setLikesCount] = useState(post.likes || 0);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
