@@ -193,7 +193,7 @@ function createAppWithRoutes(app: express.Application) {
       }
 
       res.status(500).json({
-        error: "خطأ داخ��ي في ا��خادم",
+        error: "خطأ داخ��ي في الخادم",
         message: err instanceof Error ? err.message : "خطأ غير معروف",
         timestamp: new Date().toISOString(),
         path: req.path,
@@ -349,6 +349,10 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/api/barbers/recommendations", getRecommendations);
   app.get("/barbers/recommendations", getRecommendations);
 
+  // User search routes
+  app.get("/api/users/search", searchUsers);
+  app.get("/users/search", searchUsers);
+
   // Bookings routes - both paths
   app.get("/api/bookings", getBookings);
   app.get("/bookings", getBookings);
@@ -459,7 +463,7 @@ function createAppWithRoutes(app: express.Application) {
         res.json({ url: fileUrl });
       } catch (error) {
         console.error("Upload error:", error);
-        res.status(500).json({ error: "خطأ في رفع ��لملف" });
+        res.status(500).json({ error: "خ��أ في رفع ��لملف" });
       }
     });
 
@@ -469,7 +473,7 @@ function createAppWithRoutes(app: express.Application) {
   // PWA Push Notifications routes
   app.post("/api/notifications/subscribe", async (req, res) => {
     try {
-      // مح��كاة تسجيل اشتراك Push
+      // محاكاة تسجيل اشتراك Push
       console.log("Push subscription registered:", req.body);
       res.json({ success: true, message: "تم تسجيل الاشتراك بنجاح" });
     } catch (error) {
