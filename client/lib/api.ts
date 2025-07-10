@@ -168,7 +168,6 @@ class ApiClient {
     // المسارات التي تحتاج authentication
     const protectedPaths = [
       "/bookings",
-      "/messages",
       "/barbers",
       "/notifications",
       "/auth/profile",
@@ -285,7 +284,7 @@ class ApiClient {
                 errorMessage = "البريد الإلكت��وني ��و ��لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
+                  "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
                 errorMessage = "انتهت صلاحية ج��سة المستخدم";
                 errorType = "SESSION_EXPIRED";
