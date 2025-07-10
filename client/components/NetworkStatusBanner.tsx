@@ -7,6 +7,19 @@ export default function NetworkStatusBanner() {
   const [wasOffline, setWasOffline] = useState(false);
 
   useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isOnline) {
       setShowBanner(true);
       setWasOffline(true);
