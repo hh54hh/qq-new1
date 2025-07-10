@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import EnhancedMessagesPage from "./EnhancedMessagesPage";
+import SmartMessagesPage from "./SmartMessagesPage";
 import {
   Dialog,
   DialogContent,
@@ -599,7 +599,7 @@ export default function CustomerDashboard({
         title: isFollowed ? "إلغاء المتابعة" : "متابعة جديدة",
         message: isFollowed
           ? `تم إلغاء متابعة ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`
-          : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`,
+          : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "��لحلاق"}`,
         data: { barberId },
         read: false,
         created_at: new Date().toISOString(),
@@ -1598,7 +1598,7 @@ export default function CustomerDashboard({
                 لا توجد حلا��ين قريبين
               </h3>
               <p className="text-muted-foreground mb-4">
-                سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
+                سنعرض لك الحلاقين ا��متاحين في منطقت�� ��ريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
                 تحديث الموقع
@@ -1636,7 +1636,7 @@ export default function CustomerDashboard({
 
   const renderSearch = () => (
     <div className="p-4 space-y-4">
-      {/* شريط البح�� */}
+      {/* شريط البح���� */}
       <div className="relative">
         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
