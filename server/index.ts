@@ -393,6 +393,8 @@ function createAppWithRoutes(app: express.Application) {
   app.post("/posts/:id/like", likePost);
   app.delete("/api/posts/:id/like", unlikePost);
   app.delete("/posts/:id/like", unlikePost);
+  app.get("/api/posts/likes/user", getUserLikes);
+  app.get("/posts/likes/user", getUserLikes);
 
   // Post comments routes - both paths
   app.get("/api/posts/:id/comments", getPostComments);
