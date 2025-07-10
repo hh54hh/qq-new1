@@ -15,7 +15,6 @@ import {
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import SmartChatButton from "@/components/chat/SmartChatButton";
 
 interface UserProfileCardProps {
   user: User;
@@ -264,7 +263,7 @@ export default function UserProfileCard({
             </div>
           )}
 
-          {/* رسالة للمستخدم الحالي */}
+          {/* رسالة للمس��خدم الحالي */}
           {isCurrentUser && (
             <div className="text-center p-4 bg-primary/5 rounded-xl border border-primary/20">
               <p className="text-sm text-primary font-medium">
