@@ -348,19 +348,6 @@ export default function UserProfile({
                       حجز موعد
                     </Button>
                   )}
-
-                  <SmartChatButton
-                    userId={profileUser.id}
-                    userName={profileUser.name}
-                    userRole={profileUser.role}
-                    variant="compact"
-                    onChatStart={() => {
-                      console.log(
-                        "🚀 بدء محادثة من البروفايل مع:",
-                        profileUser.name,
-                      );
-                    }}
-                  />
                 </div>
               </div>
             )}
