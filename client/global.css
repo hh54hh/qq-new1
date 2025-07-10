@@ -329,6 +329,35 @@
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
+
+    /* Chat page keyboard handling */
+    .chat-input-container {
+      padding-bottom: env(safe-area-inset-bottom);
+      transition: padding-bottom 0.3s ease;
+    }
+  }
+
+  /* Chat page specific styles */
+  .chat-container {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .chat-messages {
+    height: calc(100vh - 120px);
+    height: calc(100dvh - 120px);
+  }
+
+  /* Keyboard handling for mobile */
+  @media (max-width: 768px) {
+    .chat-input-focused {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
   }
 
   /* Android-specific improvements */
