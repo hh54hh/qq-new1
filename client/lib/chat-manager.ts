@@ -54,7 +54,7 @@ class ChatManager {
       console.log("✅ تم تهيئة التخزين المحلي");
     } catch (error) {
       console.warn(
-        "⚠️ فشل في تهيئة التخزين المحلي، العمل في fallback mode:",
+        "⚠️ فشل في تهيئة الت��زين المحلي، العمل في fallback mode:",
         error,
       );
       this.fallbackMode = true;
@@ -550,34 +550,8 @@ class ChatManager {
 
       console.log("✅ تم إنشاء المحادثة:", newConversation.id);
 
-      // Try to sync with server (optional)
-      try {
-        const response = await offlineAPI.post("/api/messages", {
-          receiver_id: userId,
-          content: `بدء محادثة مع ${userName}`,
-          message_type: "system",
-        });
-
-        if (response.success && response.data) {
-          // Update with server ID if successful
-          const updatedConversation = {
-            ...newConversation,
-            id: response.data.id,
-          };
-
-          await this.storage.deleteData("conversations", newConversation.id);
-          await this.storage.saveData(
-            "conversations",
-            updatedConversation,
-            updatedConversation.id,
-          );
-
-          this.emit("conversation:created", updatedConversation);
-          return updatedConversation;
-        }
-      } catch (error) {
-        console.log("📱 العمل في وضع عدم الاتصال");
-      }
+      // No need to create conversation on server - conversations are derived from messages
+      console.log("💬 المحادثة تم إنشاؤها محلياً، ستظهر عند إرسال أول رسالة");
 
       this.emit("conversation:created", newConversation);
       return newConversation;
