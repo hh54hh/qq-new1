@@ -103,11 +103,7 @@ export default function Layout({
       }
 
       try {
-        const response = await apiClient.requestWithFallback(
-          "/messages/unread-count",
-          {},
-          { count: 0 },
-        );
+        const response = await apiClient.getUnreadMessageCount();
         setUnreadMessages(response.count || 0);
         setMessageLoadErrors(0); // إعادة تعيين عداد الأخطاء
       } catch (error: any) {
