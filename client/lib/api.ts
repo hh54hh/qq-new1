@@ -198,7 +198,7 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    // التحقق من صحة مسار API إذا لم يتم التحقق مسبقاً
+    // التحقق من صحة مسار API إذا لم يتم التح��ق مسبقاً
     await this.verifyApiUrl();
 
     // التحقق من auth token للمسارات المحمية
@@ -322,7 +322,7 @@ class ApiClient {
               errorMessage = "خطأ في الخادم، يرجى المحاول�� مرة أخرى";
               errorType = "SERVER_ERROR";
               suggestion =
-                "إذا اس��مرت المشكلة، اتصل بالدعم الفني على: 07800657822";
+                "إذا اس��مرت المشكلة، اتصل بال��عم الفني على: 07800657822";
               break;
             case 502:
               errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لاح��اً";
@@ -484,8 +484,12 @@ class ApiClient {
       }
 
       // إذا لم تكن هناك بيانات احتياطية ولكن هو خطأ شبكة، أرجع قيم افتراضية
-      if (apiError.isNetworkError && !navigator.onLine) {
-        console.log(`📱 وضع عدم الاتصال: إرجاع بيانات فارغة لـ ${endpoint}`);
+      if (apiError.isNetworkError) {
+        console.log(`📱 خطأ شبكة: إرجاع بيانات فارغة لـ ${endpoint}`, {
+          isOnline: navigator.onLine,
+          endpoint,
+          errorType: apiError.type,
+        });
 
         // Return appropriate empty data structure based on endpoint
         if (endpoint.includes("messages/unread-count")) {
@@ -497,12 +501,14 @@ class ApiClient {
         ) {
           return [] as unknown as T;
         }
-        if (
-          endpoint.includes("barbers") ||
-          endpoint.includes("posts") ||
-          endpoint.includes("bookings")
-        ) {
-          return [] as unknown as T;
+        if (endpoint.includes("posts")) {
+          return { posts: [], total: 0 } as unknown as T;
+        }
+        if (endpoint.includes("barbers")) {
+          return { barbers: [], total: 0 } as unknown as T;
+        }
+        if (endpoint.includes("bookings")) {
+          return { bookings: [], total: 0 } as unknown as T;
         }
 
         // For other endpoints, return empty object
