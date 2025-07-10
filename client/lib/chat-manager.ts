@@ -165,17 +165,17 @@ class ChatManager {
   }
 
   // Message management
-  async getMessages(conversationId: string): Promise<ChatMessage[]> {
+  async getMessages(otherUserId: string): Promise<ChatMessage[]> {
     try {
-      // Try network first
-      const response = await offlineAPI.get(`/api/messages/${conversationId}`);
+      // Try network first - otherUserId is the conversation partner
+      const response = await offlineAPI.get(`/api/messages/${otherUserId}`);
 
       if (response.success && response.data) {
         // Cache messages
         for (const msg of response.data) {
           await this.storage.saveData(
             "messages",
-            { ...msg, conversationId },
+            { ...msg, conversationId: otherUserId },
             msg.id,
           );
         }
@@ -187,7 +187,7 @@ class ChatManager {
 
     // Fallback to cache
     const cached = await this.storage.getAllData("messages");
-    return cached.filter((msg: any) => msg.conversationId === conversationId);
+    return cached.filter((msg: any) => msg.conversationId === otherUserId);
   }
 
   async sendMessage(
