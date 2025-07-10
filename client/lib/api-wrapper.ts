@@ -25,6 +25,28 @@ class NetworkAwareAPIWrapper {
     });
   }
 
+  // Helper function to properly format error messages
+  private formatError(error: any): string {
+    if (!error) return "Unknown error";
+
+    if (typeof error === "string") return error;
+
+    if (error.message) return error.message;
+
+    if (error.error && typeof error.error === "string") return error.error;
+
+    if (error.toString && typeof error.toString === "function") {
+      const errorString = error.toString();
+      if (errorString !== "[object Object]") return errorString;
+    }
+
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return "خطأ غير متوقع";
+    }
+  }
+
   async safeRequest<T>(
     operation: () => Promise<T>,
     fallback?: T,
