@@ -198,6 +198,7 @@ const AppContent = () => {
   return (
     <>
       <NotificationService />
+      <PWAInstallPrompt />
 
       <LocationPermissionDialog
         open={showLocationDialog}
@@ -233,7 +234,7 @@ const AppContent = () => {
           />
         ) : (
           <div className="p-4">
-            <h2 className="text-xl font-bold">نوع حساب غير مدعو��</h2>
+            <h2 className="text-xl font-bold">نو�� حساب غير مدعو��</h2>
           </div>
         )}
       </Layout>
