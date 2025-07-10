@@ -105,12 +105,20 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
 // Main App Component with Authentication State
 const AppContent = () => {
   const [state, store] = useAppStore();
+  const routerLocation = useRouterLocation();
   const [activeTab, setActiveTab] = useState("home");
 
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const { isPermissionRequested } = useLocation();
+
+  // استلام activeTab من navigation state إذا تم تمريره
+  useEffect(() => {
+    if (routerLocation.state?.activeTab) {
+      setActiveTab(routerLocation.state.activeTab);
+    }
+  }, [routerLocation.state]);
 
   // Initialize authentication on app start
   useEffect(() => {
