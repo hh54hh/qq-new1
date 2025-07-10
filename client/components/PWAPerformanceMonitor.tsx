@@ -1,15 +1,4 @@
 import React, { useState, useEffect } from "react";
-
-// Ensure React hooks are available
-if (
-  typeof React === "undefined" ||
-  typeof useState === "undefined" ||
-  typeof useEffect === "undefined"
-) {
-  console.error(
-    "❌ React hooks are not properly imported in PWAPerformanceMonitor",
-  );
-}
 import { Activity, Database, Wifi, Clock, HardDrive } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -36,7 +25,7 @@ export default function PWAPerformanceMonitor() {
   const { isOnline, connectionType } = useNetworkStatus();
 
   useEffect(() => {
-    // حساب مقاييس الأداء
+    // ��ساب مقاييس الأداء
     calculatePerformanceMetrics();
 
     // إخفاء المراقب في بيئة الإنتاج
