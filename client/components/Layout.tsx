@@ -51,12 +51,7 @@ const navItems: NavItem[] = [
     icon: Calendar,
     roles: ["customer"],
   },
-  {
-    id: "messages",
-    label: "المحادثات",
-    icon: MessageCircle,
-    roles: ["customer", "barber"],
-  },
+
   {
     id: "requests",
     label: "طلبات",
