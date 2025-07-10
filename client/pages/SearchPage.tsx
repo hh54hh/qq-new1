@@ -76,9 +76,17 @@ export default function SearchPage({
         setPosts(loadedPosts);
         setFilteredPosts(loadedPosts);
 
-        // TODO: Load user's liked posts when API is ready
-        // For now, initialize empty set
-        setLikedPosts(new Set());
+        // Load user's liked posts
+        try {
+          const likesResponse = await apiClient.getUserLikes();
+          setLikedPosts(new Set(likesResponse.liked_posts));
+        } catch (error) {
+          console.warn(
+            "Failed to load user likes, continuing with empty set:",
+            error,
+          );
+          setLikedPosts(new Set());
+        }
       } catch (error) {
         const errorMessage = error?.message || "Unknown error";
         const isNetworkError =
@@ -108,7 +116,7 @@ export default function SearchPage({
     loadPosts();
   }, []);
 
-  // فلترة المنشورات بناءً على البحث
+  // فلترة المنشو��ات بناءً على البحث
   useEffect(() => {
     let filtered = [...posts];
 
