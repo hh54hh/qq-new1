@@ -477,6 +477,16 @@ export const db = {
       if (error && error.code !== "PGRST116") throw error;
       return !!data;
     },
+
+    async getUserLikes(userId: string): Promise<string[]> {
+      const { data, error } = await supabase
+        .from("post_likes")
+        .select("post_id")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      return data.map((like) => like.post_id);
+    },
   },
 
   // Post Comments
