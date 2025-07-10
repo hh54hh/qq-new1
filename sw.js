@@ -15,6 +15,12 @@ const STATIC_CACHE_URLS = [
   "/offline",
   "/manifest.json",
 
+  // Icons for PWA
+  "/icons/app-icon.svg",
+  "/icons/icon-144x144.svg",
+  "/icons/icon-192x192.svg",
+  "/icons/icon-512x512.svg",
+
   // Core scripts and styles
   "/client/main.tsx",
   "/client/global.css",
@@ -227,7 +233,7 @@ async function handleNavigationRequest(request) {
         <body>
           <div class="logo">✂️</div>
           <h1>غير متصل</h1>
-          <p class="message">لا يمكن الوصول إلى الإنترنت. يرجى التحقق من الاتصال والمحاولة مرة أخرى.</p>
+          <p class="message">لا يمكن الوصول إلى ��لإنترنت. يرجى التحقق من الاتصال والمحاولة مرة أخرى.</p>
           <button class="retry" onclick="window.location.reload()">إعادة المحاولة</button>
         </body>
       </html>
