@@ -25,6 +25,7 @@ import {
   getBookings,
   createBooking,
   updateBooking,
+  deleteBooking,
   getPosts,
   createPost,
   getFollows,
@@ -444,7 +445,7 @@ function createAppWithRoutes(app: express.Application) {
 
     app.post("/api/upload/profile", (req, res) => {
       res.status(501).json({
-        error: "رفع الملفات غير مدعوم في البيئة الحالية",
+        error: "رفع الملفات ��ير مدعوم في البيئة الحالية",
         message: "File uploads are not supported in serverless environment",
         suggestion: "استخدم خدمة رفع ملفات خارجية م��ل Cloudinary أو AWS S3",
       });
