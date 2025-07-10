@@ -42,7 +42,6 @@ import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
 import NetworkStatusBanner from "./components/NetworkStatusBanner";
-import { PWAInstallPrompt } from "./components/PWAInstallButton";
 
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
@@ -150,7 +149,7 @@ const AppContent = () => {
 
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
-    console.log("  - اكتب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
+    console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
   // Check if we need to show location dialog for existing customers
