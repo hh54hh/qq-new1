@@ -144,7 +144,7 @@ class ChatManager {
       await this.storage.saveData("messages", demoMessage, demoMessage.id);
 
       cached = [demoConversation];
-      console.log("👨‍⚖️ تم إضافة مستخدم تجريبي مع رسالة");
+      console.log("👨‍⚖️ تم إ��افة مستخدم تجريبي مع رسالة");
     }
 
     return cached || [];
@@ -299,14 +299,14 @@ class ChatManager {
         // Update conversation
         const conversation = await this.storage.getData(
           "conversations",
-          conversationId,
+          otherUserId,
         );
         if (conversation) {
           conversation.unreadCount = 0;
           await this.storage.saveData(
             "conversations",
             conversation,
-            conversationId,
+            otherUserId,
           );
           this.emit("conversation:read", conversation);
         }
@@ -315,8 +315,8 @@ class ChatManager {
       // Queue for later sync
       await this.storage.saveData(
         "pendingConversationReads",
-        { conversationId, timestamp: Date.now() },
-        conversationId,
+        { conversationId: otherUserId, timestamp: Date.now() },
+        otherUserId,
       );
     }
   }
