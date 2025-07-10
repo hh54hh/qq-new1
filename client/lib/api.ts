@@ -62,7 +62,7 @@ class ApiClient {
         return window.location.origin + "/.netlify/functions/api";
       }
 
-      // لجميع البيئات ا����خ��ى (fly.dev وغيرها) استخدم /api العادي
+      // لجميع البيئات ال��خ��ى (fly.dev وغيرها) استخدم /api العادي
       return window.location.origin + "/api";
     }
     // للخادم أو SSR
@@ -133,7 +133,7 @@ class ApiClient {
     }
 
     console.warn("⚠️ لم يتم العث��ر على API على أي من المسار��ت المت��قعة");
-    // في حالة عدم العثور على API، استخدم المسار الا��تراضي
+    // في حالة عدم الع��ور على API، استخدم المسار الا��تراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
 
@@ -286,7 +286,7 @@ class ApiClient {
                 suggestion =
                   "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
-                errorMessage = "انتهت صلاحية ج��سة الم��تخدم";
+                errorMessage = "انتهت صلاحية ج��سة المستخدم";
                 errorType = "SESSION_EXPIRED";
                 suggestion = "يرجى تسجيل الدخول مرة أخرى";
 
@@ -406,7 +406,7 @@ class ApiClient {
           networkErrorMessage = "خطأ في ا����شبكة";
           suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
         } else if (error.message.includes("timeout")) {
-          networkErrorMessage = "ا��تهت مهلة الاتصال";
+          networkErrorMessage = "ا��تهت مهلة ��لاتصال";
           suggestion = "الاتصال بطيء، يرجى المحاولة مرة أخرى";
         }
 
@@ -1088,6 +1088,44 @@ class ApiClient {
         console.error(`  Raw Error: [Complex Object - cannot stringify]`);
       }
     }
+  }
+
+  // Messages
+  async getConversations(): Promise<{ conversations: any[]; total: number }> {
+    return this.request<{ conversations: any[]; total: number }>(
+      "/messages/conversations",
+    );
+  }
+
+  async getMessages(
+    otherUserId: string,
+  ): Promise<{ messages: any[]; total: number }> {
+    return this.request<{ messages: any[]; total: number }>(
+      `/messages/${otherUserId}`,
+    );
+  }
+
+  async createMessage(messageData: {
+    receiver_id: string;
+    message: string;
+    message_type?: "text" | "image" | "voice" | "system";
+  }): Promise<any> {
+    return this.request<any>("/messages", {
+      method: "POST",
+      body: JSON.stringify(messageData),
+    });
+  }
+
+  async markMessageAsRead(messageId: string): Promise<void> {
+    return this.request<void>(`/messages/${messageId}/read`, {
+      method: "PATCH",
+    });
+  }
+
+  async markConversationAsRead(otherUserId: string): Promise<void> {
+    return this.request<void>(`/messages/conversations/${otherUserId}/read`, {
+      method: "PATCH",
+    });
   }
 }
 
