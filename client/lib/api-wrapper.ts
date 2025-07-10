@@ -142,6 +142,13 @@ class NetworkAwareAPIWrapper {
     });
   }
 
+  async deleteAccount(password: string) {
+    return this.safeRequest(() => this.apiClient.deleteAccount(password), {
+      success: false,
+      message: "فشل في حذف الحساب - تحقق من الاتصال بالشبكة",
+    });
+  }
+
   // Utility methods
   getNetworkStatus() {
     return {
