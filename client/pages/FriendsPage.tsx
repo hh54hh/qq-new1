@@ -13,7 +13,6 @@ import {
   Search,
   Users,
   Heart,
-  MessageCircle,
 } from "lucide-react";
 import { User, FriendRequest, FriendRequestStatus } from "@shared/api";
 import { useAppStore } from "@/lib/store";
