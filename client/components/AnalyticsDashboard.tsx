@@ -96,7 +96,10 @@ const mockData: AnalyticsData = {
   },
 };
 
-export default function AnalyticsDashboard({ user }: AnalyticsDashboardProps) {
+export default function AnalyticsDashboard({
+  user,
+  onBack,
+}: AnalyticsDashboardProps) {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState("30d");
@@ -391,7 +394,7 @@ export default function AnalyticsDashboard({ user }: AnalyticsDashboardProps) {
                       <div>
                         <p className="font-medium">{service.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {service.count} حجز
+                          {service.count} ��جز
                         </p>
                       </div>
                     </div>
@@ -429,7 +432,7 @@ export default function AnalyticsDashboard({ user }: AnalyticsDashboardProps) {
               format="currency"
             />
             <StatCard
-              title="النمو ��لشهري"
+              title="النمو الشهري"
               value={Math.round(
                 ((data.monthlyRevenue[3] - data.monthlyRevenue[2]) /
                   data.monthlyRevenue[2]) *
