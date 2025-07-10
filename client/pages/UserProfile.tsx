@@ -15,6 +15,7 @@ import {
   Edit,
   UserPlus,
   UserMinus,
+  MessageCircle,
 } from "lucide-react";
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
 import networkAwareAPI from "@/lib/api-wrapper";
 import PostViewPage from "./PostViewPage";
+import { useNavigate } from "react-router-dom";
 
 interface UserProfileProps {
   profileUser: User & {
@@ -53,6 +55,7 @@ export default function UserProfile({
   onStartChat,
 }: UserProfileProps) {
   const [state, store] = useAppStore();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("posts");
   const [isFollowing, setIsFollowing] = useState(
     profileUser.isFollowed || false,
@@ -153,7 +156,7 @@ export default function UserProfile({
     if (level >= 100) return "VIP";
     if (level >= 51) return "ذهبي";
     if (level >= 21) return "مح��رف";
-    return "مبتدئ";
+    return "م��تدئ";
   };
 
   const handleFollowToggle = async () => {
@@ -222,6 +225,36 @@ export default function UserProfile({
       }
     } catch (error) {
       console.error("Error toggling like:", error);
+    }
+  };
+
+  // دالة بدء المحادثة
+  const handleStartChat = () => {
+    if (!profileUser?.id || !profileUser?.name) {
+      console.error("معلومات المستخدم مفقودة");
+      return;
+    }
+
+    // إنشاء معاملات URL للمحادثة
+    const chatParams = new URLSearchParams({
+      with: profileUser.id,
+      name: profileUser.name,
+      role: profileUser.role || "user",
+    });
+
+    // إضافة الصورة الرمزية إذ�� توفرت
+    if (profileUser.avatar_url) {
+      chatParams.set("avatar", profileUser.avatar_url);
+    }
+
+    // التنقل إلى صفحة المحادثة
+    navigate(`/chat?${chatParams.toString()}`);
+
+    console.log(`💬 فتح محادثة مع ${profileUser.name}`);
+
+    // استدعاء دالة onStartChat إذا كانت متاحة
+    if (onStartChat) {
+      onStartChat(profileUser.id, profileUser.name);
     }
   };
 
@@ -318,37 +351,48 @@ export default function UserProfile({
 
             {/* أزرار التفاعل */}
             {profileUser.id !== currentUser.id && (
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleFollowToggle}
-                  variant={isFollowing ? "outline" : "default"}
-                  className="flex-1"
-                >
-                  {isFollowing ? (
-                    <>
-                      <UserMinus className="h-4 w-4 mr-2" />
-                      إلغاء المتابعة
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      متابعة
-                    </>
-                  )}
-                </Button>
-
+              <div className="space-y-3">
+                {/* الص�� الأول: متابعة ومحادثة */}
                 <div className="flex gap-3">
-                  {profileUser.role === "barber" && (
-                    <Button
-                      variant="outline"
-                      onClick={onBooking}
-                      className="flex-1 sm:flex-none text-sm"
-                    >
-                      <Calendar className="h-4 w-4 mr-2" />
-                      حجز موعد
-                    </Button>
-                  )}
+                  <Button
+                    onClick={handleFollowToggle}
+                    variant={isFollowing ? "outline" : "default"}
+                    className="flex-1"
+                  >
+                    {isFollowing ? (
+                      <>
+                        <UserMinus className="h-4 w-4 mr-2" />
+                        إلغاء المتابعة
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        متابعة
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={handleStartChat}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    محادثة
+                  </Button>
                 </div>
+
+                {/* الصف الثاني: حجز موعد (للحلاقين فقط) */}
+                {profileUser.role === "barber" && (
+                  <Button
+                    variant="outline"
+                    onClick={onBooking}
+                    className="w-full"
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    حجز موعد
+                  </Button>
+                )}
               </div>
             )}
           </CardContent>

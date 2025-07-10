@@ -162,7 +162,9 @@ export default function ChatPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/dashboard")}
+              onClick={() =>
+                navigate("/dashboard", { state: { activeTab: "messages" } })
+              }
               className="p-2 -ml-2"
             >
               <ArrowRight className="h-5 w-5" />

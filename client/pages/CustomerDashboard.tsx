@@ -1245,39 +1245,6 @@ export default function CustomerDashboard({
           </div>
         </div>
 
-        {/* Debug Info */}
-        {process.env.NODE_ENV === "development" && (
-          <div className="bg-muted p-4 rounded-lg text-sm space-y-2">
-            <p>🔍 Debug Info:</p>
-            <p>• User ID: {user?.id}</p>
-            <p>• All Barbers: {allBarbers.length}</p>
-            <p>• Filtered Barbers: {filteredBarbers.length}</p>
-            <p>• Loading: {state.isLoading ? "Yes" : "No"}</p>
-            <p>
-              • Location:{" "}
-              {userLocation
-                ? `${userLocation.lat}, ${userLocation.lng}`
-                : "Not available"}
-            </p>
-            <div className="flex gap-2 mt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => loadBarbers()}
-                disabled={state.isLoading}
-              >
-                🔄 إعادة تحميل الحلاقين
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => console.log("All barbers data:", allBarbers)}
-              >
-                📋 طباعة البيان��ت
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* Followed Barbers Section */}
         {followedBarbers.length > 0 && (
