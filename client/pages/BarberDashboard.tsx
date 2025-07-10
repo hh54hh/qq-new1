@@ -868,7 +868,7 @@ export default function BarberDashboard({
             onClick={() => setShowServicesManagement(true)}
           >
             <Scissors className="h-4 w-4" />
-            إدارة الخدمات
+            إدارة ال��دمات
           </Button>
           <Button
             variant="outline"
@@ -1074,8 +1074,7 @@ export default function BarberDashboard({
       return <FriendsPage user={user} />;
     case "requests":
       return renderRequests();
-    case "messages":
-      return <SmartMessagesPage targetUserId={targetChatUserId} />;
+
     case "new-post":
       return renderNewPost();
     case "profile":
