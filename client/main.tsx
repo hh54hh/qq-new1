@@ -37,11 +37,11 @@ async function debugIndexedDB() {
     request.onerror = (event) => {
       console.error(
         "❌ [STARTUP] فشل في فتح قاعدة البيانات:",
-        event.target.error,
+        (event.target as IDBOpenDBRequest).error,
       );
     };
   } catch (error) {
-    console.error("❌ [STARTUP] خطأ في فحص قاعدة البيا��ات:", error);
+    console.error("❌ [STARTUP] خطأ في فحص قاعدة البيانات:", error);
   }
 }
 
