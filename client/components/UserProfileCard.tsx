@@ -19,8 +19,7 @@ import { motion } from "framer-motion";
 interface UserProfileCardProps {
   user: User;
   currentUser: User;
-  onStartChat: (user: User) => void;
-  onStartChatNew?: (userId: string, userName: string) => void;
+
   onCall?: (user: User) => void;
   onVideoCall?: (user: User) => void;
   className?: string;
@@ -30,8 +29,7 @@ interface UserProfileCardProps {
 export default function UserProfileCard({
   user,
   currentUser,
-  onStartChat,
-  onStartChatNew,
+
   onCall,
   onVideoCall,
   className,
@@ -197,7 +195,7 @@ export default function UserProfileCard({
                 <div className="text-lg font-bold text-primary">
                   {Math.floor(Math.random() * 100) + 50}
                 </div>
-                <div className="text-xs text-muted-foreground">عميل سعيد</div>
+                <div className="text-xs text-muted-foreground">��ميل سعيد</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold text-golden-600">
