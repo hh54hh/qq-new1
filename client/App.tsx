@@ -23,6 +23,7 @@ import NotificationService from "./components/NotificationService";
 import NotificationsCenter from "./pages/NotificationsCenter";
 
 import LocationPermissionDialog from "./components/LocationPermissionDialog";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import DebugPage from "./pages/DebugPage";
 import DiagnosticPage from "./pages/DiagnosticPage";
 import SystemDiagnostic from "./pages/SystemDiagnostic";
