@@ -16,6 +16,10 @@ import {
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import apiClient from "@/lib/api";
+import {
+  MessageSkeleton,
+  ListSkeleton,
+} from "@/components/ui/loading-skeleton";
 
 interface MessagesPageProps {
   user: User;
