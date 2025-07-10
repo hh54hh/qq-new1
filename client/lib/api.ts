@@ -1059,7 +1059,7 @@ class ApiClient {
 
       return response;
     } catch (error) {
-      console.error("❌ فشل إرسال الرسالة:", error);
+      console.error("❌ فشل إرسال ��لرسالة:", error);
       throw error;
     }
   }
@@ -1196,6 +1196,9 @@ class ApiClient {
 
 // Create singleton instance
 const apiClient = new ApiClient();
+
+// Export the class for cases where it might be needed
+export { ApiClient };
 
 // دالة تشخيص سريعة لاختبار API
 export const diagnoseAPI = async () => {
