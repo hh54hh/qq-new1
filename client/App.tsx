@@ -34,21 +34,10 @@ import OfflinePage from "./pages/OfflinePage";
 
 import IndexedDBStatus from "./components/debug/IndexedDBStatus";
 
-import PWAManager from "./components/PWAManager";
-import PWAUpdateNotification, {
-  PWAStatusBar,
-} from "./components/PWAUpdateNotification";
-import PWAPerformanceMonitor, {
-  usePWAMonitorConsole,
-} from "./components/PWAPerformanceMonitor";
-import NetworkStatusBanner from "./components/NetworkStatusBanner";
-
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
-
-import { usePWA, useNetworkStatus } from "./hooks/use-pwa";
 
 const queryClient = new QueryClient();
 
@@ -148,7 +137,7 @@ const AppContent = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفتح ص��حة التشخيص");
     console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -299,7 +288,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إض��فة دالة عالمية لفتح صفحة التشخيص
+    // إض��فة دالة عالم��ة لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
