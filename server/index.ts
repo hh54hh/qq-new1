@@ -51,18 +51,13 @@ import {
   getAdminStats,
   getAllUsers,
 } from "./routes/barbershop";
-import {
-  getConversations,
-  getMessages,
-  sendMessage,
-  markMessagesAsRead,
-  getUnreadCount,
-  deleteConversation,
-} from "./routes/messages";
+
 import { uploadImage, uploadProfileImage } from "./routes/upload";
 import {
   searchBarbers as advancedSearchBarbers,
   getRecommendations,
+  searchUsers,
+  getUserById,
 } from "./routes/search";
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 import { getSystemDiagnostic } from "./routes/system-diagnostic";
@@ -348,6 +343,14 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/api/barbers/recommendations", getRecommendations);
   app.get("/barbers/recommendations", getRecommendations);
 
+  // User search routes
+  app.get("/api/users/search", searchUsers);
+  app.get("/users/search", searchUsers);
+
+  // Get user by ID
+  app.get("/api/users/:id", getUserById);
+  app.get("/users/:id", getUserById);
+
   // Bookings routes - both paths
   app.get("/api/bookings", getBookings);
   app.get("/bookings", getBookings);
@@ -493,14 +496,6 @@ function createAppWithRoutes(app: express.Application) {
       res.status(500).json({ error: "خطأ في إرسال الإشعار" });
     }
   });
-
-  // Messages routes
-  app.get("/api/messages/conversations", getConversations);
-  app.get("/api/messages/unread-count", getUnreadCount);
-  app.get("/api/messages/:otherUserId", getMessages);
-  app.post("/api/messages", sendMessage);
-  app.patch("/api/messages/:senderId/read", markMessagesAsRead);
-  app.delete("/api/messages/:otherUserId", deleteConversation);
 
   return app;
 }

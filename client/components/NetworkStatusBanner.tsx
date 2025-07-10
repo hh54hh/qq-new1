@@ -1,12 +1,23 @@
 import { useState, useEffect } from "react";
 import { Wifi, WifiOff, AlertCircle, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useNetworkStatus } from "@/lib/chat-storage";
-
 export default function NetworkStatusBanner() {
-  const isOnline = useNetworkStatus();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showBanner, setShowBanner] = useState(false);
   const [wasOffline, setWasOffline] = useState(false);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isOnline) {

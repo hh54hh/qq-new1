@@ -15,7 +15,6 @@ import { User as UserType, UserRole } from "@shared/api";
 import { useAppStore } from "@/lib/store";
 import LocationBar from "./LocationBar";
 import apiClient from "@/lib/api";
-import { useNetworkStatus } from "@/lib/chat-storage";
 
 interface LayoutProps {
   children: ReactNode;
@@ -24,7 +23,6 @@ interface LayoutProps {
   onTabChange: (tab: string) => void;
   onLogout?: () => void;
   onShowNotifications?: () => void;
-  onShowMessages?: () => void;
 }
 
 interface NavItem {
@@ -53,6 +51,7 @@ const navItems: NavItem[] = [
     icon: Calendar,
     roles: ["customer"],
   },
+
   {
     id: "requests",
     label: "طلبات",
@@ -80,47 +79,10 @@ export default function Layout({
   onTabChange,
   onLogout,
   onShowNotifications,
-  onShowMessages,
 }: LayoutProps) {
   const [state] = useAppStore();
-  const [unreadMessages, setUnreadMessages] = useState(0);
-  const [messageLoadErrors, setMessageLoadErrors] = useState(0);
+
   const unreadNotifications = state.notifications.filter((n) => !n.read).length;
-  const isOnline = useNetworkStatus();
-
-  // Load unread message count with better error handling
-  useEffect(() => {
-    const loadUnreadCount = async () => {
-      // لا تحمّل إذا لم يكن هناك اتصال
-      if (!isOnline) {
-        return;
-      }
-
-      try {
-        const response = await apiClient.getUnreadMessageCount();
-        setUnreadMessages(response.count);
-        setMessageLoadErrors(0); // إعادة تعيين عداد الأخطاء
-      } catch (error: any) {
-        setMessageLoadErrors((prev) => prev + 1);
-
-        // طباعة أقل للأخطاء المتكررة
-        if (messageLoadErrors < 2) {
-          console.warn(
-            `⚠️ فشل تحميل عدد الرسائل (${messageLoadErrors + 1}/3):`,
-            error.message,
-          );
-        }
-      }
-    };
-
-    if (isOnline) {
-      loadUnreadCount();
-    }
-
-    // Refresh every 30 seconds
-    const interval = setInterval(loadUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const userNavItems = navItems.filter((item) =>
     item.roles.includes(user.role),
@@ -166,20 +128,6 @@ export default function Layout({
                 </span>
                 <span className="text-primary font-medium">{user.points}</span>
               </div>
-            )}
-
-            {onShowMessages && (
-              <button
-                onClick={onShowMessages}
-                className="relative p-1.5 sm:p-2 hover:bg-muted/50 rounded-lg transition-colors"
-              >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-foreground" />
-                {unreadMessages > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
-                    {unreadMessages > 9 ? "9+" : unreadMessages}
-                  </span>
-                )}
-              </button>
             )}
 
             {onShowNotifications && (
@@ -244,18 +192,20 @@ export default function Layout({
                 key={item.id}
                 onClick={() => onTabChange(item.id)}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-all duration-200 min-w-[50px] sm:min-w-[60px]",
+                  "relative flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-all duration-200 min-w-[50px] sm:min-w-[60px]",
                   isActive
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                 )}
               >
-                <Icon
-                  className={cn(
-                    "h-4 w-4 sm:h-5 sm:w-5",
-                    isActive && "scale-110",
-                  )}
-                />
+                <div className="relative">
+                  <Icon
+                    className={cn(
+                      "h-4 w-4 sm:h-5 sm:w-5",
+                      isActive && "scale-110",
+                    )}
+                  />
+                </div>
                 <span className="text-xs font-medium truncate">
                   {item.label}
                 </span>

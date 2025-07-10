@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowRight,
   Heart,
-  MessageCircle,
+  Edit,
   Send,
   MoreHorizontal,
   Bookmark,
@@ -193,7 +193,7 @@ export default function PostViewPage({
                 />
               </button>
               <button className="p-2 -m-2 hover:scale-110 transition-transform">
-                <MessageCircle className="h-6 w-6 text-foreground" />
+                <Edit className="h-6 w-6 text-foreground" />
               </button>
               <button className="p-2 -m-2 hover:scale-110 transition-transform">
                 <Share className="h-6 w-6 text-foreground" />
@@ -271,7 +271,7 @@ export default function PostViewPage({
 
             {comments.length === 0 && !isLoadingComments && (
               <div className="text-center py-6">
-                <MessageCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <Edit className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">
                   لا توجد تعليقات بعد
                 </p>

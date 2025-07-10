@@ -17,7 +17,6 @@ import {
   Star,
   ArrowRight,
   ThumbsUp,
-  MessageCircle,
   Calendar,
   CheckCircle,
 } from "lucide-react";
@@ -195,7 +194,7 @@ export default function RatingPage({
   };
 
   const getLevelIcon = (level: number) => {
-    if (level >= 100) return "🟠";
+    if (level >= 100) return "���";
     if (level >= 51) return "🟡";
     if (level >= 21) return "🔹";
     return "🔸";

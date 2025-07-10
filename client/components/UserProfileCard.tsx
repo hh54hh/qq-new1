@@ -3,7 +3,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  MessageCircle,
   Phone,
   Video,
   Star,
@@ -15,13 +14,11 @@ import {
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { StartChatButton } from "@/components/EnhancedStartChatButton";
 
 interface UserProfileCardProps {
   user: User;
   currentUser: User;
-  onStartChat: (user: User) => void;
-  onStartChatNew?: (userId: string, userName: string) => void;
+
   onCall?: (user: User) => void;
   onVideoCall?: (user: User) => void;
   className?: string;
@@ -31,8 +28,7 @@ interface UserProfileCardProps {
 export default function UserProfileCard({
   user,
   currentUser,
-  onStartChat,
-  onStartChatNew,
+
   onCall,
   onVideoCall,
   className,
@@ -198,7 +194,7 @@ export default function UserProfileCard({
                 <div className="text-lg font-bold text-primary">
                   {Math.floor(Math.random() * 100) + 50}
                 </div>
-                <div className="text-xs text-muted-foreground">عميل سعيد</div>
+                <div className="text-xs text-muted-foreground">��ميل سعيد</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold text-golden-600">
@@ -219,25 +215,6 @@ export default function UserProfileCard({
           {/* أزرار التفاعل */}
           {showActions && !isCurrentUser && (
             <div className="flex gap-3">
-              {/* زر بدء المحادثة */}
-              {onStartChatNew ? (
-                <StartChatButton
-                  userId={user.id}
-                  userName={user.name}
-                  onStartChat={onStartChatNew}
-                  variant="profile"
-                  className="flex-1"
-                />
-              ) : (
-                <Button
-                  onClick={() => onStartChat(user)}
-                  className="flex-1 bg-gradient-to-r from-primary to-golden-600 hover:from-primary/90 hover:to-golden-500 text-primary-foreground border-0 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  بدء محادثة
-                </Button>
-              )}
-
               {/* أزرار الاتصال */}
               <div className="flex gap-2">
                 {onCall && (
@@ -265,7 +242,7 @@ export default function UserProfileCard({
             </div>
           )}
 
-          {/* رسالة للمستخدم الحالي */}
+          {/* رسالة للمس��خدم الحالي */}
           {isCurrentUser && (
             <div className="text-center p-4 bg-primary/5 rounded-xl border border-primary/20">
               <p className="text-sm text-primary font-medium">

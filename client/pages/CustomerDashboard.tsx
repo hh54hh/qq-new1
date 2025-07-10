@@ -50,14 +50,12 @@ interface CustomerDashboardProps {
   user: User;
   activeTab: string;
   onLogout?: () => void;
-  onStartChat?: (targetUser: User) => void; // دالة بدء الدردشة الجديدة
 }
 
 export default function CustomerDashboard({
   user,
   activeTab,
   onLogout,
-  onStartChat,
 }: CustomerDashboardProps) {
   const [state, store] = useAppStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -74,8 +72,6 @@ export default function CustomerDashboard({
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showFollowedBarbers, setShowFollowedBarbers] = useState(false);
   const [showNearbyBarbers, setShowNearbyBarbers] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
-  const [messageTargetUser, setMessageTargetUser] = useState<any | null>(null);
 
   const [allBarbers, setAllBarbers] = useState<any[]>([]);
   const [filteredBarbers, setFilteredBarbers] = useState<any[]>([]);
@@ -289,7 +285,7 @@ export default function CustomerDashboard({
   }, [user.id]);
 
   const loadFriendRequests = () => {
-    // إضافة طلبات صداقة تجريبية للإشعارات
+    // إضافة طلب��ت صداقة تجريبية للإشعارات
     const friendRequests = [
       {
         id: "friend_req_1",
@@ -319,7 +315,7 @@ export default function CustomerDashboard({
       },
     ];
 
-    // إضافة طلبات الصداقة للإشعارات إذا لم تكن موج��دة
+    // إضافة طل��ات الصداقة للإشعارات إذا لم تكن مو����دة
     friendRequests.forEach((request) => {
       const exists = state.notifications.some((n) => n.id === request.id);
       if (!exists) {
@@ -351,7 +347,7 @@ export default function CustomerDashboard({
         console.warn("⚠️ Ping failed:", pingError);
       }
 
-      // Load barbers
+      // Load barbers with fallback
       const barbersResponse = await apiClient.getBarbers();
       console.log("📋 Barbers response:", barbersResponse);
       console.log("📋 Barbers data:", barbersResponse.barbers);
@@ -636,7 +632,8 @@ export default function CustomerDashboard({
           id: Date.now().toString(),
           type: "friend_request",
           title: "خطأ في المتابعة",
-          message: "حدث خطأ أثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
+          message:
+            "حدث خطأ ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
           read: false,
           created_at: new Date().toISOString(),
@@ -694,7 +691,7 @@ export default function CustomerDashboard({
 
   const loadProfileData = async () => {
     try {
-      // تحميل الإحصائيات
+      // ت��ميل الإحصا��يات
       const bookingsData = await apiClient.getBookings();
 
       // تحميل المتابعين والمتابعين
@@ -818,9 +815,9 @@ export default function CustomerDashboard({
   const getBookingStatusLabel = (status: string) => {
     switch (status) {
       case "pending":
-        return "با�����تظار";
+        return "��ا�����تظا��";
       case "accepted":
-        return "مق��و��";
+        return "��ق��و��";
       case "rejected":
         return "مرفوض";
       case "cancelled":
@@ -955,7 +952,7 @@ export default function CustomerDashboard({
                   لا تت��بع أي حلاق
                 </h3>
                 <p className="text-muted-foreground">
-                  ابدأ بمتابعة الحلاقين لرؤ��تهم ه��ا
+                  ا��دأ بمتابعة الحلاقين لرؤ��تهم ه��ا
                 </p>
               </CardContent>
             </Card>
@@ -1076,7 +1073,7 @@ export default function CustomerDashboard({
               <CardContent className="p-8 text-center">
                 <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  ��ا توجد ح��اقين قريبين
+                  ��ا توجد ����اقين قريبين
                 </h3>
                 <p className="text-muted-foreground">
                   جاري ��لبحث عن حلاقين في منطقت��
@@ -1130,25 +1127,6 @@ export default function CustomerDashboard({
             loadBarbers();
           }, 500);
         }}
-        onMessage={() => {
-          setShowProfile(false);
-          if (onStartChat && selectedProfile) {
-            onStartChat(selectedProfile);
-          } else {
-            // الط��يقة القديمة كبديل
-            setMessageTargetUser(selectedProfile);
-            setShowMessages(true);
-          }
-        }}
-        onStartChat={
-          onStartChat
-            ? (userId: string, userName: string) => {
-                setShowProfile(false);
-                const user = { id: userId, name: userName };
-                onStartChat(user as any);
-              }
-            : undefined
-        }
       />
     );
   }
@@ -1224,7 +1202,7 @@ export default function CustomerDashboard({
                 <div className="flex items-center gap-2">
                   <div className="animate-spin h-3 w-3 border border-primary border-t-transparent rounded-full"></div>
                   <span className="text-sm text-primary">
-                    جاري تحديد الموقع...
+                    جاري ��حديد الموقع...
                   </span>
                 </div>
               ) : userLocation ? (
@@ -1247,7 +1225,7 @@ export default function CustomerDashboard({
                     className="text-xs text-primary p-0 h-auto ml-2"
                     onClick={requestLocation}
                   >
-                    إعادة ����لمحاولة
+                    إعادة ����ل��حاولة
                   </Button>
                 </div>
               )}
@@ -1293,7 +1271,7 @@ export default function CustomerDashboard({
                 size="sm"
                 onClick={() => console.log("All barbers data:", allBarbers)}
               >
-                📋 طباعة البيانات
+                📋 طباعة البيان��ت
               </Button>
             </div>
           </div>
@@ -1304,7 +1282,7 @@ export default function CustomerDashboard({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-semibold text-foreground">
-                الحلاقين المتابعين
+                الحلا��ين المتابعين
               </h3>
               <Button
                 variant="ghost"
@@ -1702,7 +1680,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جرب البحث بكلمة أخرى من المنشورات المميزة"
+              ? "جرب البحث بكلمة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
@@ -1946,7 +1924,7 @@ export default function CustomerDashboard({
                     <div className="flex-1">
                       <h4 className="font-medium">
                         {follow.followed?.name ||
-                          `مستخدم ${follow.followed_id.slice(-4)}`}
+                          `مستخ��م ${follow.followed_id.slice(-4)}`}
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         {follow.followed?.role === "barber" ? "حلاق" : "زبون"}
@@ -2009,7 +1987,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">حجوزات</p>
+                <p className="text-sm text-muted-foreground">ح��وز��ت</p>
               </div>
               <div
                 className="cursor-pointer"
@@ -2063,7 +2041,7 @@ export default function CustomerDashboard({
             className="w-full justify-start gap-3"
             onClick={onLogout}
           >
-            تسجيل خروج
+            ��سجيل خروج
           </Button>
         </div>
       </div>
@@ -2077,6 +2055,7 @@ export default function CustomerDashboard({
       return renderSearch();
     case "bookings":
       return renderBookings();
+
     case "profile":
       return renderProfile();
     default:

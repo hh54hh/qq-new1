@@ -1,11 +1,17 @@
 import "./global.css";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, Component } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useSearchParams,
+} from "react-router-dom";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -24,7 +30,9 @@ import NetworkDiagnostic from "./pages/NetworkDiagnostic";
 import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
-import MessagesPage from "./pages/MessagesPage";
+
+import IndexedDBStatus from "./components/debug/IndexedDBStatus";
+
 import PWAManager from "./components/PWAManager";
 import PWAUpdateNotification, {
   PWAStatusBar,
@@ -38,22 +46,79 @@ import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
-import { useMessageNotifications } from "./hooks/use-message-notifications";
+
 import { usePWA, useNetworkStatus } from "./hooks/use-pwa";
 
 const queryClient = new QueryClient();
+
+// Simple Error Boundary Class Component
+class SimpleErrorBoundary extends Component<
+  { children: React.ReactNode; fallback?: React.ComponentType<any> },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error("Error Boundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const FallbackComponent = this.props.fallback || ErrorFallback;
+      return (
+        <FallbackComponent
+          error={this.state.error}
+          resetErrorBoundary={() => {
+            this.setState({ hasError: false, error: undefined });
+            window.location.reload();
+          }}
+        />
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// Error Fallback Component
+function ErrorFallback({ error, resetErrorBoundary }: any) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
+        <h2 className="text-2xl font-bold text-red-600 mb-4">حدث خطأ</h2>
+        <p className="text-gray-600 mb-6">
+          عذراً، حدث خطأ غير متوقع في التطبيق
+        </p>
+        <pre className="text-sm bg-gray-100 p-4 rounded mb-4 text-left overflow-auto">
+          {error.message}
+        </pre>
+        <button
+          onClick={resetErrorBoundary}
+          className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
+        >
+          إعادة تحميل الصفحة
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // Main App Component with Authentication State
 const AppContent = () => {
   const [state, store] = useAppStore();
   const [activeTab, setActiveTab] = useState("home");
+
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   const { isPermissionRequested } = useLocation();
-
-  // Enable message notifications
-  useMessageNotifications();
 
   // Initialize authentication on app start
   useEffect(() => {
@@ -75,7 +140,7 @@ const AppContent = () => {
       console.log("🔧 تم فتح صفحة التشخيص");
     };
 
-    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
+    // إضافة دالة عالمية ��فتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
@@ -83,7 +148,7 @@ const AppContent = () => {
 
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
-    console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
+    console.log("  - اكتب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
   // Check if we need to show location dialog for existing customers
@@ -117,7 +182,7 @@ const AppContent = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-500 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جارٍ التحميل...</p>
+          <p className="text-muted-foreground">جارٍ ��لتحميل...</p>
         </div>
       </div>
     );
@@ -131,6 +196,7 @@ const AppContent = () => {
   return (
     <>
       <NotificationService />
+
       <LocationPermissionDialog
         open={showLocationDialog}
         onOpenChange={setShowLocationDialog}
@@ -139,30 +205,23 @@ const AppContent = () => {
       <Layout
         user={state.user}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+        }}
         onLogout={handleLogout}
         onShowNotifications={() => (window.location.href = "/notifications")}
-        onShowMessages={() => {
-          window.location.href = "/messages";
-        }}
       >
         {state.user.role === "customer" ? (
           <CustomerDashboard
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
-            onStartChat={(user) =>
-              (window.location.href = `/messages?user=${user.id}`)
-            }
           />
         ) : state.user.role === "barber" ? (
           <BarberDashboard
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
-            onStartChat={(user) =>
-              (window.location.href = `/messages?user=${user.id}`)
-            }
           />
         ) : state.user.role === "admin" ? (
           <AdminDashboard
@@ -172,7 +231,7 @@ const AppContent = () => {
           />
         ) : (
           <div className="p-4">
-            <h2 className="text-xl font-bold">نوع حساب غير مدعوم</h2>
+            <h2 className="text-xl font-bold">نوع حساب غير مدعو��</h2>
           </div>
         )}
       </Layout>
@@ -196,16 +255,6 @@ const NotificationsRoute = () => {
   );
 };
 
-const MessagesRoute = () => {
-  const [state] = useAppStore();
-
-  if (!state.user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  return <MessagesPage user={state.user} />;
-};
-
 const DebugRoute = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -215,7 +264,7 @@ const DebugRoute = () => {
           onClick={() => window.history.back()}
           className="mb-4"
         >
-          ← ال��ودة للتطبيق
+          ← ال��ودة للتطب��ق
         </Button>
       </div>
       <DebugPage />
@@ -248,7 +297,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إضافة دالة عالمية لفتح صفحة التشخيص
+    // إض��فة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
@@ -260,9 +309,9 @@ const App = () => {
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
     };
 
-    console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
-    console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
+    console.log("💡 نصا��ح مفيدة:");
+    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة ��لتشخيص");
+    console.log("  - اكتب openDiagnostic() في ا����ونسول لفتح التشخيص الشامل");
   }, []);
 
   return (
@@ -297,9 +346,15 @@ const App = () => {
             <Route path="/offline" element={<OfflinePage />} />
 
             {/* Authenticated routes */}
-            <Route path="/dashboard" element={<AppContent />} />
+            <Route
+              path="/dashboard"
+              element={
+                <SimpleErrorBoundary fallback={ErrorFallback}>
+                  <AppContent />
+                </SimpleErrorBoundary>
+              }
+            />
             <Route path="/notifications" element={<NotificationsRoute />} />
-            <Route path="/messages" element={<MessagesRoute />} />
 
             {/* Catch all route - show 404 page */}
             <Route path="*" element={<NotFound />} />

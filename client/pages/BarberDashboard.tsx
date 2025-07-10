@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+
 import {
   Clock,
   Check,
@@ -13,7 +14,6 @@ import {
   Camera,
   Image as ImageIcon,
   Calendar,
-  MessageCircle,
   TrendingUp,
   Award,
   Settings,
@@ -36,14 +36,12 @@ interface BarberDashboardProps {
   user: User;
   activeTab: string;
   onLogout?: () => void;
-  onStartChat?: (targetUser: User) => void;
 }
 
 export default function BarberDashboard({
   user,
   activeTab,
   onLogout,
-  onStartChat,
 }: BarberDashboardProps) {
   const [state, store] = useAppStore();
   const [newPostCaption, setNewPostCaption] = useState("");
@@ -93,8 +91,6 @@ export default function BarberDashboard({
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
-  const [messageTargetUser, setMessageTargetUser] = useState<any | null>(null);
 
   // Load data on component mount
   useEffect(() => {
@@ -168,7 +164,7 @@ export default function BarberDashboard({
   const getLevelLabel = (level: number) => {
     if (level >= 100) return "VIP";
     if (level >= 51) return "ذهبي";
-    if (level >= 21) return "محترف";
+    if (level >= 21) return "مح��رف";
     return "مبتدئ";
   };
 
@@ -182,24 +178,6 @@ export default function BarberDashboard({
           setShowProfile(false);
           setSelectedProfile(null);
         }}
-        onMessage={() => {
-          setShowProfile(false);
-          if (onStartChat && selectedProfile) {
-            onStartChat(selectedProfile);
-          } else {
-            setMessageTargetUser(selectedProfile);
-            setShowMessages(true);
-          }
-        }}
-        onStartChat={
-          onStartChat
-            ? (userId: string, userName: string) => {
-                setShowProfile(false);
-                const user = { id: userId, name: userName };
-                onStartChat(user as any);
-              }
-            : undefined
-        }
       />
     );
   }
@@ -409,7 +387,7 @@ export default function BarberDashboard({
       <Card className="border-border/50 bg-card/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
+            <Clock className="h-5 w-5" />
             طلبات الحجز الجديدة
           </CardTitle>
         </CardHeader>
@@ -575,12 +553,12 @@ export default function BarberDashboard({
         {state.bookings.filter((b) => b.status === "pending").length === 0 && (
           <Card className="border-border/50 bg-card/50">
             <CardContent className="p-8 text-center">
-              <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
                 لا توجد طلبات جديدة
               </h3>
               <p className="text-muted-foreground">
-                سيظهر هنا طلبات الحجز الجديدة من العملاء
+                سيظهر هنا طلبات الحج�� الجديدة من العملاء
               </p>
             </CardContent>
           </Card>
@@ -871,7 +849,7 @@ export default function BarberDashboard({
             onClick={() => setShowServicesManagement(true)}
           >
             <Scissors className="h-4 w-4" />
-            إدارة الخدمات
+            إدارة ال��دمات
           </Button>
           <Button
             variant="outline"
@@ -1077,6 +1055,7 @@ export default function BarberDashboard({
       return <FriendsPage user={user} />;
     case "requests":
       return renderRequests();
+
     case "new-post":
       return renderNewPost();
     case "profile":

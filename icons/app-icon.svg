@@ -1,0 +1,60 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="url(#gradient)"/>
+  
+  <!-- Shadow for depth -->
+  <rect x="16" y="16" width="480" height="480" rx="48" fill="url(#shadow)" opacity="0.3"/>
+  
+  <!-- Main scissors icon -->
+  <g transform="translate(256, 256)">
+    <!-- Scissors handles -->
+    <circle cx="-60" cy="-40" r="28" fill="#ffffff" opacity="0.95"/>
+    <circle cx="-60" cy="40" r="28" fill="#ffffff" opacity="0.95"/>
+    <circle cx="60" cy="-40" r="28" fill="#ffffff" opacity="0.95"/>
+    <circle cx="60" cy="40" r="28" fill="#ffffff" opacity="0.95"/>
+    
+    <!-- Scissors blades -->
+    <path d="M -88 -40 L 20 -8 L 20 8 L -88 40 L -60 40 L 40 8 L 80 12 L 80 -12 L 40 -8 L -60 -40 Z" 
+          fill="#fbbf24" stroke="#f59e0b" stroke-width="2"/>
+    
+    <!-- Center screw -->
+    <circle cx="0" cy="0" r="8" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+    <circle cx="0" cy="0" r="4" fill="#6b7280"/>
+    
+    <!-- Decorative elements -->
+    <circle cx="-60" cy="-40" r="12" fill="#f59e0b" opacity="0.8"/>
+    <circle cx="-60" cy="40" r="12" fill="#f59e0b" opacity="0.8"/>
+    <circle cx="60" cy="-40" r="12" fill="#f59e0b" opacity="0.8"/>
+    <circle cx="60" cy="40" r="12" fill="#f59e0b" opacity="0.8"/>
+    
+    <!-- Hair cutting effect -->
+    <g opacity="0.6">
+      <rect x="90" y="-3" width="40" height="2" fill="#fbbf24" rx="1"/>
+      <rect x="95" y="-12" width="30" height="2" fill="#fbbf24" rx="1"/>
+      <rect x="90" y="8" width="35" height="2" fill="#fbbf24" rx="1"/>
+      <rect x="100" y="15" width="25" height="2" fill="#fbbf24" rx="1"/>
+    </g>
+  </g>
+  
+  <!-- Sparkle effects -->
+  <g opacity="0.7">
+    <polygon points="100,100 104,112 116,108 104,116 108,128 100,116 92,128 96,116 84,108 96,112" fill="#fbbf24"/>
+    <polygon points="400,150 402,158 410,156 402,162 404,170 400,162 396,170 398,162 390,156 398,158" fill="#ffffff"/>
+    <polygon points="450,350 453,360 463,358 453,365 455,375 450,365 445,375 447,365 437,358 447,360" fill="#fbbf24"/>
+    <polygon points="80,400 82,408 90,406 82,412 84,420 80,412 76,420 78,412 70,406 78,408" fill="#ffffff"/>
+  </g>
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#374151;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#111827;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="shadow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>

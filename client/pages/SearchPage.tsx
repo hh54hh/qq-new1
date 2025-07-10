@@ -61,6 +61,16 @@ export default function SearchPage({
     const loadPosts = async () => {
       try {
         setIsLoading(true);
+
+        // Check network connectivity first
+        if (!navigator.onLine) {
+          console.log("📱 No network connection, using offline mode");
+          setPosts([]);
+          setFilteredPosts([]);
+          setLikedPosts(new Set());
+          return;
+        }
+
         const postsResponse = await apiClient.getPosts();
         const loadedPosts = postsResponse.posts || [];
         setPosts(loadedPosts);
@@ -70,7 +80,24 @@ export default function SearchPage({
         // For now, initialize empty set
         setLikedPosts(new Set());
       } catch (error) {
-        console.error("Error loading posts:", error);
+        const errorMessage = error?.message || "Unknown error";
+        const isNetworkError =
+          errorMessage.includes("fetch") ||
+          errorMessage.includes("Failed to fetch") ||
+          error?.name === "TypeError";
+
+        console.error("Error loading posts:", {
+          message: errorMessage,
+          type: error?.name || "Unknown type",
+          isNetworkError,
+          details: error,
+        });
+
+        if (isNetworkError) {
+          console.log("🌐 Network error detected, switching to offline mode");
+        }
+
+        // Always provide empty arrays to prevent UI breaking
         setPosts([]);
         setFilteredPosts([]);
       } finally {

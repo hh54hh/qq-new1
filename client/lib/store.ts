@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { User, Booking, Post, FriendRequest, Follow } from "@shared/api";
 import apiClient from "./api";
 
@@ -296,8 +297,6 @@ class AppStore {
 export const appStore = new AppStore();
 
 // React Hook for using the store
-import { useState, useEffect } from "react";
-
 export function useAppStore(): [AppState, typeof appStore] {
   const [state, setState] = useState(appStore.getState());
 

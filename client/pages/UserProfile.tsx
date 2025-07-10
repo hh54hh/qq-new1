@@ -12,7 +12,7 @@ import {
   Calendar,
   Scissors,
   Heart,
-  MessageCircle,
+  Edit,
   UserPlus,
   UserMinus,
 } from "lucide-react";
@@ -20,8 +20,8 @@ import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
+import networkAwareAPI from "@/lib/api-wrapper";
 import PostViewPage from "./PostViewPage";
-import { StartChatButton } from "@/components/EnhancedStartChatButton";
 
 interface UserProfileProps {
   profileUser: User & {
@@ -72,34 +72,53 @@ export default function UserProfile({
   }, [profileUser.id]);
 
   const loadUserStats = async () => {
-    try {
-      setIsLoadingStats(true);
-      const followersResponse = await apiClient.getFollows("followers");
-      const followingResponse = await apiClient.getFollows("following");
-      setFollowerCount(followersResponse.total || 0);
-      setFollowingCount(followingResponse.total || 0);
-    } catch (error) {
-      console.error("Error loading user stats:", error);
-      setFollowerCount(0);
-      setFollowingCount(0);
-    } finally {
-      setIsLoadingStats(false);
-    }
+    setIsLoadingStats(true);
+
+    // Use safe network-aware API calls - they handle errors gracefully
+    const followersResponse = await networkAwareAPI.safeRequest(
+      () => apiClient.getFollows("followers"),
+      { follows: [], total: 0 },
+    );
+    const followingResponse = await networkAwareAPI.safeRequest(
+      () => apiClient.getFollows("following"),
+      { follows: [], total: 0 },
+    );
+
+    setFollowerCount(followersResponse?.total || 0);
+    setFollowingCount(followingResponse?.total || 0);
+    console.log("📈 User stats loaded:", {
+      followers: followersResponse?.total || 0,
+      following: followingResponse?.total || 0,
+    });
+
+    setIsLoadingStats(false);
   };
 
   const loadUserPosts = async () => {
+    setIsLoadingPosts(true);
+
     try {
-      setIsLoadingPosts(true);
-      const response = await apiClient.getPosts();
-      const userSpecificPosts = (response.posts || []).filter(
+      // Use safe network-aware API call - it handles errors gracefully
+      const response = await networkAwareAPI.getPosts();
+
+      const userSpecificPosts = (response?.posts || []).filter(
         (post) => post.user_id === profileUser.id,
       );
       setUserPosts(userSpecificPosts);
       console.log(
-        `Loaded ${userSpecificPosts.length} posts for user ${profileUser.name}`,
+        `📝 Loaded ${userSpecificPosts.length} posts for user ${profileUser.name}`,
       );
     } catch (error) {
-      console.error("Error loading user posts:", error);
+      console.error("Error loading user posts:", {
+        message: error?.message || "Unknown error",
+        type: error?.name || "Unknown type",
+        isNetworkError:
+          error?.message?.includes("fetch") || error?.name === "TypeError",
+        isOnline: navigator.onLine,
+        userId: profileUser.id,
+      });
+
+      // Fallback to empty array to prevent UI breaking
       setUserPosts([]);
     } finally {
       setIsLoadingPosts(false);
@@ -113,7 +132,7 @@ export default function UserProfile({
       (now.getTime() - date.getTime()) / (1000 * 60 * 60),
     );
 
-    if (diffInHours < 1) return "الآن";
+    if (diffInHours < 1) return "ال���ن";
     if (diffInHours < 24) return `منذ ${diffInHours} ساعة`;
 
     const diffInDays = Math.floor(diffInHours / 24);
@@ -127,13 +146,13 @@ export default function UserProfile({
     if (level >= 100) return "🟠";
     if (level >= 51) return "🟡";
     if (level >= 21) return "🔹";
-    return "🔸";
+    return "��";
   };
 
   const getLevelLabel = (level: number) => {
     if (level >= 100) return "VIP";
     if (level >= 51) return "ذهبي";
-    if (level >= 21) return "محترف";
+    if (level >= 21) return "مح��رف";
     return "مبتدئ";
   };
 
@@ -144,17 +163,21 @@ export default function UserProfile({
       setIsFollowing(!isFollowing);
 
       if (isFollowing) {
-        await apiClient.unfollowUser(profileUser.id);
+        await networkAwareAPI.safeRequest(() =>
+          apiClient.unfollowUser(profileUser.id),
+        );
         onUnfollow?.();
       } else {
-        await apiClient.followUser(profileUser.id);
+        await networkAwareAPI.safeRequest(() =>
+          apiClient.followUser(profileUser.id),
+        );
         onFollow?.();
       }
 
       store.addNotification({
         id: Date.now().toString(),
         type: isFollowing ? "friend_request" : "new_follower",
-        title: isFollowing ? "إلغاء المتابعة" : "متابعة جديدة",
+        title: isFollowing ? "إلغاء ��لمتابعة" : "متاب��ة جديدة",
         message: isFollowing
           ? `تم إلغاء متابعة ${profileUser.name}`
           : `تتابع الآن ${profileUser.name}`,
@@ -173,7 +196,7 @@ export default function UserProfile({
 
     try {
       if (likedPosts.has(postId)) {
-        await apiClient.unlikePost(postId);
+        await networkAwareAPI.safeRequest(() => apiClient.unlikePost(postId));
         setLikedPosts((prev) => {
           const newSet = new Set(prev);
           newSet.delete(postId);
@@ -187,7 +210,7 @@ export default function UserProfile({
           ),
         );
       } else {
-        await apiClient.likePost(postId);
+        await networkAwareAPI.safeRequest(() => apiClient.likePost(postId));
         setLikedPosts((prev) => new Set(prev).add(postId));
         setUserPosts((prevPosts) =>
           prevPosts.map((post) =>
@@ -325,27 +348,6 @@ export default function UserProfile({
                       حجز موعد
                     </Button>
                   )}
-
-                  {onStartChat ? (
-                    <StartChatButton
-                      userId={profileUser.id}
-                      userName={profileUser.name}
-                      onStartChat={onStartChat}
-                      variant="compact"
-                      size="md"
-                      buttonVariant="primary"
-                    />
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="shrink-0"
-                      onClick={onMessage}
-                      title="إرسال رسالة"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
               </div>
             )}
@@ -403,7 +405,7 @@ export default function UserProfile({
                               </span>
                             </button>
                             <div className="flex items-center gap-1">
-                              <MessageCircle className="h-5 w-5 fill-white" />
+                              <Edit className="h-5 w-5 fill-white" />
                               <span className="text-sm font-medium">0</span>
                             </div>
                           </div>
@@ -469,7 +471,7 @@ export default function UserProfile({
                         variant="outline"
                         className="bg-green-500/10 text-green-500 border-green-500/20"
                       >
-                        {profileUser.is_verified ? "موثق" : "غير موثق"}
+                        {profileUser.is_verified ? "مو��ق" : "غير موثق"}
                       </Badge>
                     </div>
                   </CardContent>

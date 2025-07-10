@@ -5,6 +5,17 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useStorageInfo, useNetworkStatus } from "@/hooks/use-pwa";
 
+// Ensure React hooks are available after imports
+if (
+  typeof React === "undefined" ||
+  typeof useState === "undefined" ||
+  typeof useEffect === "undefined"
+) {
+  console.error(
+    "❌ React hooks are not properly imported in PWAPerformanceMonitor",
+  );
+}
+
 interface PerformanceMetrics {
   loadTime: number;
   cacheHitRate: number;
@@ -275,22 +286,51 @@ export default function PWAPerformanceMonitor() {
 
 // Hook لتفعيل مراقب الأداء عبر الكونسول
 export function usePWAMonitorConsole() {
-  useEffect(() => {
-    // إضافة دالة عالمية لتفعيل المراقب
-    (window as any).showPWAMonitor = () => {
-      localStorage.setItem("show_pwa_monitor", "true");
-      window.location.reload();
-      console.log("🔍 تم تفعيل مراقب الأداء PWA");
-    };
+  // Multiple defensive checks for React hooks availability
+  if (typeof React === "undefined") {
+    console.warn("⚠️ React is not available in usePWAMonitorConsole");
+    return;
+  }
 
-    (window as any).hidePWAMonitor = () => {
-      localStorage.setItem("show_pwa_monitor", "false");
-      window.location.reload();
-      console.log("🚫 تم إخفاء مراقب الأداء PWA");
-    };
+  if (typeof useEffect !== "function") {
+    console.warn("⚠️ useEffect is not available in usePWAMonitorConsole");
+    return;
+  }
 
-    console.log("💡 PWA Monitor Commands:");
-    console.log("  - showPWAMonitor() لإظهار مراقب الأداء");
-    console.log("  - hidePWAMonitor() لإخفاء مراقب الأداء");
-  }, []);
+  // Use React.useEffect as a fallback if direct useEffect fails
+  const effectHook = useEffect || React.useEffect;
+
+  if (typeof effectHook !== "function") {
+    console.warn("⚠️ No useEffect available in usePWAMonitorConsole");
+    return;
+  }
+
+  try {
+    effectHook(() => {
+      try {
+        // إضافة دالة عالمية لتفعيل المراقب
+        if (typeof window !== "undefined") {
+          (window as any).showPWAMonitor = () => {
+            localStorage.setItem("show_pwa_monitor", "true");
+            window.location.reload();
+            console.log("🔍 تم تفعيل مراقب الأداء PWA");
+          };
+
+          (window as any).hidePWAMonitor = () => {
+            localStorage.setItem("show_pwa_monitor", "false");
+            window.location.reload();
+            console.log("🚫 تم إخفاء مراقب الأداء PWA");
+          };
+
+          console.log("💡 PWA Monitor Commands:");
+          console.log("  - showPWAMonitor() لإظهار مراقب الأداء");
+          console.log("  - hidePWAMonitor() لإخفاء مراقب الأداء");
+        }
+      } catch (error) {
+        console.error("❌ Error in usePWAMonitorConsole effect:", error);
+      }
+    }, []);
+  } catch (error) {
+    console.error("�� Error calling useEffect in usePWAMonitorConsole:", error);
+  }
 }

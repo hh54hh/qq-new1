@@ -52,7 +52,7 @@ class ApiClient {
       // في بيئة الإنتاج - تحقق من نوع النشر
       const hostname = window.location.hostname;
 
-      // إذا كان على Netlify (أي موقع يحتوي ��لى netlify في الاسم)
+      // إذا كان على Netlify (أي موقع يحتو�� ��لى netlify في الاسم)
       if (
         hostname.includes("netlify.app") ||
         hostname.includes("netlify.com") ||
@@ -62,7 +62,7 @@ class ApiClient {
         return window.location.origin + "/.netlify/functions/api";
       }
 
-      // لجميع البيئات الأخ��ى (fly.dev وغيرها) استخدم /api العادي
+      // لجميع البيئات ال��خ��ى (fly.dev وغيرها) استخدم /api العادي
       return window.location.origin + "/api";
     }
     // للخادم أو SSR
@@ -78,7 +78,7 @@ class ApiClient {
       currentBaseUrl: this.baseUrl,
     });
 
-    // إذا كان على Netlify، استخدم مسار Functions مباشرة دون اختبار
+    // إذا كان على Netlify، استخدم م��ار Functions مباشرة دون اختبار
     if (hostname.includes("netlify")) {
       this.baseUrl = window.location.origin + "/.netlify/functions/api";
       this.apiUrlVerified = true;
@@ -96,7 +96,7 @@ class ApiClient {
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
-          console.log(`⏰ انتهت مهلة الاختبار لـ ${path} (5 ثواني)`);
+          console.log(`⏰ انتهت مهلة الاخت��ار لـ ${path} (5 ثواني)`);
           controller.abort();
         }, 5000);
 
@@ -117,7 +117,7 @@ class ApiClient {
           console.log(`❌ API غير متاح على ${path}: ${response.status}`);
         }
       } catch (error) {
-        // تجاهل أخطاء AbortController timeout العادية
+        // تجا��ل أخطاء AbortController timeout العادية
         if (error instanceof Error && error.name === "AbortError") {
           console.log(`⏰ انتهت مهلة الاختبار لـ ${path} (طبيعي)`);
         } else {
@@ -132,7 +132,7 @@ class ApiClient {
       }
     }
 
-    console.warn("⚠️ لم يتم العث��ر على API على أي من المسارات المت��قعة");
+    console.warn("⚠️ لم يتم العث��ر على API على أي من المسار��ت المت��قعة");
     // في حالة عدم العثور على API، استخدم المسار الا��تراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
@@ -168,7 +168,6 @@ class ApiClient {
     // المسارات التي تحتاج authentication
     const protectedPaths = [
       "/bookings",
-      "/messages",
       "/barbers",
       "/notifications",
       "/auth/profile",
@@ -198,7 +197,7 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    // التحقق من صحة مسار API إذا لم يتم التحقق مسبقاً
+    // التحقق من صحة مسار API إذا لم يتم التح��ق مسبقاً
     await this.verifyApiUrl();
 
     // التحقق من auth token للمسارات المحمية
@@ -277,15 +276,15 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة، يرجى الت��قق من جميع الحقول";
+                "البيانات المد��لة غير صحيحة، يرجى الت��قق م�� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكت��وني أو ��لمة المرور ��ير صحيحة";
+                errorMessage = "البريد الإلكت��وني ��و ��لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
-                  "تأكد من ص��ة البريد وكلمة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
+                  "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
               } else {
                 errorMessage = "انتهت صلاحية ج��سة المستخدم";
                 errorType = "SESSION_EXPIRED";
@@ -302,7 +301,8 @@ class ApiClient {
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
-              errorMessage = "خ��مة API غير متوف��ة - مشكلة في إعدادات الخادم";
+              errorMessage =
+                "خ��مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
@@ -318,17 +318,17 @@ class ApiClient {
               suggestion = "انتظر دقيقة واحدة ثم حاول مرة أخرى";
               break;
             case 500:
-              errorMessage = "خطأ في الخادم، يرجى المحاولة مرة أخرى";
+              errorMessage = "خطأ في الخادم، يرجى المحاول�� مرة أخرى";
               errorType = "SERVER_ERROR";
               suggestion =
-                "إذا اس��مرت المشكلة، اتصل بالدعم الفني على: 07800657822";
+                "إذا اس��مرت المشكلة، اتصل بال��عم الف��ي على: 07800657822";
               break;
             case 502:
               errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لاح��اً";
               errorType = "BAD_GATEWAY_ERROR";
               break;
             case 503:
-              errorMessage = "الخدمة غير متاحة مؤقتاً للصيانة";
+              errorMessage = "الخدمة غ��ر متاحة مؤقتاً للصيانة";
               errorType = "SERVICE_UNAVAILABLE_ERROR";
               suggestion = "يرج�� المحاولة خلال بضع دقائق";
               break;
@@ -337,19 +337,16 @@ class ApiClient {
               errorType = "TIMEOUT_ERROR";
               break;
             default:
-              errorMessage = "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى";
+              errorMessage = "حدث خ��أ غير متوقع، يرجى المحاولة مرة أخرى";
               errorType = "UNKNOWN_ERROR";
           }
         }
 
-        console.error(`API Error [${response.status}]:`, {
-          message: errorMessage,
-          details: errorDetails,
-          errorType,
-          suggestion,
-          url,
-          method: options.method || "GET",
-        });
+        // طباعة مبسطة للخطأ
+        console.warn(`⚠️ API [${response.status}]: ${errorMessage}`);
+        if (suggestion) {
+          console.info(`💡 ${suggestion}`);
+        }
 
         // إنشاء خطأ مخصص مع معلومات إضافية
         const customError = new Error(errorMessage) as any;
@@ -384,16 +381,19 @@ class ApiClient {
           "انتهت مهلة الاتصال (30 ثانية)، يرجى المحاولة مرة أخرى",
         ) as any;
         timeoutError.errorType = "TIMEOUT_ERROR";
-        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة أخرى";
+        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة ����خرى";
         throw timeoutError;
       }
 
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        console.error("Network error details:", {
+        console.error("🌐 Network error details:", {
           message: error.message,
-          url,
-          endpoint,
+          url: url,
+          endpoint: endpoint,
+          errorType: error.name,
+          isOnline: navigator.onLine,
+          timestamp: new Date().toISOString(),
         });
 
         let networkErrorMessage = "خطأ في الاتصال بالخادم";
@@ -414,8 +414,9 @@ class ApiClient {
         networkError.errorType = "NETWORK_ERROR";
         networkError.suggestion = suggestion;
         networkError.originalError = error.message;
+        networkError.isNetworkError = true;
 
-        ErrorHandler.handle(networkError, "API Request");
+        // Don't log network errors here - let the wrapper handle them gracefully
         throw networkError;
       }
 
@@ -431,21 +432,22 @@ class ApiClient {
           : typeof error === "object"
             ? JSON.stringify(error)
             : String(error);
-      console.error("Unexpected API error:", {
-        error: errorMessage,
-        errorObject: error,
+      console.error("❌ Unexpected API error:", {
+        message: errorMessage,
+        errorDetails: error?.message || error?.toString() || "Unknown error",
+        errorType: error?.name || "Unknown",
         url,
         endpoint,
       });
 
       const unexpectedError = new Error(
-        "حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى",
+        "حدث خطأ غير متوقع، يرجى المحا��لة مرة أخرى",
       ) as any;
       unexpectedError.errorType = "UNEXPECTED_ERROR";
       unexpectedError.originalError =
         error instanceof Error ? error.message : String(error);
       unexpectedError.suggestion =
-        "إذا استمرت المشكلة، اتصل بالدعم الفني على: 07800657822";
+        "إذا استمرت المشكلة، اتصل بالدعم الفني عل��: 07800657822";
 
       throw unexpectedError;
     }
@@ -460,30 +462,71 @@ class ApiClient {
     try {
       return await this.request<T>(endpoint, options);
     } catch (error) {
+      // Better error logging
+      console.warn("🌐 API Request failed:", {
+        endpoint,
+        method: options.method || "GET",
+        error: error instanceof Error ? error.message : String(error),
+        hasInternet: navigator.onLine,
+      });
+
       const apiError = ApiErrorHandler.createErrorFromException(error);
 
-      // إذا كان خطأ شبكة وتوجد بيا��ات احتياطية، استخدمها
+      // إذا كان خطأ شبكة وتوجد بيانات احتياطية، استخدمها
       if (apiError.isNetworkError && fallbackData !== undefined) {
         console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}:`, {
           errorType: apiError.type,
           errorMessage: apiError.message,
+          hasInternet: navigator.onLine,
         });
         return fallbackData;
+      }
+
+      // إذا لم تكن هناك بيانات احتياطية ولكن هو خطأ شبكة، أرجع قيم افتراضية
+      if (apiError.isNetworkError) {
+        console.log(`📱 خطأ شبكة: إرجاع بيانات فارغة لـ ${endpoint}`, {
+          isOnline: navigator.onLine,
+          endpoint,
+          errorType: apiError.type,
+        });
+
+        // Return appropriate empty data structure based on endpoint
+        if (endpoint.includes("posts")) {
+          return { posts: [], total: 0 } as unknown as T;
+        }
+        if (endpoint.includes("barbers")) {
+          return { barbers: [], total: 0 } as unknown as T;
+        }
+        if (endpoint.includes("bookings")) {
+          return { bookings: [], total: 0 } as unknown as T;
+        }
+
+        // For other endpoints, return empty object
+        return {} as unknown as T;
       }
 
       // إذا كان يمكن إعادة المحاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
-          console.log(`🔄 إعادة المحاولة لـ ${endpoint}`);
+          console.log(`�� إعادة المحاولة لـ ${endpoint}`);
           await new Promise((resolve) => setTimeout(resolve, 1000));
           return await this.request<T>(endpoint, options);
         } catch (retryError) {
           console.error(`❌ فشلت إعادة المحاولة لـ ${endpoint}`);
           if (fallbackData !== undefined) {
+            console.log(
+              `🔄 استخدام البيانات الاحتياطية بعد فشل إعادة المحاولة`,
+            );
             return fallbackData;
           }
           throw retryError;
         }
+      }
+
+      // إذا وجدت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
+      if (fallbackData !== undefined) {
+        console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
+        return fallbackData;
       }
 
       throw error;
@@ -916,122 +959,6 @@ class ApiClient {
     });
   }
 
-  // Messages
-  async getConversations(): Promise<{ conversations: any[] }> {
-    const fallbackData = { conversations: [] };
-    return this.requestWithFallback<{ conversations: any[] }>(
-      "/messages/conversations",
-      {},
-      fallbackData,
-    );
-  }
-
-  async getMessages(otherUserId: string): Promise<{ messages: any[] }> {
-    // التحقق من صحة معرف المستخدم
-    if (!otherUserId || otherUserId === "undefined") {
-      console.error("��� معرف المستخدم غير صحيح:", otherUserId);
-      return { messages: [] };
-    }
-
-    console.log("📥 تحم��ل الرسائل للمستخدم:", otherUserId);
-
-    const fallbackData = { messages: [] };
-
-    try {
-      const response = await this.requestWithFallback<{ messages: any[] }>(
-        `/messages/${otherUserId}`,
-        {},
-        fallbackData,
-      );
-
-      console.log("✅ تم تحميل الرسائل:", response.messages?.length || 0);
-
-      // تصحيح: تحويل حقل 'message' إلى 'content'
-      if (response.messages) {
-        response.messages = response.messages.map((msg) => ({
-          ...msg,
-          content: msg.content || msg.message || "", // استخدام 'message' إذا لم يوجد 'content'
-        }));
-      }
-
-      return response;
-    } catch (error) {
-      console.error("❌ خطأ في تحميل الرسائل:", error);
-      return fallbackData;
-    }
-  }
-
-  async sendMessage(messageData: {
-    receiver_id: string;
-    content: string;
-    message_type?: string;
-  }): Promise<{ message: any; success: boolean }> {
-    // التحقق من صحة البيانات
-    if (!messageData.receiver_id || messageData.receiver_id === "undefined") {
-      throw new Error("معرف المستقبل غير صحيح");
-    }
-
-    if (!messageData.content || messageData.content.trim() === "") {
-      throw new Error("محتوى الرسالة فارغ");
-    }
-
-    console.log("📤 إرسال رسالة عبر API:", {
-      receiver_id: messageData.receiver_id,
-      content_length: messageData.content.length,
-      message_type: messageData.message_type || "text",
-    });
-
-    try {
-      const response = await this.request<{ message: any; success: boolean }>(
-        "/messages",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            ...messageData,
-            content: messageData.content.trim(),
-            message_type: messageData.message_type || "text",
-          }),
-        },
-      );
-
-      console.log("✅ نجح إرسال الرسالة:", response);
-
-      // تصحيح: تحويل حقل 'message' إلى 'content' في الاستجابة
-      if (response.message) {
-        response.message = {
-          ...response.message,
-          content: response.message.content || response.message.message || "",
-        };
-      }
-
-      return response;
-    } catch (error) {
-      console.error("❌ فشل إرسال الرسالة:", error);
-      throw error;
-    }
-  }
-
-  async markMessagesAsRead(senderId: string): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(`/messages/${senderId}/read`, {
-      method: "PATCH",
-    });
-  }
-
-  async getUnreadMessageCount(): Promise<{ count: number }> {
-    const fallbackData = { count: 0 };
-    return this.requestWithFallback<{ count: number }>(
-      "/messages/unread-count",
-      {},
-      fallbackData,
-    );
-  }
-
-  async deleteConversation(otherUserId: string): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(`/messages/${otherUserId}`, {
-      method: "DELETE",
-    });
-  }
-
   // Advanced Search
   async advancedSearchBarbers(filters: {
     query?: string;
@@ -1100,10 +1027,56 @@ class ApiClient {
 
     return response.json();
   }
+
+  // Helper function لعرض أخطاء واضحة بدلاً من [object Object]
+  private logErrorDetails(title: string, error: any, context?: any) {
+    console.error(`❌ ${title}`);
+
+    if (error?.message) {
+      console.error(`  Message: ${error.message}`);
+    }
+
+    if (error?.name) {
+      console.error(`  Type: ${error.name}`);
+    }
+
+    if (error?.status || error?.statusCode) {
+      console.error(`  Status: ${error.status || error.statusCode}`);
+    }
+
+    if (context) {
+      console.error(`  Context:`, context);
+    }
+
+    if (error?.stack && process.env.NODE_ENV === "development") {
+      console.error(`  Stack: ${error.stack}`);
+    }
+
+    // إذا كان الخطأ كائن معقد، اطبعه بشكل منسق
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      !error.message &&
+      !error.name
+    ) {
+      try {
+        console.error(`  Raw Error:`, JSON.stringify(error, null, 2));
+      } catch {
+        console.error(`  Raw Error: [Complex Object - cannot stringify]`);
+      }
+    }
+  }
 }
 
 // Create singleton instance
 const apiClient = new ApiClient();
+
+// Export the class for cases where it might be needed
+export { ApiClient };
+
+// Note: Most files should import the default export (apiClient instance)
+// Example: import apiClient from './api';
+// Only import { ApiClient } if you need the class itself
 
 // دالة تشخيص سريعة لاختبار API
 export const diagnoseAPI = async () => {
