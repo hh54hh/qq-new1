@@ -265,61 +265,59 @@ export default function SearchPage({
           </Select>
         </div>
 
-                {/* شبكة المنشورات */}
+        {/* شبكة المنشورات */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
-          {isLoading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="aspect-square">
-                <PostCardSkeleton />
-              </div>
-            ))
-          ) : (
-            filteredPosts.map((post) => (
-            <div
-              key={post.id}
-              className="aspect-square relative group cursor-pointer overflow-hidden rounded-lg bg-card/50 border border-border/50"
-              onClick={() => {
-                setSelectedPost(post);
-                setShowPostView(true);
-              }}
-            >
-              {/* الصورة */}
-              <img
-                src={post.image_url}
-                alt={post.caption}
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                loading="lazy"
-              />
-
-              {/* طبقة تمرير الماوس */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="flex items-center gap-4 text-white">
-                  <button
-                    onClick={(e) => handleLikePost(post.id, e)}
-                    className="flex items-center gap-1 hover:scale-110 transition-transform"
-                  >
-                    <Heart
-                      className={`h-4 w-4 ${likedPosts.has(post.id) ? "fill-red-500 text-red-500" : "fill-white"}`}
-                    />
-                    <span className="text-sm font-medium">
-                      {post.likes || 0}
-                    </span>
-                  </button>
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="aspect-square">
+                  <PostCardSkeleton />
                 </div>
-              </div>
-
-              {/* مؤشر نوع المنشور */}
-              <div className="absolute top-2 right-2">
-                <Badge
-                  variant="secondary"
-                  className="text-xs bg-black/50 text-white border-none"
+              ))
+            : filteredPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="aspect-square relative group cursor-pointer overflow-hidden rounded-lg bg-card/50 border border-border/50"
+                  onClick={() => {
+                    setSelectedPost(post);
+                    setShowPostView(true);
+                  }}
                 >
-                  {getLevelIcon(post.user.level)}
-                </Badge>
-                            </div>
-            </div>
-          )))
-          )}
+                  {/* الصورة */}
+                  <img
+                    src={post.image_url}
+                    alt={post.caption}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    loading="lazy"
+                  />
+
+                  {/* طبقة تمرير الماوس */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div className="flex items-center gap-4 text-white">
+                      <button
+                        onClick={(e) => handleLikePost(post.id, e)}
+                        className="flex items-center gap-1 hover:scale-110 transition-transform"
+                      >
+                        <Heart
+                          className={`h-4 w-4 ${likedPosts.has(post.id) ? "fill-red-500 text-red-500" : "fill-white"}`}
+                        />
+                        <span className="text-sm font-medium">
+                          {post.likes || 0}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* مؤشر نوع المنشور */}
+                  <div className="absolute top-2 right-2">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs bg-black/50 text-white border-none"
+                    >
+                      {getLevelIcon(post.user.level)}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
         </div>
 
         {/* رسالة عدم وجود نتائج */}
