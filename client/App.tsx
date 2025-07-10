@@ -1,7 +1,7 @@
 import "./global.css";
 import "./styles/telegram-chat.css";
 
-import { useState, useEffect, Component } from "react";
+import React, { useState, useEffect, Component } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -189,7 +189,7 @@ const AppContent = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-golden-500 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جارٍ التحميل...</p>
+          <p className="text-muted-foreground">جارٍ ��لتحميل...</p>
         </div>
       </div>
     );
@@ -366,7 +366,7 @@ const App = () => {
 
     console.log("💡 نصا��ح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
-    console.log("  - اكتب openDiagnostic() في الكونسول لفتح التشخيص الشامل");
+    console.log("  - اكتب openDiagnostic() في ا��كونسول لفتح التشخيص الشامل");
   }, []);
 
   return (
