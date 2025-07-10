@@ -1130,25 +1130,6 @@ export default function CustomerDashboard({
             loadBarbers();
           }, 500);
         }}
-        onMessage={() => {
-          setShowProfile(false);
-          if (onStartChat && selectedProfile) {
-            onStartChat(selectedProfile);
-          } else {
-            // الط����يق�� القديمة كبديل
-            setMessageTargetUser(selectedProfile);
-            setShowMessages(true);
-          }
-        }}
-        onStartChat={
-          onStartChat
-            ? (userId: string, userName: string) => {
-                setShowProfile(false);
-                const user = { id: userId, name: userName };
-                onStartChat(user as any);
-              }
-            : undefined
-        }
       />
     );
   }
@@ -1702,7 +1683,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جرب البحث بكلمة أخرى من المنشورات الم��يزة"
+              ? "جرب البحث بكلمة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
@@ -2009,7 +1990,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">حجوز��ت</p>
+                <p className="text-sm text-muted-foreground">ح��وز��ت</p>
               </div>
               <div
                 className="cursor-pointer"
