@@ -498,6 +498,9 @@ class ChatManager {
     userId: string,
     userName: string,
   ): Promise<ChatConversation | null> {
+    console.log(
+      "🔥 [CHAT-MANAGER] getOrCreateConversationWithUser تم استدعاؤها!",
+    );
     console.log("🗘️ بحث عن محادثة مع:", userId, userName);
 
     try {
@@ -517,7 +520,7 @@ class ChatManager {
         return existingConversation;
       }
 
-      console.log("🆕 إنشاء محادثة جديدة");
+      console.log("🆕 إنشاء محادثة جدي��ة");
 
       // Create new conversation locally first
       const newConversation: ChatConversation = {
