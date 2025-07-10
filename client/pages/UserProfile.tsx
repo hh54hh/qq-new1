@@ -98,21 +98,35 @@ export default function UserProfile({
   const loadUserPosts = async () => {
     setIsLoadingPosts(true);
 
-    // Use safe network-aware API call - it handles errors gracefully
-    const response = await networkAwareAPI.safeRequest(
-      () => apiClient.getPosts(),
-      { posts: [], total: 0 },
-    );
+    try {
+      // Use safe network-aware API call - it handles errors gracefully
+      const response = await networkAwareAPI.safeRequest(
+        () => apiClient.getPosts(),
+        { posts: [], total: 0 },
+      );
 
-    const userSpecificPosts = (response?.posts || []).filter(
-      (post) => post.user_id === profileUser.id,
-    );
-    setUserPosts(userSpecificPosts);
-    console.log(
-      `📝 Loaded ${userSpecificPosts.length} posts for user ${profileUser.name}`,
-    );
+      const userSpecificPosts = (response?.posts || []).filter(
+        (post) => post.user_id === profileUser.id,
+      );
+      setUserPosts(userSpecificPosts);
+      console.log(
+        `📝 Loaded ${userSpecificPosts.length} posts for user ${profileUser.name}`,
+      );
+    } catch (error) {
+      console.error("Error loading user posts:", {
+        message: error?.message || "Unknown error",
+        type: error?.name || "Unknown type",
+        isNetworkError:
+          error?.message?.includes("fetch") || error?.name === "TypeError",
+        isOnline: navigator.onLine,
+        userId: profileUser.id,
+      });
 
-    setIsLoadingPosts(false);
+      // Fallback to empty array to prevent UI breaking
+      setUserPosts([]);
+    } finally {
+      setIsLoadingPosts(false);
+    }
   };
 
   const formatRelativeTime = (dateString: string) => {
