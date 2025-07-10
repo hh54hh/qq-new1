@@ -289,10 +289,10 @@ class ChatManager {
     }
   }
 
-  async markConversationAsRead(conversationId: string): Promise<void> {
+  async markConversationAsRead(otherUserId: string): Promise<void> {
     try {
       const response = await offlineAPI.patch(
-        `/api/messages/${conversationId}/read`,
+        `/api/messages/${otherUserId}/read`,
       );
 
       if (response.success) {
