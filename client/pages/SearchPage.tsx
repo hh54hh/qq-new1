@@ -17,6 +17,7 @@ import apiClient from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useLocation } from "@/hooks/use-location";
 import PostViewPage from "./PostViewPage";
+import { PostCardSkeleton } from "@/components/ui/loading-skeleton";
 
 interface SearchPageProps {
   user: User;
