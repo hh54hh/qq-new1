@@ -22,7 +22,6 @@ import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
 import networkAwareAPI from "@/lib/api-wrapper";
 import PostViewPage from "./PostViewPage";
-import SmartChatButton from "@/components/chat/SmartChatButton";
 
 interface UserProfileProps {
   profileUser: User & {
@@ -178,7 +177,7 @@ export default function UserProfile({
       store.addNotification({
         id: Date.now().toString(),
         type: isFollowing ? "friend_request" : "new_follower",
-        title: isFollowing ? "إلغاء ��لمتابعة" : "متابعة جديدة",
+        title: isFollowing ? "إلغاء ��لمتابعة" : "متاب��ة جديدة",
         message: isFollowing
           ? `تم إلغاء متابعة ${profileUser.name}`
           : `تتابع الآن ${profileUser.name}`,
