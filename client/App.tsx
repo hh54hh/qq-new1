@@ -1,5 +1,4 @@
 import "./global.css";
-import "./styles/telegram-chat.css";
 
 import React, { useState, useEffect, Component } from "react";
 import { Toaster } from "@/components/ui/toaster";
