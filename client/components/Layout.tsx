@@ -83,7 +83,6 @@ export default function Layout({
   const [state] = useAppStore();
 
   const unreadNotifications = state.notifications.filter((n) => !n.read).length;
-  const isOnline = useNetworkStatus();
 
   const userNavItems = navItems.filter((item) =>
     item.roles.includes(user.role),
