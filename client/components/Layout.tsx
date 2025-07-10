@@ -15,7 +15,6 @@ import { User as UserType, UserRole } from "@shared/api";
 import { useAppStore } from "@/lib/store";
 import LocationBar from "./LocationBar";
 import apiClient from "@/lib/api";
-import { useNetworkStatus } from "@/lib/chat-storage";
 
 interface LayoutProps {
   children: ReactNode;
@@ -24,7 +23,6 @@ interface LayoutProps {
   onTabChange: (tab: string) => void;
   onLogout?: () => void;
   onShowNotifications?: () => void;
-  onShowMessages?: () => void;
 }
 
 interface NavItem {
@@ -86,7 +84,6 @@ export default function Layout({
   onTabChange,
   onLogout,
   onShowNotifications,
-  onShowMessages,
 }: LayoutProps) {
   const [state] = useAppStore();
   const [unreadMessages, setUnreadMessages] = useState(0);
@@ -112,7 +109,7 @@ export default function Layout({
         // طباعة أقل للأخطاء المتكررة ومعالجة أفضل
         if (messageLoadErrors < 2) {
           console.warn(
-            `⚠️ فشل تحميل عدد الرسائل (${messageLoadErrors + 1}/3):`,
+            `���️ فشل تحميل عدد الرسائل (${messageLoadErrors + 1}/3):`,
             error?.message || "خطأ غير معروف",
           );
         }
