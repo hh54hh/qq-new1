@@ -149,7 +149,7 @@ const AppContent = () => {
 
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
-    console.log("  - اكتب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
+    console.log("  - اكتب openDiagnostic() ف���� الكونسول لفتح التشخيص الشامل");
   }, []);
 
   // Check if we need to show location dialog for existing customers
@@ -254,19 +254,6 @@ const NotificationsRoute = () => {
       onBack={() => window.history.back()}
     />
   );
-};
-
-const MessagesRoute = () => {
-  const [state] = useAppStore();
-  const [searchParams] = useSearchParams();
-  const targetUserId = searchParams.get("user");
-
-  if (!state.user) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  // Use enhanced Telegram-style messages page
-  return <EnhancedMessagesPage targetUserId={targetUserId || undefined} />;
 };
 
 const DebugRoute = () => {
