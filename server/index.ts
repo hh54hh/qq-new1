@@ -51,14 +51,7 @@ import {
   getAdminStats,
   getAllUsers,
 } from "./routes/barbershop";
-import {
-  getConversations,
-  getMessages,
-  sendMessage,
-  markMessagesAsRead,
-  getUnreadCount,
-  deleteConversation,
-} from "./routes/messages";
+
 import { uploadImage, uploadProfileImage } from "./routes/upload";
 import {
   searchBarbers as advancedSearchBarbers,
