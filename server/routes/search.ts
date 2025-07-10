@@ -342,3 +342,61 @@ export const getRecommendations: RequestHandler = async (req, res) => {
     res.status(500).json({ error: "خطأ في جلب التوصيات" });
   }
 };
+
+// Search users for messaging
+export const searchUsers: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+    if (!userId) {
+      return res.status(401).json({ error: "المصادقة مطلوبة" });
+    }
+
+    const { q: query } = req.query;
+
+    if (!query || typeof query !== "string" || query.trim().length < 2) {
+      return res.json({ users: [] });
+    }
+
+    console.log("🔍 البحث عن المستخدمين:", { query, requesterId: userId });
+
+    // Get all users except current user
+    const { data: users, error } = await supabase
+      .from("users")
+      .select("id, name, email, role, status, avatar_url, is_verified")
+      .neq("id", userId) // Exclude current user
+      .eq("status", "active") // Only active users
+      .ilike("name", `%${query.trim()}%`) // Search by name
+      .limit(20);
+
+    if (error) {
+      console.error("User search error:", error);
+      return res.status(500).json({ error: "خطأ في البحث عن المستخدمين" });
+    }
+
+    // Transform users for frontend
+    const searchResults = users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      avatar_url: user.avatar_url,
+      is_verified: user.is_verified,
+    }));
+
+    console.log("✅ نتائج البحث:", {
+      query,
+      resultsCount: searchResults.length,
+      users: searchResults.map((u) => ({
+        id: u.id,
+        name: u.name,
+        role: u.role,
+      })),
+    });
+
+    res.json({ users: searchResults });
+  } catch (error) {
+    console.error("User search error:", error);
+    res.status(500).json({ error: "خطأ في البحث عن ال��ستخدمين" });
+  }
+};
