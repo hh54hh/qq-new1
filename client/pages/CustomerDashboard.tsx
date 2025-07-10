@@ -599,7 +599,7 @@ export default function CustomerDashboard({
         title: isFollowed ? "إلغاء المتابعة" : "متابعة جديدة",
         message: isFollowed
           ? `تم إلغاء متابعة ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`
-          : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "��لحلاق"}`,
+          : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`,
         data: { barberId },
         read: false,
         created_at: new Date().toISOString(),
@@ -1138,7 +1138,7 @@ export default function CustomerDashboard({
           if (onStartChat && selectedProfile) {
             onStartChat(selectedProfile);
           } else {
-            // الط��يقة القديمة كبديل
+            // الط��يق�� القديمة كبديل
             setMessageTargetUser(selectedProfile);
             setShowMessages(true);
           }
@@ -1227,7 +1227,7 @@ export default function CustomerDashboard({
                 <div className="flex items-center gap-2">
                   <div className="animate-spin h-3 w-3 border border-primary border-t-transparent rounded-full"></div>
                   <span className="text-sm text-primary">
-                    جاري تحديد الموقع...
+                    جاري ��حديد الموقع...
                   </span>
                 </div>
               ) : userLocation ? (
@@ -1598,7 +1598,7 @@ export default function CustomerDashboard({
                 لا توجد حلا��ين قريبين
               </h3>
               <p className="text-muted-foreground mb-4">
-                سنعرض لك الحلاقين ا��متاحين في منطقت�� ��ريباً
+                سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
                 تحديث الموقع
@@ -1636,7 +1636,7 @@ export default function CustomerDashboard({
 
   const renderSearch = () => (
     <div className="p-4 space-y-4">
-      {/* شريط البح���� */}
+      {/* شريط البح�� */}
       <div className="relative">
         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -2081,7 +2081,7 @@ export default function CustomerDashboard({
     case "bookings":
       return renderBookings();
     case "messages":
-      return <EnhancedMessagesPage targetUserId={targetChatUserId} />;
+      return <SmartMessagesPage targetUserId={targetChatUserId} />;
     case "profile":
       return renderProfile();
     default:
