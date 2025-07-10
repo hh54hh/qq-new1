@@ -5,6 +5,17 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useStorageInfo, useNetworkStatus } from "@/hooks/use-pwa";
 
+// Ensure React hooks are available after imports
+if (
+  typeof React === "undefined" ||
+  typeof useState === "undefined" ||
+  typeof useEffect === "undefined"
+) {
+  console.error(
+    "❌ React hooks are not properly imported in PWAPerformanceMonitor",
+  );
+}
+
 interface PerformanceMetrics {
   loadTime: number;
   cacheHitRate: number;
@@ -25,7 +36,7 @@ export default function PWAPerformanceMonitor() {
   const { isOnline, connectionType } = useNetworkStatus();
 
   useEffect(() => {
-    // ��ساب مقاييس الأداء
+    // حساب مقاييس الأداء
     calculatePerformanceMetrics();
 
     // إخفاء المراقب في بيئة الإنتاج
