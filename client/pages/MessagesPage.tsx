@@ -76,54 +76,19 @@ export default function MessagesPage({ user, onBack }: MessagesPageProps) {
     }
   };
 
-  const loadMessages = async (otherUserId: string) => {
-    try {
-      const response = await apiClient.getMessages(otherUserId);
-      setMessages(response.messages || []);
+  const openChat = (conversation: Conversation) => {
+    // Navigate to dedicated chat page
+    const params = new URLSearchParams({
+      with: conversation.user.id,
+      name: conversation.user.name,
+      role: conversation.user.role,
+    });
 
-      // Mark conversation as read
-      await apiClient.markConversationAsRead(otherUserId);
-
-      // Update conversations to reflect read messages
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.user.id === otherUserId ? { ...conv, unreadCount: 0 } : conv,
-        ),
-      );
-    } catch (error) {
-      console.error("Error loading messages:", error);
-      setMessages([]);
+    if (conversation.user.avatar_url) {
+      params.set("avatar", conversation.user.avatar_url);
     }
-  };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation || isSending) return;
-
-    try {
-      setIsSending(true);
-      const message = await apiClient.createMessage({
-        receiver_id: selectedConversation.user.id,
-        message: newMessage.trim(),
-      });
-
-      // Add to messages immediately
-      setMessages((prev) => [...prev, message]);
-
-      // Update conversation
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.user.id === selectedConversation.user.id
-            ? { ...conv, lastMessage: message }
-            : conv,
-        ),
-      );
-
-      setNewMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
-    } finally {
-      setIsSending(false);
-    }
+    navigate(`/chat?${params.toString()}`);
   };
 
   const formatTime = (dateString: string) => {
