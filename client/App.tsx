@@ -137,7 +137,7 @@ const AppContent = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح ص��حة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
     console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -288,7 +288,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إض��فة دالة عالم��ة لفتح صفحة التشخيص
+    // إض��فة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
@@ -309,10 +309,6 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
-          <NetworkStatusBanner />
-          <PWAStatusBar />
-          <PWAUpdateNotification />
-          <PWAPerformanceMonitor />
           <Toaster />
           <Sonner />
           <Routes>
