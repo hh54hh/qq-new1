@@ -119,6 +119,13 @@ class NetworkAwareAPIWrapper {
     });
   }
 
+  async getPosts(userId?: string) {
+    return this.safeRequest(() => this.apiClient.getPosts(userId), {
+      posts: [],
+      total: 0,
+    });
+  }
+
   // Pass-through methods for non-GET operations (these should handle errors normally)
   async sendMessage(data: any) {
     return this.apiClient.sendMessage(data);
