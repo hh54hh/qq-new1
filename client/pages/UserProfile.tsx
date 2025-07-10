@@ -339,26 +339,18 @@ export default function UserProfile({
                     </Button>
                   )}
 
-                  {onStartChat ? (
-                    <StartChatButton
-                      userId={profileUser.id}
-                      userName={profileUser.name}
-                      onStartChat={onStartChat}
-                      variant="compact"
-                      size="md"
-                      buttonVariant="primary"
-                    />
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="shrink-0"
-                      onClick={onMessage}
-                      title="إرسال رسالة"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <SmartChatButton
+                    userId={profileUser.id}
+                    userName={profileUser.name}
+                    userRole={profileUser.role}
+                    variant="compact"
+                    onChatStart={() => {
+                      console.log(
+                        "🚀 بدء محادثة من البروفايل مع:",
+                        profileUser.name,
+                      );
+                    }}
+                  />
                 </div>
               </div>
             )}
@@ -442,7 +434,7 @@ export default function UserProfile({
               <TabsContent value="info">
                 <Card className="border-border/50 bg-card/50">
                   <CardHeader>
-                    <CardTitle>معلومات ال��لاق</CardTitle>
+                    <CardTitle>معلومات الحلاق</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
