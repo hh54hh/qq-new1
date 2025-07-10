@@ -26,6 +26,7 @@ import ChatNotifications from "./components/ChatNotifications";
 
 import LocationPermissionDialog from "./components/LocationPermissionDialog";
 import DebugPage from "./pages/DebugPage";
+import { ErrorBoundary } from "react-error-boundary";
 import DiagnosticPage from "./pages/DiagnosticPage";
 import SystemDiagnostic from "./pages/SystemDiagnostic";
 import NetworkDiagnostic from "./pages/NetworkDiagnostic";
@@ -214,7 +215,7 @@ const AppContent = () => {
           />
         ) : (
           <div className="p-4">
-            <h2 className="text-xl font-bold">نوع حساب غير مدعوم</h2>
+            <h2 className="text-xl font-bold">نوع حساب غير مدعو��</h2>
           </div>
         )}
       </Layout>
