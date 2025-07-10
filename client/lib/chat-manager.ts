@@ -406,8 +406,8 @@ class ChatManager {
 
     for (const pending of pendingConvReads) {
       try {
-        await offlineAPI.put(
-          `/api/conversations/${pending.data.conversationId}/read`,
+        await offlineAPI.patch(
+          `/api/messages/${pending.data.conversationId}/read`,
         );
         await this.storage.deleteData("pendingConversationReads", pending.id);
       } catch (error) {
