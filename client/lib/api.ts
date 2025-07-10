@@ -78,7 +78,7 @@ class ApiClient {
       currentBaseUrl: this.baseUrl,
     });
 
-    // إذا كان على Netlify، استخدم م��ار Functions مباشرة دون اختبار
+    // إذ�� كان على Netlify، استخدم م��ار Functions مباشرة دون اختبار
     if (hostname.includes("netlify")) {
       this.baseUrl = window.location.origin + "/.netlify/functions/api";
       this.apiUrlVerified = true;
@@ -297,7 +297,7 @@ class ApiClient {
               }
               break;
             case 403:
-              errorMessage = "غير مصرح لك بالوصول إلى هذه الخدمة";
+              errorMessage = "غير مصرح لك بالوصول إل�� هذه الخدمة";
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
@@ -321,7 +321,7 @@ class ApiClient {
               errorMessage = "خطأ في الخادم، يرجى المحاول�� مرة أخرى";
               errorType = "SERVER_ERROR";
               suggestion =
-                "إذا اس��مرت المشكلة، اتصل بال��عم الف��ي على: 07800657822";
+                "إذا اس��مرت المشكلة، ات��ل بال��عم الف��ي على: 07800657822";
               break;
             case 502:
               errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لاح��اً";
@@ -523,7 +523,7 @@ class ApiClient {
         }
       }
 
-      // إذا وجدت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
+      // إذا و��دت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
       if (fallbackData !== undefined) {
         console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
         return fallbackData;
@@ -647,6 +647,13 @@ class ApiClient {
       method: "PATCH",
       body: JSON.stringify(updates),
     });
+  }
+
+  async deleteBooking(id: string): Promise<{ success: boolean }> {
+    await this.request(`/bookings/${id}`, {
+      method: "DELETE",
+    });
+    return { success: true };
   }
 
   async getAvailableSlots(
