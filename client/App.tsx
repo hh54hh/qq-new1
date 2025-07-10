@@ -220,38 +220,12 @@ const AppContent = () => {
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
-            onStartChat={(user) => {
-              console.log("🔥 [APP-CUSTOMER] onStartChat تم استدعاؤها!");
-              console.log(
-                "💬 [APP-CUSTOMER] بدء محادثة مع:",
-                user.id,
-                user.name,
-              );
-              setTargetChatUserId(user.id);
-              setActiveTab("messages");
-              console.log(
-                "💬 [APP-CUSTOMER] تم تغيير activeTab إلى messages, targetChatUserId:",
-                user.id,
-              );
-            }}
-            targetChatUserId={targetChatUserId}
           />
         ) : state.user.role === "barber" ? (
           <BarberDashboard
             user={state.user}
             activeTab={activeTab}
             onLogout={handleLogout}
-            onStartChat={(user) => {
-              console.log("🔥 [APP-BARBER] onStartChat تم استدعاؤها!");
-              console.log("💬 [APP-BARBER] بدء محادثة مع:", user.id, user.name);
-              setTargetChatUserId(user.id);
-              setActiveTab("messages");
-              console.log(
-                "💬 [APP-BARBER] تم تغيير activeTab إلى messages, targetChatUserId:",
-                user.id,
-              );
-            }}
-            targetChatUserId={targetChatUserId}
           />
         ) : state.user.role === "admin" ? (
           <AdminDashboard
