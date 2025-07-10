@@ -86,7 +86,7 @@ export default function AdvancedSearchPage({
     onlyAvailable: false,
   });
 
-  const { location: userLocation, isLocationAvailable } = useLocation();
+  const { location: userLocation } = useLocation();
 
   useEffect(() => {
     // Perform initial search on component mount
