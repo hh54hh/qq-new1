@@ -50,16 +50,12 @@ interface CustomerDashboardProps {
   user: User;
   activeTab: string;
   onLogout?: () => void;
-  onStartChat?: (targetUser: User) => void; // دالة بدء الدردشة الجديدة
-  targetChatUserId?: string; // معرف المستخدم المستهدف للدردشة
 }
 
 export default function CustomerDashboard({
   user,
   activeTab,
   onLogout,
-  onStartChat,
-  targetChatUserId,
 }: CustomerDashboardProps) {
   const [state, store] = useAppStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -1299,7 +1295,7 @@ export default function CustomerDashboard({
                 size="sm"
                 onClick={() => console.log("All barbers data:", allBarbers)}
               >
-                📋 طباعة البيانات
+                📋 طباعة البيان��ت
               </Button>
             </div>
           </div>
