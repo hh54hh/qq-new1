@@ -41,6 +41,7 @@ import PWAPerformanceMonitor, {
   usePWAMonitorConsole,
 } from "./components/PWAPerformanceMonitor";
 import NetworkStatusBanner from "./components/NetworkStatusBanner";
+import { PWAInstallPrompt } from "./components/PWAInstallButton";
 
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
@@ -361,6 +362,9 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+
+      {/* PWA Install Prompt - يظهر عند الحاجة */}
+      <PWAInstallPrompt />
     </QueryClientProvider>
   );
 };

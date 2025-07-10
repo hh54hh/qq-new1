@@ -35,37 +35,8 @@
   status = 200
   force = true
 
-# PWA static files redirects
-[[redirects]]
-  from = "/manifest.json"
-  to = "/public/manifest.json"
-  status = 200
-
-[[redirects]]
-  from = "/sw.js"
-  to = "/public/sw.js"
-  status = 200
-
-[[redirects]]
-  from = "/robots.txt"
-  to = "/public/robots.txt"
-  status = 200
-
-[[redirects]]
-  from = "/sitemap.xml"
-  to = "/public/sitemap.xml"
-  status = 200
-
-# PWA icons
-[[redirects]]
-  from = "/icons/*"
-  to = "/public/icons/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/screenshots/*"
-  to = "/public/screenshots/:splat"
-  status = 200
+# PWA files are served directly from the build output
+# No redirects needed since they're in the root of dist/spa
 
 # Offline page
 [[redirects]]
