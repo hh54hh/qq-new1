@@ -107,6 +107,14 @@ export const db = {
       if (error) throw error;
       return data;
     },
+
+    async delete(userId: string) {
+      // Delete user (CASCADE will handle related data)
+      const { error } = await supabase.from("users").delete().eq("id", userId);
+
+      if (error) throw error;
+      return true;
+    },
   },
 
   // Posts
