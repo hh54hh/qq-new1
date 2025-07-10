@@ -497,13 +497,5 @@ function createAppWithRoutes(app: express.Application) {
     }
   });
 
-  // Messages routes
-  app.get("/api/messages/conversations", getConversations);
-  app.get("/api/messages/unread-count", getUnreadCount);
-  app.get("/api/messages/:otherUserId", getMessages);
-  app.post("/api/messages", sendMessage);
-  app.patch("/api/messages/:senderId/read", markMessagesAsRead);
-  app.delete("/api/messages/:otherUserId", deleteConversation);
-
   return app;
 }
