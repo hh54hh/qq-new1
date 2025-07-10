@@ -226,6 +226,43 @@ export const updateBooking: RequestHandler = async (req, res) => {
   }
 };
 
+export const deleteBooking: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Booking ID is required" });
+    }
+
+    // Delete booking (with permission check inside the function)
+    await db.bookings.delete(id, userId);
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Delete booking error:", error);
+
+    // Handle specific errors
+    if (
+      error.message?.includes("not found") ||
+      error.message?.includes("access denied")
+    ) {
+      return res.status(404).json({
+        error: "الحجز غير موجود أو ليس لديك صلاحية لحذفه",
+      });
+    }
+
+    res.status(500).json({
+      error: "حدث خطأ في حذف الحجز، يرجى المحاولة مرة أخرى",
+    });
+  }
+};
+
 // Posts endpoints
 export const getPosts: RequestHandler = async (req, res) => {
   try {
