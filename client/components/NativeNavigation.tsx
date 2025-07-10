@@ -44,12 +44,7 @@ export default function NativeNavigation({
         label: "الرئيسية",
         icon: Home,
       },
-      {
-        id: "messages",
-        label: "الرسائل",
-        icon: MessageCircle,
-        badge: unreadMessages,
-      },
+
       {
         id: "notifications",
         label: "الإشعارات",
