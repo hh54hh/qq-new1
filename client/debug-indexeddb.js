@@ -55,13 +55,13 @@ async function checkDatabase() {
           const conversations = request.result;
           console.log("💬 عدد المحادثات المحفوظة:", conversations.length);
           if (conversations.length > 0) {
-            console.log("💬 المحادثات:", conversations);
+            console.log("💬 ��لمحادثات:", conversations);
           }
         };
       }
 
-      // Check messages table content
-      if (db.objectStoreNames.contains("messages")) {
+      // Check other tables content
+      if (db.objectStoreNames.contains("posts")) {
         const transaction = db.transaction(["messages"], "readonly");
         const store = transaction.objectStore("messages");
         const request = store.getAll();
