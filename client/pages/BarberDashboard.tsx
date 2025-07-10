@@ -413,7 +413,7 @@ export default function BarberDashboard({
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
-            طلبا�� الحجز الجديدة
+            طلبات الحجز الجديدة
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -1081,7 +1081,7 @@ export default function BarberDashboard({
     case "requests":
       return renderRequests();
     case "messages":
-      return <EnhancedMessagesPage targetUserId={targetChatUserId} />;
+      return <SmartMessagesPage targetUserId={targetChatUserId} />;
     case "new-post":
       return renderNewPost();
     case "profile":
