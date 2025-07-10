@@ -197,10 +197,7 @@ const AppContent = () => {
   return (
     <>
       <NotificationService />
-      <ChatNotifications
-        currentUserId={state.user.id}
-        onMessageClick={() => (window.location.href = "/messages")}
-      />
+
       <LocationPermissionDialog
         open={showLocationDialog}
         onOpenChange={setShowLocationDialog}
@@ -314,7 +311,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إضافة دالة عالمية لفتح صفحة التشخيص
+    // إض��فة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
