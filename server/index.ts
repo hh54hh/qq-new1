@@ -37,6 +37,7 @@ import {
   updateFriendRequest,
   likePost,
   unlikePost,
+  getUserLikes,
   getPostComments,
   createPostComment,
   getBarberRatings,
