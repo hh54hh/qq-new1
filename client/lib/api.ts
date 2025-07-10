@@ -297,7 +297,7 @@ class ApiClient {
               }
               break;
             case 403:
-              errorMessage = "غير مصرح لك بالوصول إل�� هذه الخدمة";
+              errorMessage = "غير مصرح لك ��الوصول إل�� هذه الخدمة";
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
@@ -1098,6 +1098,39 @@ const apiClient = new ApiClient();
 export { ApiClient };
 
 // Note: Most files should import the default export (apiClient instance)
+  // Messages
+  async getConversations(): Promise<{ conversations: any[]; total: number }> {
+    return this.request<{ conversations: any[]; total: number }>("/messages/conversations");
+  }
+
+  async getMessages(otherUserId: string): Promise<{ messages: any[]; total: number }> {
+    return this.request<{ messages: any[]; total: number }>(`/messages/${otherUserId}`);
+  }
+
+  async createMessage(messageData: {
+    receiver_id: string;
+    message: string;
+    message_type?: "text" | "image" | "voice" | "system";
+  }): Promise<any> {
+    return this.request<any>("/messages", {
+      method: "POST",
+      body: JSON.stringify(messageData),
+    });
+  }
+
+  async markMessageAsRead(messageId: string): Promise<void> {
+    return this.request<void>(`/messages/${messageId}/read`, {
+      method: "PATCH",
+    });
+  }
+
+  async markConversationAsRead(otherUserId: string): Promise<void> {
+    return this.request<void>(`/messages/conversations/${otherUserId}/read`, {
+      method: "PATCH",
+    });
+  }
+}
+
 // Example: import apiClient from './api';
 // Only import { ApiClient } if you need the class itself
 
