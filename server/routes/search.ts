@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { supabase, getCurrentUserId } from "../../shared/supabase";
+import { supabase, getCurrentUserId, db } from "../../shared/supabase";
 
 // Calculate distance between two points using Haversine formula
 function calculateDistance(
