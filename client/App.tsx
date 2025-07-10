@@ -22,7 +22,6 @@ import BarberDashboard from "./pages/BarberDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotificationService from "./components/NotificationService";
 import NotificationsCenter from "./pages/NotificationsCenter";
-import ChatNotifications from "./components/ChatNotifications";
 
 import LocationPermissionDialog from "./components/LocationPermissionDialog";
 import DebugPage from "./pages/DebugPage";
@@ -32,9 +31,9 @@ import NetworkDiagnostic from "./pages/NetworkDiagnostic";
 import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
-import MessagesPage from "./pages/MessagesPage";
+
 import IndexedDBStatus from "./components/debug/IndexedDBStatus";
-import EnhancedMessagesPage from "./pages/EnhancedMessagesPage";
+
 import PWAManager from "./components/PWAManager";
 import PWAUpdateNotification, {
   PWAStatusBar,
@@ -319,7 +318,7 @@ const DebugRoute = () => {
           onClick={() => window.history.back()}
           className="mb-4"
         >
-          ← ال��ودة للتطبيق
+          ← ال��ودة للتطب��ق
         </Button>
       </div>
       <DebugPage />
@@ -365,7 +364,7 @@ const App = () => {
     };
 
     console.log("💡 نصا��ح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة ��لتشخيص");
     console.log("  - اكتب openDiagnostic() في ا��كونسول لفتح التشخيص الشامل");
   }, []);
 
