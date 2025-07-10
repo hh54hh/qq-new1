@@ -329,6 +329,7 @@ const App = () => {
               element={<NetworkDiagnosticTest />}
             />
             <Route path="/offline" element={<OfflinePage />} />
+            <Route path="/chat" element={<ChatPage />} />
 
             {/* Authenticated routes */}
             <Route
