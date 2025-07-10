@@ -149,7 +149,7 @@ const AppContent = () => {
 
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
-    console.log("  - اكتب openDiagnostic() ف���� الكونسول لفتح التشخيص الشامل");
+    console.log("  - اكتب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
   // Check if we need to show location dialog for existing customers
@@ -356,7 +356,6 @@ const App = () => {
               }
             />
             <Route path="/notifications" element={<NotificationsRoute />} />
-            <Route path="/messages" element={<MessagesRoute />} />
 
             {/* Catch all route - show 404 page */}
             <Route path="*" element={<NotFound />} />
