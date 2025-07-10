@@ -70,7 +70,11 @@ export default function SearchPage({
         // For now, initialize empty set
         setLikedPosts(new Set());
       } catch (error) {
-        console.error("Error loading posts:", error);
+        console.error("Error loading posts:", {
+          message: error?.message || "Unknown error",
+          type: error?.name || "Unknown type",
+          details: error,
+        });
         setPosts([]);
         setFilteredPosts([]);
       } finally {
