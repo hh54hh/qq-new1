@@ -316,9 +316,10 @@ export default function SearchPage({
                 >
                   {getLevelIcon(post.user.level)}
                 </Badge>
-              </div>
+                            </div>
             </div>
-          ))}
+          )))
+          )}
         </div>
 
         {/* رسالة عدم وجود نتائج */}
