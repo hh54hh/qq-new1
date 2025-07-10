@@ -216,24 +216,6 @@ export default function UserProfileCard({
           {/* أزرار التفاعل */}
           {showActions && !isCurrentUser && (
             <div className="flex gap-3">
-              {/* زر بدء المحادثة */}
-              <SmartChatButton
-                userId={user.id}
-                userName={user.name}
-                userRole={user.role}
-                variant="default"
-                className="flex-1"
-                onChatStart={() => {
-                  console.log("🚀 بدء محادثة من البطاقة مع:", user.name);
-                  // Call original callback if exists
-                  if (onStartChatNew) {
-                    onStartChatNew(user.id, user.name);
-                  } else if (onStartChat) {
-                    onStartChat(user);
-                  }
-                }}
-              />
-
               {/* أزرار الاتصال */}
               <div className="flex gap-2">
                 {onCall && (
