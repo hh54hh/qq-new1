@@ -206,18 +206,18 @@ export default function SmartMessagesPage({
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation || isSending) return;
 
-    try {
-      setIsSending(true);
-      const tempMessage: Message = {
-        id: "temp-" + Date.now(),
-        content: newMessage.trim(),
-        sender_id: state.user!.id,
-        receiver_id: selectedConversation.other_user.id,
-        created_at: new Date().toISOString(),
-        is_read: false,
-        message_type: "text",
-      };
+    setIsSending(true);
+    const tempMessage: Message = {
+      id: "temp-" + Date.now(),
+      content: newMessage.trim(),
+      sender_id: state.user!.id,
+      receiver_id: selectedConversation.other_user.id,
+      created_at: new Date().toISOString(),
+      is_read: false,
+      message_type: "text",
+    };
 
+    try {
       // Add message optimistically
       setMessages((prev) => [...prev, tempMessage]);
       setNewMessage("");
