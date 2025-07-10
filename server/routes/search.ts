@@ -314,7 +314,7 @@ export const getRecommendations: RequestHandler = async (req, res) => {
 
       if (!reason) {
         if (avgRating >= 4.5) reason = "تقييم ممتاز";
-        else if (avgRating >= 4) reason = "تقييم جيد";
+        else if (avgRating >= 4) reason = "تقيي�� جيد";
         else reason = "حلاق موصى به";
       }
 
@@ -397,6 +397,55 @@ export const searchUsers: RequestHandler = async (req, res) => {
     res.json({ users: searchResults });
   } catch (error) {
     console.error("User search error:", error);
-    res.status(500).json({ error: "خطأ في البحث عن ال��ستخدمين" });
+    res.status(500).json({ error: "خطأ في البحث عن المستخدمين" });
+  }
+};
+
+// Get user by ID for starting conversations
+export const getUserById: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+    if (!userId) {
+      return res.status(401).json({ error: "المصادقة مطلوبة" });
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "معرف المستخدم مطلوب" });
+    }
+
+    console.log("👤 طلب معلومات المستخدم:", {
+      targetUserId: id,
+      requesterId: userId,
+    });
+
+    // Get user info
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("id, name, email, role, status, avatar_url, is_verified")
+      .eq("id", id)
+      .eq("status", "active") // Only active users
+      .single();
+
+    if (error) {
+      console.error("Get user error:", error);
+      if (error.code === "PGRST116") {
+        // No rows returned
+        return res.status(404).json({ error: "المستخدم غير موجود" });
+      }
+      return res.status(500).json({ error: "خطأ في جلب بيانات المستخدم" });
+    }
+
+    console.log("✅ تم جلب بيانات المستخدم:", {
+      id: user.id,
+      name: user.name,
+      role: user.role,
+    });
+
+    res.json(user);
+  } catch (error) {
+    console.error("Get user by ID error:", error);
+    res.status(500).json({ error: "خطأ في جلب بيانات المستخدم" });
   }
 };
