@@ -1311,7 +1311,7 @@ export default function CustomerDashboard({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-semibold text-foreground">
-                الحلاقين المتابعين
+                الحلا��ين المتابعين
               </h3>
               <Button
                 variant="ghost"
@@ -1953,7 +1953,7 @@ export default function CustomerDashboard({
                     <div className="flex-1">
                       <h4 className="font-medium">
                         {follow.followed?.name ||
-                          `مستخدم ${follow.followed_id.slice(-4)}`}
+                          `مستخ��م ${follow.followed_id.slice(-4)}`}
                       </h4>
                       <p className="text-sm text-muted-foreground">
                         {follow.followed?.role === "barber" ? "حلاق" : "زبون"}
