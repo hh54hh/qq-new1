@@ -136,8 +136,10 @@ class NetworkAwareAPIWrapper {
   }
 
   async deleteBooking(id: string) {
-    // Placeholder for delete booking - not implemented in current API
-    return Promise.resolve({ success: true });
+    return this.safeRequest(() => this.apiClient.deleteBooking(id), {
+      success: false,
+      error: "فشل في حذف الحجز - تحقق من الاتصال بالشبكة",
+    });
   }
 
   // Utility methods
