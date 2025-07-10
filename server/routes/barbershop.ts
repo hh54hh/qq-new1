@@ -717,6 +717,22 @@ export const unlikePost: RequestHandler = async (req, res) => {
   }
 };
 
+export const getUserLikes: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const likedPostIds = await db.postLikes.getUserLikes(userId);
+    res.json({ liked_posts: likedPostIds });
+  } catch (error) {
+    console.error("Get user likes error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Post Comments endpoints
 export const getPostComments: RequestHandler = async (req, res) => {
   try {
@@ -1084,6 +1100,6 @@ export const uploadImage: RequestHandler = async (req, res) => {
     res.json({ url: imageUrl });
   } catch (error) {
     console.error("Upload image error:", error);
-    res.status(500).json({ error: "فشل في رفع الصورة" });
+    res.status(500).json({ error: "فشل في ��فع الصورة" });
   }
 };
