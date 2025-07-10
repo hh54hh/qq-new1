@@ -140,7 +140,7 @@ export default function IndexedDBStatus() {
         });
       };
     } catch (error) {
-      console.error("❌ [IndexedDBStatus] خطأ في ��حص قاعدة البيانات:", error);
+      console.error("❌ [IndexedDBStatus] خطأ في فحص قاعدة البيانات:", error);
       setStatus((prev) => ({
         ...prev,
         error: `خطأ في فحص قاعدة البيانات: ${error.message}`,
@@ -178,7 +178,7 @@ export default function IndexedDBStatus() {
           <div>الرسائل: {status.messagesCount}</div>
           <div style={{ fontSize: "10px", marginTop: "4px" }}>
             الجداول المطلوبة:
-            {["conversations", "messages"].map((table) => (
+            {["bookings", "posts"].map((table) => (
               <span
                 key={table}
                 style={{
