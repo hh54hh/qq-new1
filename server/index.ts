@@ -354,6 +354,10 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/api/users/search", searchUsers);
   app.get("/users/search", searchUsers);
 
+  // Get user by ID
+  app.get("/api/users/:id", getUserById);
+  app.get("/users/:id", getUserById);
+
   // Bookings routes - both paths
   app.get("/api/bookings", getBookings);
   app.get("/bookings", getBookings);
