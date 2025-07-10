@@ -701,7 +701,7 @@ export default function CustomerDashboard({
 
   const loadProfileData = async () => {
     try {
-      // تحميل الإحصائيات
+      // تحميل الإحصا��يات
       const bookingsData = await apiClient.getBookings();
 
       // تحميل المتابعين والمتابعين
@@ -825,7 +825,7 @@ export default function CustomerDashboard({
   const getBookingStatusLabel = (status: string) => {
     switch (status) {
       case "pending":
-        return "با�����تظار";
+        return "با�����تظا��";
       case "accepted":
         return "مق��و��";
       case "rejected":
@@ -2092,4 +2092,3 @@ export default function CustomerDashboard({
       return renderHome();
   }
 }
-
