@@ -64,6 +64,7 @@ import {
   searchBarbers as advancedSearchBarbers,
   getRecommendations,
   searchUsers,
+  getUserById,
 } from "./routes/search";
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 import { getSystemDiagnostic } from "./routes/system-diagnostic";
@@ -463,7 +464,7 @@ function createAppWithRoutes(app: express.Application) {
         res.json({ url: fileUrl });
       } catch (error) {
         console.error("Upload error:", error);
-        res.status(500).json({ error: "خ��أ في رفع ��لملف" });
+        res.status(500).json({ error: "خطأ في رفع ��لملف" });
       }
     });
 
