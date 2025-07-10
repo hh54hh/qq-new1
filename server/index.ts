@@ -255,7 +255,7 @@ function createAppWithRoutes(app: express.Application) {
           key_configured: hasSupabaseKey,
           connection_type: isNetlify
             ? "Netlify Serverless"
-            : "مدمجة في المشروع",
+            : "��دمجة في المشروع",
           url_preview: hasSupabaseUrl
             ? getEnvVar("VITE_SUPABASE_URL")?.substring(0, 40) + "..."
             : "https://yrsvksgkxjiogjuaeyvd.supabase.co",
@@ -447,6 +447,24 @@ function createAppWithRoutes(app: express.Application) {
   // Analytics routes
   app.get("/api/analytics/barber", getBarberAnalytics);
 
+  // Messages routes - both paths
+  app.get("/api/messages/conversations", getConversations);
+  app.get("/messages/conversations", getConversations);
+  app.get("/api/messages/:otherUserId", getMessages);
+  app.get("/messages/:otherUserId", getMessages);
+  app.post("/api/messages", createMessage);
+  app.post("/messages", createMessage);
+  app.patch("/api/messages/:messageId/read", markMessageAsRead);
+  app.patch("/messages/:messageId/read", markMessageAsRead);
+  app.patch(
+    "/api/messages/conversations/:otherUserId/read",
+    markConversationAsRead,
+  );
+  app.patch(
+    "/messages/conversations/:otherUserId/read",
+    markConversationAsRead,
+  );
+
   // Upload routes - handle differently in serverless vs regular mode
   if (process.env.NETLIFY) {
     // Serverless mode - disable file uploads or handle them differently
@@ -509,7 +527,7 @@ function createAppWithRoutes(app: express.Application) {
       console.log("Test notification sent");
       res.json({ success: true, message: "تم إرسال الإشعار التجريبي" });
     } catch (error) {
-      res.status(500).json({ error: "خطأ في إرسال الإشعار" });
+      res.status(500).json({ error: "خطأ في إرسال ا��إشعار" });
     }
   });
 
