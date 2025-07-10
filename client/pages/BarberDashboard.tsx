@@ -14,7 +14,7 @@ import {
   Camera,
   Image as ImageIcon,
   Calendar,
-  MessageCircle,
+  Clock,
   TrendingUp,
   Award,
   Settings,
@@ -388,7 +388,7 @@ export default function BarberDashboard({
       <Card className="border-border/50 bg-card/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
+            <Clock className="h-5 w-5" />
             طلبات الحجز الجديدة
           </CardTitle>
         </CardHeader>
@@ -554,7 +554,7 @@ export default function BarberDashboard({
         {state.bookings.filter((b) => b.status === "pending").length === 0 && (
           <Card className="border-border/50 bg-card/50">
             <CardContent className="p-8 text-center">
-              <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
                 لا توجد طلبات جديدة
               </h3>
