@@ -285,7 +285,7 @@ export default function CustomerDashboard({
   }, [user.id]);
 
   const loadFriendRequests = () => {
-    // إضافة طلبات صداقة تجريبية للإشعارات
+    // إضافة طلب��ت صداقة تجريبية للإشعارات
     const friendRequests = [
       {
         id: "friend_req_1",
@@ -820,7 +820,7 @@ export default function CustomerDashboard({
       case "pending":
         return "��ا�����تظا��";
       case "accepted":
-        return "مق��و��";
+        return "��ق��و��";
       case "rejected":
         return "مرفوض";
       case "cancelled":
@@ -1076,7 +1076,7 @@ export default function CustomerDashboard({
               <CardContent className="p-8 text-center">
                 <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  ��ا توجد ح��اقين قريبين
+                  ��ا توجد ����اقين قريبين
                 </h3>
                 <p className="text-muted-foreground">
                   جاري ��لبحث عن حلاقين في منطقت��
@@ -2077,8 +2077,7 @@ export default function CustomerDashboard({
       return renderSearch();
     case "bookings":
       return renderBookings();
-    case "messages":
-      return <SmartMessagesPage targetUserId={targetChatUserId} />;
+
     case "profile":
       return renderProfile();
     default:
