@@ -100,10 +100,7 @@ export default function UserProfile({
 
     try {
       // Use safe network-aware API call - it handles errors gracefully
-      const response = await networkAwareAPI.safeRequest(
-        () => apiClient.getPosts(),
-        { posts: [], total: 0 },
-      );
+      const response = await networkAwareAPI.getPosts();
 
       const userSpecificPosts = (response?.posts || []).filter(
         (post) => post.user_id === profileUser.id,
@@ -488,7 +485,7 @@ export default function UserProfile({
                         variant="outline"
                         className="bg-green-500/10 text-green-500 border-green-500/20"
                       >
-                        {profileUser.is_verified ? "موثق" : "غير موثق"}
+                        {profileUser.is_verified ? "مو��ق" : "غير موثق"}
                       </Badge>
                     </div>
                   </CardContent>
