@@ -1,8 +1,11 @@
+import React, { useState, useEffect } from "react";
 import { User, Booking, Post, FriendRequest, Follow } from "@shared/api";
 import apiClient from "./api";
-import React, { useState, useEffect } from "react";
 
-// Ensure React hooks are available
+// Ensure React and hooks are available
+if (typeof React === "undefined") {
+  console.error("❌ React is not properly imported in store.ts");
+}
 if (typeof useState === "undefined" || typeof useEffect === "undefined") {
   console.error("❌ React hooks are not properly imported in store.ts");
 }
