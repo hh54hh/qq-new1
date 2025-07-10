@@ -15,6 +15,7 @@ import {
   handleRegister,
   handleGetProfile,
   handleUpdateProfile,
+  handleDeleteAccount,
 } from "./routes/auth";
 import { createTestUser } from "./routes/test-user";
 import { debugLogin } from "./routes/debug-auth";
@@ -25,6 +26,7 @@ import {
   getBookings,
   createBooking,
   updateBooking,
+  deleteBooking,
   getPosts,
   createPost,
   getFollows,
@@ -35,6 +37,7 @@ import {
   updateFriendRequest,
   likePost,
   unlikePost,
+  getUserLikes,
   getPostComments,
   createPostComment,
   getBarberRatings,
@@ -45,6 +48,7 @@ import {
   deleteService,
   getWorkingHours,
   saveWorkingHours,
+  getAvailableSlots,
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
@@ -61,6 +65,13 @@ import {
 } from "./routes/search";
 import { getBarberAnalytics, getGlobalAnalytics } from "./routes/analytics";
 import { getSystemDiagnostic } from "./routes/system-diagnostic";
+import {
+  getConversations,
+  getMessages,
+  createMessage,
+  markMessageAsRead,
+  markConversationAsRead,
+} from "./routes/messages";
 
 // Configure multer for file uploads
 let upload: multer.Multer;
@@ -324,6 +335,8 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/auth/profile", handleGetProfile);
   app.put("/api/auth/profile", handleUpdateProfile);
   app.put("/auth/profile", handleUpdateProfile);
+  app.delete("/api/auth/account", handleDeleteAccount);
+  app.delete("/auth/account", handleDeleteAccount);
 
   // Test routes (for development) - both /api and direct paths
   app.get("/api/create-test-user", createTestUser);
@@ -358,6 +371,8 @@ function createAppWithRoutes(app: express.Application) {
   app.post("/bookings", createBooking);
   app.patch("/api/bookings/:id", updateBooking);
   app.patch("/bookings/:id", updateBooking);
+  app.delete("/api/bookings/:id", deleteBooking);
+  app.delete("/bookings/:id", deleteBooking);
 
   // Posts routes - both paths
   app.get("/api/posts", getPosts);
@@ -386,6 +401,8 @@ function createAppWithRoutes(app: express.Application) {
   app.post("/posts/:id/like", likePost);
   app.delete("/api/posts/:id/like", unlikePost);
   app.delete("/posts/:id/like", unlikePost);
+  app.get("/api/posts/likes/user", getUserLikes);
+  app.get("/posts/likes/user", getUserLikes);
 
   // Post comments routes - both paths
   app.get("/api/posts/:id/comments", getPostComments);
@@ -414,6 +431,8 @@ function createAppWithRoutes(app: express.Application) {
   app.get("/working-hours", getWorkingHours);
   app.put("/api/working-hours", saveWorkingHours);
   app.put("/working-hours", saveWorkingHours);
+  app.get("/api/barbers/:barberId/slots", getAvailableSlots);
+  app.get("/barbers/:barberId/slots", getAvailableSlots);
 
   // Notifications routes - both paths
   app.get("/api/notifications", getNotifications);
@@ -430,6 +449,24 @@ function createAppWithRoutes(app: express.Application) {
 
   // Analytics routes
   app.get("/api/analytics/barber", getBarberAnalytics);
+
+  // Messages routes - both paths
+  app.get("/api/messages/conversations", getConversations);
+  app.get("/messages/conversations", getConversations);
+  app.get("/api/messages/:otherUserId", getMessages);
+  app.get("/messages/:otherUserId", getMessages);
+  app.post("/api/messages", createMessage);
+  app.post("/messages", createMessage);
+  app.patch("/api/messages/:messageId/read", markMessageAsRead);
+  app.patch("/messages/:messageId/read", markMessageAsRead);
+  app.patch(
+    "/api/messages/conversations/:otherUserId/read",
+    markConversationAsRead,
+  );
+  app.patch(
+    "/messages/conversations/:otherUserId/read",
+    markConversationAsRead,
+  );
 
   // Upload routes - handle differently in serverless vs regular mode
   if (process.env.NETLIFY) {
@@ -484,7 +521,7 @@ function createAppWithRoutes(app: express.Application) {
       console.log("Push subscription removed");
       res.json({ success: true, message: "تم إلغاء الاشتراك" });
     } catch (error) {
-      res.status(500).json({ error: "خطأ في إلغاء الاشتراك" });
+      res.status(500).json({ error: "خ��أ في إلغاء الاشتراك" });
     }
   });
 

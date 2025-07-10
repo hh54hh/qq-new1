@@ -107,6 +107,14 @@ export const db = {
       if (error) throw error;
       return data;
     },
+
+    async delete(userId: string) {
+      // Delete user (CASCADE will handle related data)
+      const { error } = await supabase.from("users").delete().eq("id", userId);
+
+      if (error) throw error;
+      return true;
+    },
   },
 
   // Posts
@@ -167,6 +175,16 @@ export const db = {
 
       if (error) throw error;
     },
+
+    async getUserLikes(userId: string): Promise<string[]> {
+      const { data, error } = await supabase
+        .from("post_likes")
+        .select("post_id")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      return data.map((like) => like.post_id);
+    },
   },
 
   // Bookings
@@ -223,6 +241,44 @@ export const db = {
         `,
         )
         .single();
+
+      if (error) throw error;
+      return data;
+    },
+
+    async delete(bookingId: string, userId: string) {
+      // First, verify the booking belongs to the user (as customer or barber)
+      const { data: booking, error: fetchError } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("id", bookingId)
+        .or(`customer_id.eq.${userId},barber_id.eq.${userId}`)
+        .single();
+
+      if (fetchError) throw fetchError;
+      if (!booking) throw new Error("Booking not found or access denied");
+
+      // Delete the booking
+      const { error } = await supabase
+        .from("bookings")
+        .delete()
+        .eq("id", bookingId);
+
+      if (error) throw error;
+      return true;
+    },
+
+    async getByBarberAndDate(barberId: string, date: string) {
+      const startOfDay = `${date}T00:00:00Z`;
+      const endOfDay = `${date}T23:59:59Z`;
+
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("barber_id", barberId)
+        .gte("datetime", startOfDay)
+        .lte("datetime", endOfDay)
+        .neq("status", "cancelled");
 
       if (error) throw error;
       return data;
@@ -420,6 +476,16 @@ export const db = {
 
       if (error && error.code !== "PGRST116") throw error;
       return !!data;
+    },
+
+    async getUserLikes(userId: string): Promise<string[]> {
+      const { data, error } = await supabase
+        .from("post_likes")
+        .select("post_id")
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      return data.map((like) => like.post_id);
     },
   },
 
@@ -702,6 +768,129 @@ export const db = {
         .from("notifications")
         .update({ is_read: true })
         .eq("user_id", userId)
+        .eq("is_read", false);
+
+      if (error) throw error;
+    },
+  },
+
+  // Messages
+  messages: {
+    async getConversations(userId: string) {
+      const { data, error } = await supabase
+        .from("messages")
+        .select(
+          `
+          *,
+          sender:users!sender_id(*),
+          receiver:users!receiver_id(*)
+        `,
+        )
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Group messages by conversation (unique pairs of users)
+      const conversations = new Map();
+
+      data.forEach((message) => {
+        const otherUserId =
+          message.sender_id === userId
+            ? message.receiver_id
+            : message.sender_id;
+        const key = [userId, otherUserId].sort().join("-");
+
+        if (!conversations.has(key)) {
+          conversations.set(key, {
+            user:
+              message.sender_id === userId ? message.receiver : message.sender,
+            lastMessage: message,
+            unreadCount: 0,
+            messages: [],
+          });
+        }
+
+        const conversation = conversations.get(key);
+        conversation.messages.push(message);
+
+        // Count unread messages for current user
+        if (message.receiver_id === userId && !message.is_read) {
+          conversation.unreadCount++;
+        }
+
+        // Update last message if this is more recent
+        if (
+          new Date(message.created_at) >
+          new Date(conversation.lastMessage.created_at)
+        ) {
+          conversation.lastMessage = message;
+        }
+      });
+
+      return Array.from(conversations.values());
+    },
+
+    async getMessages(userId: string, otherUserId: string) {
+      const { data, error } = await supabase
+        .from("messages")
+        .select(
+          `
+          *,
+          sender:users!sender_id(*),
+          receiver:users!receiver_id(*)
+        `,
+        )
+        .or(
+          `and(sender_id.eq.${userId},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${userId})`,
+        )
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+
+    async create(messageData: {
+      sender_id: string;
+      receiver_id: string;
+      message: string;
+      message_type?: "text" | "image" | "voice" | "system";
+    }) {
+      const { data, error } = await supabase
+        .from("messages")
+        .insert({
+          ...messageData,
+          message_type: messageData.message_type || "text",
+        })
+        .select(
+          `
+          *,
+          sender:users!sender_id(*),
+          receiver:users!receiver_id(*)
+        `,
+        )
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+
+    async markAsRead(messageId: string, userId: string) {
+      const { error } = await supabase
+        .from("messages")
+        .update({ is_read: true })
+        .eq("id", messageId)
+        .eq("receiver_id", userId);
+
+      if (error) throw error;
+    },
+
+    async markConversationAsRead(userId: string, otherUserId: string) {
+      const { error } = await supabase
+        .from("messages")
+        .update({ is_read: true })
+        .eq("receiver_id", userId)
+        .eq("sender_id", otherUserId)
         .eq("is_read", false);
 
       if (error) throw error;

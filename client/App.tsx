@@ -23,6 +23,7 @@ import NotificationService from "./components/NotificationService";
 import NotificationsCenter from "./pages/NotificationsCenter";
 
 import LocationPermissionDialog from "./components/LocationPermissionDialog";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import DebugPage from "./pages/DebugPage";
 import DiagnosticPage from "./pages/DiagnosticPage";
 import SystemDiagnostic from "./pages/SystemDiagnostic";
@@ -33,22 +34,10 @@ import OfflinePage from "./pages/OfflinePage";
 
 import IndexedDBStatus from "./components/debug/IndexedDBStatus";
 
-import PWAManager from "./components/PWAManager";
-import PWAUpdateNotification, {
-  PWAStatusBar,
-} from "./components/PWAUpdateNotification";
-import PWAPerformanceMonitor, {
-  usePWAMonitorConsole,
-} from "./components/PWAPerformanceMonitor";
-import NetworkStatusBanner from "./components/NetworkStatusBanner";
-import { PWAInstallPrompt } from "./components/PWAInstallButton";
-
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
-
-import { usePWA, useNetworkStatus } from "./hooks/use-pwa";
 
 const queryClient = new QueryClient();
 
@@ -149,7 +138,7 @@ const AppContent = () => {
 
     console.log("💡 نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
-    console.log("  - اكتب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
+    console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
   // Check if we need to show location dialog for existing customers
@@ -197,6 +186,7 @@ const AppContent = () => {
   return (
     <>
       <NotificationService />
+      <PWAInstallPrompt />
 
       <LocationPermissionDialog
         open={showLocationDialog}
@@ -232,7 +222,7 @@ const AppContent = () => {
           />
         ) : (
           <div className="p-4">
-            <h2 className="text-xl font-bold">نوع حساب غير مدعو��</h2>
+            <h2 className="text-xl font-bold">نو�� حساب غير مدعو��</h2>
           </div>
         )}
       </Layout>
@@ -293,9 +283,6 @@ const IndexRoute = () => {
 const App = () => {
   const [state, store] = useAppStore();
 
-  // Initialize PWA monitor console commands
-  usePWAMonitorConsole();
-
   // Initialize global functions
   useEffect(() => {
     // إض��فة دالة عالمية لفتح صفحة التشخيص
@@ -319,10 +306,6 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BrowserRouter>
-          <NetworkStatusBanner />
-          <PWAStatusBar />
-          <PWAUpdateNotification />
-          <PWAPerformanceMonitor />
           <Toaster />
           <Sonner />
           <Routes>
@@ -362,9 +345,6 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-
-      {/* PWA Install Prompt - يظهر عند الحاجة */}
-      <PWAInstallPrompt />
     </QueryClientProvider>
   );
 };

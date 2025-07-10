@@ -226,6 +226,43 @@ export const updateBooking: RequestHandler = async (req, res) => {
   }
 };
 
+export const deleteBooking: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: "Booking ID is required" });
+    }
+
+    // Delete booking (with permission check inside the function)
+    await db.bookings.delete(id, userId);
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Delete booking error:", error);
+
+    // Handle specific errors
+    if (
+      error.message?.includes("not found") ||
+      error.message?.includes("access denied")
+    ) {
+      return res.status(404).json({
+        error: "الحجز غير موجود أو ليس لديك صلاحية لحذفه",
+      });
+    }
+
+    res.status(500).json({
+      error: "حدث خطأ في حذف الحجز، يرجى المحاولة مرة أخرى",
+    });
+  }
+};
+
 // Posts endpoints
 export const getPosts: RequestHandler = async (req, res) => {
   try {
@@ -680,6 +717,22 @@ export const unlikePost: RequestHandler = async (req, res) => {
   }
 };
 
+export const getUserLikes: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    const likedPostIds = await db.postLikes.getUserLikes(userId);
+    res.json({ liked_posts: likedPostIds });
+  } catch (error) {
+    console.error("Get user likes error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Post Comments endpoints
 export const getPostComments: RequestHandler = async (req, res) => {
   try {
@@ -883,6 +936,88 @@ export const saveWorkingHours: RequestHandler = async (req, res) => {
   }
 };
 
+export const getAvailableSlots: RequestHandler = async (req, res) => {
+  try {
+    const { barberId } = req.params;
+    const { date } = req.query;
+
+    if (!barberId || !date) {
+      return res.status(400).json({
+        error: "Barber ID and date are required",
+      });
+    }
+
+    // Get barber's working hours for the day
+    const selectedDate = new Date(date as string);
+    const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
+
+    const availability = await db.availability.getByBarber(barberId);
+    const daySchedule = availability.find((a) => a.day_of_week === dayOfWeek);
+
+    if (!daySchedule || !daySchedule.is_available) {
+      // Barber is not available on this day
+      return res.json({ slots: [] });
+    }
+
+    // Generate time slots based on working hours
+    const slots = [];
+    const startTime = daySchedule.start_time;
+    const endTime = daySchedule.end_time;
+
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
+
+    // Convert to minutes for easier calculation
+    const startMinutes = startHour * 60 + startMinute;
+    const endMinutes = endHour * 60 + endMinute;
+
+    // Check if it's today and if we need to filter past times
+    const now = new Date();
+    const isToday = selectedDate.toDateString() === now.toDateString();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // Get existing bookings for this day
+    const existingBookings = await db.bookings.getByBarberAndDate(
+      barberId,
+      date as string,
+    );
+    const bookedTimes = existingBookings.map((booking) => {
+      const bookingDate = new Date(booking.datetime);
+      return `${bookingDate.getHours().toString().padStart(2, "0")}:${bookingDate.getMinutes().toString().padStart(2, "0")}`;
+    });
+
+    // Generate 30-minute slots
+    for (let minutes = startMinutes; minutes < endMinutes; minutes += 30) {
+      const hour = Math.floor(minutes / 60);
+      const minute = minutes % 60;
+      const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+
+      let available = true;
+
+      // Check if time has passed today
+      if (isToday && minutes <= currentMinutes + 30) {
+        // 30 minute buffer
+        available = false;
+      }
+
+      // Check if time is already booked
+      if (bookedTimes.includes(timeString)) {
+        available = false;
+      }
+
+      slots.push({
+        time: timeString,
+        available,
+      });
+    }
+
+    res.json({ slots });
+  } catch (error) {
+    console.error("Get available slots error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Notifications endpoints
 export const getNotifications: RequestHandler = async (req, res) => {
   try {
@@ -1047,6 +1182,6 @@ export const uploadImage: RequestHandler = async (req, res) => {
     res.json({ url: imageUrl });
   } catch (error) {
     console.error("Upload image error:", error);
-    res.status(500).json({ error: "فشل في رفع الصورة" });
+    res.status(500).json({ error: "فشل في ��فع الصورة" });
   }
 };

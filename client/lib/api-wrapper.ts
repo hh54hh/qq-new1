@@ -85,7 +85,7 @@ class NetworkAwareAPIWrapper {
       // For non-network errors, provide fallback if available
       console.warn("⚠️ API Error (non-network):", this.formatError(error));
       if (fallback !== undefined) {
-        console.log("🔄 استخدام البيانات الاحتياطية لخطأ غير شبكي");
+        console.log("🔄 استخدام البيانا�� الاحتياطية لخطأ غير شبكي");
         return fallback;
       }
       throw error;
@@ -136,8 +136,16 @@ class NetworkAwareAPIWrapper {
   }
 
   async deleteBooking(id: string) {
-    // Placeholder for delete booking - not implemented in current API
-    return Promise.resolve({ success: true });
+    return this.safeRequest(() => this.apiClient.deleteBooking(id), {
+      success: false,
+    });
+  }
+
+  async deleteAccount(password: string) {
+    return this.safeRequest(() => this.apiClient.deleteAccount(password), {
+      success: false,
+      message: "فشل في حذف الحساب - تحقق من الاتصال بالشبكة",
+    });
   }
 
   // Utility methods

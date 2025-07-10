@@ -28,9 +28,10 @@ import FriendsPage from "./FriendsPage";
 import UserProfile from "./UserProfile";
 import ServicesManagement from "./ServicesManagement";
 import WorkingHours from "./WorkingHours";
-import AnalyticsDashboard from "./AnalyticsDashboard";
+import AnalyticsDashboard from "@/components/AnalyticsDashboard";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
+import MessagesPage from "./MessagesPage";
 
 interface BarberDashboardProps {
   user: User;
@@ -555,7 +556,7 @@ export default function BarberDashboard({
             <CardContent className="p-8 text-center">
               <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                لا توجد طلبات جديدة
+                لا ت��جد طلبات جديدة
               </h3>
               <p className="text-muted-foreground">
                 سيظهر هنا طلبات الحج�� الجديدة من العملاء
@@ -717,7 +718,7 @@ export default function BarberDashboard({
           {/* Frame Preview */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              إطار المنشور
+              إطار ا��منشور
             </label>
             <div className="p-4 border border-border rounded-lg bg-muted/30">
               <div className="flex items-center gap-2 mb-2">
@@ -1055,7 +1056,8 @@ export default function BarberDashboard({
       return <FriendsPage user={user} />;
     case "requests":
       return renderRequests();
-
+    case "messages":
+      return <MessagesPage user={user} onBack={() => window.history.back()} />;
     case "new-post":
       return renderNewPost();
     case "profile":

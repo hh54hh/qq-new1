@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { networkAwareAPI } from "@/lib/api-wrapper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -161,13 +162,23 @@ export default function SettingsPage({ user, onBack }: SettingsPageProps) {
         'للتأكيد، اكتب "حذف حسابي" في المربع أد��اه:',
       );
       if (confirmation === "حذف حسابي") {
-        try {
-          // TODO: Implement account deletion
-          // await AdvancedApiService.deleteAccount(user.id);
-          alert("تم حذف حسابك بنجاح");
-          // Logout and redirect
-        } catch (error) {
-          console.error("Error deleting account:", error);
+        const password = prompt("أدخل كلمة المرور لتأكيد حذف الحساب:");
+        if (password) {
+          try {
+            const result = await networkAwareAPI.deleteAccount(password);
+            if (result.success) {
+              alert("تم حذف حسابك بنجاح");
+              // Clear auth and redirect to home
+              localStorage.removeItem("auth_token");
+              localStorage.removeItem("user_data");
+              window.location.href = "/";
+            } else {
+              alert("فشل في حذف الحساب: " + result.message);
+            }
+          } catch (error) {
+            console.error("Error deleting account:", error);
+            alert("حدث خطأ في حذف الحساب، يرجى المحاولة مرة أخرى");
+          }
         }
       }
     }
@@ -470,7 +481,7 @@ export default function SettingsPage({ user, onBack }: SettingsPageProps) {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label>المصادقة الثنائية</Label>
+                <Label>المصادقة ال��نائية</Label>
                 <p className="text-sm text-muted-foreground">
                   تفعيل طبقة حماية إضافية لحسابك
                 </p>

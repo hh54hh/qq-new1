@@ -78,7 +78,7 @@ class ApiClient {
       currentBaseUrl: this.baseUrl,
     });
 
-    // إذا كان على Netlify، استخدم م��ار Functions مباشرة دون اختبار
+    // إذ�� كان على Netlify، استخدم م��ار Functions مباشرة دون اختبار
     if (hostname.includes("netlify")) {
       this.baseUrl = window.location.origin + "/.netlify/functions/api";
       this.apiUrlVerified = true;
@@ -109,7 +109,7 @@ class ApiClient {
         clearTimeout(timeoutId);
 
         if (response.ok) {
-          console.log(`✅ API متاح على: ${path}`);
+          console.log(`✅ API مت��ح على: ${path}`);
           this.baseUrl = window.location.origin + path;
           this.apiUrlVerified = true;
           return;
@@ -117,7 +117,7 @@ class ApiClient {
           console.log(`❌ API غير متاح على ${path}: ${response.status}`);
         }
       } catch (error) {
-        // تجا��ل أخطاء AbortController timeout العادية
+        // تجا��ل أخطاء AbortController timeout الع��دية
         if (error instanceof Error && error.name === "AbortError") {
           console.log(`⏰ انتهت مهلة الاختبار لـ ${path} (طبيعي)`);
         } else {
@@ -133,7 +133,7 @@ class ApiClient {
     }
 
     console.warn("⚠️ لم يتم العث��ر على API على أي من المسار��ت المت��قعة");
-    // في حالة عدم العثور على API، استخدم المسار الا��تراضي
+    // في حالة عدم الع��ور على API، استخدم المسار الا��تراضي
     console.log("🔄 استخدام المسار الا��تراضي:", this.baseUrl);
   }
 
@@ -297,7 +297,7 @@ class ApiClient {
               }
               break;
             case 403:
-              errorMessage = "غير مصرح لك بالوصول إلى هذه الخدمة";
+              errorMessage = "غير مصرح لك ��الوصول إل�� هذه الخدمة";
               errorType = "AUTHORIZATION_ERROR";
               break;
             case 404:
@@ -321,7 +321,7 @@ class ApiClient {
               errorMessage = "خطأ في الخادم، يرجى المحاول�� مرة أخرى";
               errorType = "SERVER_ERROR";
               suggestion =
-                "إذا اس��مرت المشكلة، اتصل بال��عم الف��ي على: 07800657822";
+                "إذا اس��مرت المشكلة، ات��ل بال��عم الف��ي على: 07800657822";
               break;
             case 502:
               errorMessage = "الخادم غير مت��ح حالياً، يرجى المحاولة لاح��اً";
@@ -406,7 +406,7 @@ class ApiClient {
           networkErrorMessage = "خطأ في ا����شبكة";
           suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
         } else if (error.message.includes("timeout")) {
-          networkErrorMessage = "ا��تهت مهلة الاتصال";
+          networkErrorMessage = "ا��تهت مهلة ��لاتصال";
           suggestion = "الاتصال بطيء، يرجى المحاولة مرة أخرى";
         }
 
@@ -523,7 +523,7 @@ class ApiClient {
         }
       }
 
-      // إذا وجدت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
+      // إذا و��دت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
       if (fallbackData !== undefined) {
         console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
         return fallbackData;
@@ -583,6 +583,18 @@ class ApiClient {
       method: "PUT",
       body: JSON.stringify(profileData),
     });
+  }
+
+  async deleteAccount(
+    password: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(
+      "/auth/account",
+      {
+        method: "DELETE",
+        body: JSON.stringify({ password }),
+      },
+    );
   }
 
   // Barbers
@@ -647,6 +659,13 @@ class ApiClient {
       method: "PATCH",
       body: JSON.stringify(updates),
     });
+  }
+
+  async deleteBooking(id: string): Promise<{ success: boolean }> {
+    await this.request(`/bookings/${id}`, {
+      method: "DELETE",
+    });
+    return { success: true };
   }
 
   async getAvailableSlots(
@@ -832,6 +851,10 @@ class ApiClient {
     return this.request<void>(`/posts/${postId}/like`, {
       method: "DELETE",
     });
+  }
+
+  async getUserLikes(): Promise<{ liked_posts: string[] }> {
+    return this.request<{ liked_posts: string[] }>("/posts/likes/user");
   }
 
   // Post Comments
@@ -1066,6 +1089,44 @@ class ApiClient {
       }
     }
   }
+
+  // Messages
+  async getConversations(): Promise<{ conversations: any[]; total: number }> {
+    return this.request<{ conversations: any[]; total: number }>(
+      "/messages/conversations",
+    );
+  }
+
+  async getMessages(
+    otherUserId: string,
+  ): Promise<{ messages: any[]; total: number }> {
+    return this.request<{ messages: any[]; total: number }>(
+      `/messages/${otherUserId}`,
+    );
+  }
+
+  async createMessage(messageData: {
+    receiver_id: string;
+    message: string;
+    message_type?: "text" | "image" | "voice" | "system";
+  }): Promise<any> {
+    return this.request<any>("/messages", {
+      method: "POST",
+      body: JSON.stringify(messageData),
+    });
+  }
+
+  async markMessageAsRead(messageId: string): Promise<void> {
+    return this.request<void>(`/messages/${messageId}/read`, {
+      method: "PATCH",
+    });
+  }
+
+  async markConversationAsRead(otherUserId: string): Promise<void> {
+    return this.request<void>(`/messages/conversations/${otherUserId}/read`, {
+      method: "PATCH",
+    });
+  }
 }
 
 // Create singleton instance
@@ -1075,6 +1136,7 @@ const apiClient = new ApiClient();
 export { ApiClient };
 
 // Note: Most files should import the default export (apiClient instance)
+
 // Example: import apiClient from './api';
 // Only import { ApiClient } if you need the class itself
 

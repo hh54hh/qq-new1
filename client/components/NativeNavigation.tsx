@@ -8,6 +8,7 @@ import {
   Scissors,
   BarChart3,
   Settings,
+  MessageCircle,
 } from "lucide-react";
 
 interface NavigationItem {
@@ -41,7 +42,11 @@ export default function NativeNavigation({
         label: "الرئيسية",
         icon: Home,
       },
-
+      {
+        id: "messages",
+        label: "الرسائل",
+        icon: MessageCircle,
+      },
       {
         id: "notifications",
         label: "الإشعارات",
@@ -87,7 +92,7 @@ export default function NativeNavigation({
         roleSpecificItems.push(
           {
             id: "analytics",
-            label: "التحليلات",
+            label: "التح��يلات",
             icon: BarChart3,
           },
           {

@@ -42,6 +42,8 @@ import RatingPage from "./RatingPage";
 import SearchPage from "./SearchPage";
 import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
+import MessagesPage from "./MessagesPage";
+import AdvancedSearchPage from "./AdvancedSearchPage";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -507,7 +509,7 @@ export default function CustomerDashboard({
         id: Date.now().toString(),
         type: "new_booking",
         title: "تم إرسال طلب الحجز",
-        message: `تم إرسال طلب حجز إلى ${selectedBarber?.name}`,
+        message: `ت�� إرسال طلب حجز إلى ${selectedBarber?.name}`,
         data: newBooking,
         read: false,
         created_at: new Date().toISOString(),
@@ -589,7 +591,7 @@ export default function CustomerDashboard({
       store.addNotification({
         id: Date.now().toString(),
         type: isFollowed ? "friend_request" : "new_follower",
-        title: isFollowed ? "إلغاء المتابعة" : "متابعة جديدة",
+        title: isFollowed ? "إلغاء المتابعة" : "متابع�� ج��يدة",
         message: isFollowed
           ? `تم إلغاء متابعة ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`
           : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`,
@@ -1073,7 +1075,7 @@ export default function CustomerDashboard({
               <CardContent className="p-8 text-center">
                 <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  ��ا توجد ����اقين قريبين
+                  ����� توجد ����اقين قريبين
                 </h3>
                 <p className="text-muted-foreground">
                   جاري ��لبحث عن حلاقين في منطقت��
@@ -1152,7 +1154,7 @@ export default function CustomerDashboard({
   // Show advanced search
   if (showAdvancedSearch) {
     return (
-      <SearchPage
+      <AdvancedSearchPage
         user={user}
         onBack={() => setShowAdvancedSearch(false)}
         onSelectBarber={(barber) => {
@@ -1680,7 +1682,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جرب البحث بكلمة أخرى من المنشورات ال����يزة"
+              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
@@ -1987,7 +1989,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">ح��وز��ت</p>
+                <p className="text-sm text-muted-foreground">ح����وز��ت</p>
               </div>
               <div
                 className="cursor-pointer"
@@ -2055,7 +2057,8 @@ export default function CustomerDashboard({
       return renderSearch();
     case "bookings":
       return renderBookings();
-
+    case "messages":
+      return <MessagesPage user={user} onBack={() => window.history.back()} />;
     case "profile":
       return renderProfile();
     default:
