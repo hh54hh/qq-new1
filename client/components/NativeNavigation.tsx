@@ -8,6 +8,7 @@ import {
   Scissors,
   BarChart3,
   Settings,
+  MessageCircle,
 } from "lucide-react";
 
 interface NavigationItem {
