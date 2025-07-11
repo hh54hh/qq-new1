@@ -1060,6 +1060,29 @@ export default function BarberDashboard({
     return renderFollowing();
   }
 
+  // Show all requests page
+  if (showAllRequests) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border/50 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAllRequests(false)}
+            >
+              <Calendar className="h-5 w-5" />
+            </Button>
+            <h1 className="text-base sm:text-lg font-bold text-foreground">
+              جميع طلبات الحجز
+            </h1>
+          </div>
+        </div>
+        <div className="p-4">{renderRequests()}</div>
+      </div>
+    );
+  }
+
   switch (activeTab) {
     case "home":
       return renderHome();
