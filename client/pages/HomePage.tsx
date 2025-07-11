@@ -253,11 +253,24 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
           !followingIds.includes(suggestedUser.id),
       );
 
-      console.log(
-        "Filtered suggestions:",
-        suggestions.length,
-        suggestions.map((u) => ({ id: u.id, name: u.name, role: u.role })),
-      );
+      console.log("Filtered suggestions:", suggestions.length);
+      console.log("Current user ID:", user.id);
+      console.log("Following IDs:", followingIds);
+      console.log("Filter summary:", {
+        totalUsers: allUsers.length,
+        excludedSelf: allUsers.filter((u) => u.id === user.id).length,
+        excludedFollowing: allUsers.filter((u) => followingIds.includes(u.id))
+          .length,
+        finalSuggestions: suggestions.length,
+      });
+      if (suggestions.length > 0) {
+        console.log(
+          "Sample suggestions:",
+          suggestions
+            .slice(0, 3)
+            .map((u) => ({ id: u.id, name: u.name, role: u.role })),
+        );
+      }
 
       // Prioritize by activity and level (include all roles)
       suggestions.sort((a: any, b: any) => {
