@@ -67,6 +67,21 @@ class SimpleErrorBoundary extends Component<
 
   componentDidCatch(error: Error, errorInfo: any) {
     console.error("Error Boundary caught an error:", error, errorInfo);
+
+    // Special handling for React Context errors
+    if (
+      error.message?.includes("useState") ||
+      error.message?.includes("null")
+    ) {
+      console.error(
+        "React Context error detected. This might be a React version mismatch or import issue.",
+      );
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+      });
+    }
   }
 
   render() {
