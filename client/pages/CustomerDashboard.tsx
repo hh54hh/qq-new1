@@ -788,7 +788,7 @@ export default function CustomerDashboard({
       return `منذ ${diffInHours} ساعة`;
     } else {
       const diffInDays = Math.floor(diffInHours / 24);
-      return `��نذ ${diffInDays} ${diffInDays === 1 ? "يوم" : "أيام"}`;
+      return `��نذ ${diffInDays} ${diffInDays === 1 ? "ي��م" : "أيام"}`;
     }
   };
 
@@ -799,7 +799,7 @@ export default function CustomerDashboard({
       rating: barber.level / 20,
       distance: userLocation ? 2.5 : null,
       price: 30,
-      status: "متاح",
+      status: "��تاح",
       isFollowed: false,
     });
   };
@@ -1064,11 +1064,124 @@ export default function CustomerDashboard({
               <CardContent className="p-8 text-center">
                 <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  لا تت��بع ��ي حلاق
+                  لا تت��بع أي حلاق
                 </h3>
                 <p className="text-muted-foreground">
                   ا��دأ بمتابعة الحلاقين لرؤ��ت��م ه��ا
                 </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Show all bookings
+  if (showAllBookings) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border/50 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAllBookings(false)}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <h1 className="text-base sm:text-lg font-bold text-foreground">
+              جميع الحجوزات ({state.bookings.length})
+            </h1>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-4">
+          {state.bookings.map((booking) => (
+            <Card key={booking.id} className="border-border/50 bg-card/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-foreground">
+                      {booking.barber?.name || "الحلاق"}
+                    </h4>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(booking.datetime)}</span>
+                    </div>
+                    {booking.message && (
+                      <p className="text-sm text-muted-foreground">
+                        "الرسالة: {booking.message}"
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2">
+                    <Badge
+                      className={cn(
+                        "text-xs",
+                        getBookingStatusColor(booking.status),
+                      )}
+                    >
+                      {getBookingStatusLabel(booking.status)}
+                    </Badge>
+                    {booking.status === "pending" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCancelBooking(booking.id)}
+                      >
+                        إلغاء
+                      </Button>
+                    )}
+                    {booking.status === "cancelled" && (
+                      <Badge className="text-xs bg-destructive/10 text-destructive border-destructive/20">
+                        ملغي
+                      </Badge>
+                    )}
+                    {booking.status === "completed" && (
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => handleRateBooking(booking)}
+                      >
+                        <Star className="h-3 w-3 mr-1" />
+                        تقييم
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {state.bookings.length === 0 && (
+            <Card className="border-border/50 bg-card/50">
+              <CardContent className="p-8 text-center">
+                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  لا توجد حجوزات
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  احجز موعدك الأول مع أحد الحلاقين
+                </p>
+                <Button
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    setShowAllBookings(false);
+                    // Scroll to nearby barbers after a short delay
+                    setTimeout(() => {
+                      const nearbySection = document.querySelector(
+                        '[data-section="nearby-barbers"]',
+                      );
+                      if (nearbySection) {
+                        nearbySection.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }, 100);
+                  }}
+                >
+                  احجز الآن
+                </Button>
               </CardContent>
             </Card>
           )}
@@ -2181,7 +2294,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.followers}
                 </p>
-                <p className="text-sm text-muted-foreground">متابعين</p>
+                <p className="text-sm text-muted-foreground">متاب��ين</p>
               </div>
               <div
                 className="cursor-pointer"
