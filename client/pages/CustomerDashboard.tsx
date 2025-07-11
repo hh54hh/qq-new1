@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -313,7 +313,7 @@ export default function CustomerDashboard({
         message: "أحمد الحلاق يريد متابعتك",
         data: {
           senderId: "barber_1",
-          senderName: "أحمد الحلاق",
+          senderName: "أحمد ا��حلاق",
           requiresAction: true,
         },
         read: false,
@@ -961,7 +961,7 @@ export default function CustomerDashboard({
                   لا تت��بع أي حلاق
                 </h3>
                 <p className="text-muted-foreground">
-                  ا��دأ بمتابعة الحلاقين لرؤ��تهم ه��ا
+                  ا��دأ بمتابعة الحلاقين لرؤ��ت��م ه��ا
                 </p>
               </CardContent>
             </Card>
@@ -1694,7 +1694,7 @@ export default function CustomerDashboard({
               <div className="flex items-center gap-2">
                 <Heart className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  {selectedPost.likes} إعجاب
+                  {selectedPost.likes} إعجا��
                 </span>
               </div>
 
