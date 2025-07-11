@@ -172,6 +172,29 @@ export default function CustomerDashboard({
     });
   }, []);
 
+  // تهيئة follows عند تحميل الصفحة
+  useEffect(() => {
+    const initializeFollows = async () => {
+      if (!user?.id) return;
+
+      try {
+        console.log("🔄 Initializing follows data...");
+        const followingResponse = await apiClient.getFollows("following");
+        const follows = followingResponse.follows || [];
+
+        // تحديث store ببيانات المتابعة
+        store.setFollows(follows);
+
+        console.log(`✅ Initialized ${follows.length} follows in store`);
+      } catch (error) {
+        console.error("❌ Error initializing follows:", error);
+        store.setFollows([]);
+      }
+    };
+
+    initializeFollows();
+  }, [user?.id]);
+
   useEffect(() => {
     if (searchQuery) {
       setFilteredBarbers(
@@ -1030,7 +1053,7 @@ export default function CustomerDashboard({
 
   const getLevelLabel = (level: number) => {
     if (level >= 100) return "VIP";
-    if (level >= 51) return "ذهبي";
+    if (level >= 51) return "��هبي";
     if (level >= 21) return "محترف";
     return "مبتدئ";
   };
