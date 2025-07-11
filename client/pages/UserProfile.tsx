@@ -100,7 +100,7 @@ export default function UserProfile({
       // إذا لم نجد في store، تحقق من API
       const followingResponse = await networkAwareAPI.safeRequest(
         () => apiClient.getFollows("following"),
-        { follows: [] },
+        { follows: [], total: 0 },
       );
 
       const isFollowingFromAPI =
@@ -471,7 +471,7 @@ export default function UserProfile({
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="posts">المنشورات</TabsTrigger>
-              <TabsTrigger value="info">المعلومات</TabsTrigger>
+              <TabsTrigger value="info">ال��علومات</TabsTrigger>
             </TabsList>
 
             <div className="mt-6">
