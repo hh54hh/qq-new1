@@ -411,6 +411,18 @@ export default function ExplorePageWithTabs({
         targetUserId,
       );
 
+      // تحديث فوري للواجهة قبل API call
+      const updateUserFollowStatus = (users: any[]) =>
+        users.map((user) =>
+          user.id === targetUserId
+            ? { ...user, isFollowing: !isCurrentlyFollowing }
+            : user,
+        );
+
+      // تحديث ال��اجهة فوراً
+      setSuggestedUsers(updateUserFollowStatus(suggestedUsers));
+      setFilteredSuggestions(updateUserFollowStatus(filteredSuggestions));
+
       if (isCurrentlyFollowing) {
         await apiClient.unfollowUser(targetUserId);
         const updatedFollows =
@@ -430,12 +442,22 @@ export default function ExplorePageWithTabs({
         store.setFollows(updatedFollows);
       }
 
-      // Refresh data
-      if (activeTab === "friends") {
-        await loadSuggestedUsers();
-      }
+      console.log(
+        `✅ Successfully ${isCurrentlyFollowing ? "unfollowed" : "followed"} user ${targetUserId}`,
+      );
     } catch (error) {
       console.error("Error toggling follow status:", error);
+
+      // العودة للحالة السابقة في حالة الخطأ
+      const revertUserFollowStatus = (users: any[]) =>
+        users.map((user) =>
+          user.id === targetUserId
+            ? { ...user, isFollowing: isCurrentlyFollowing }
+            : user,
+        );
+
+      setSuggestedUsers(revertUserFollowStatus(suggestedUsers));
+      setFilteredSuggestions(revertUserFollowStatus(filteredSuggestions));
     }
   };
 
@@ -474,7 +496,7 @@ export default function ExplorePageWithTabs({
         />
       </div>
 
-      {/* فلتر الترتيب */}
+      {/* فلتر ال��رتيب */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">ترتيب حسب:</span>
         <Select value={exploreSortBy} onValueChange={setExploreSortBy}>
