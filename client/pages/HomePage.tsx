@@ -111,8 +111,23 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       const allPosts = postsResponse.posts || [];
 
       // Get all users to map user data to posts
-      const usersResponse = await apiClient.getAllUsers();
-      const allUsers = usersResponse.users || [];
+      let allUsers = [];
+      try {
+        const usersResponse = await apiClient.getAllUsers();
+        allUsers = usersResponse.users || [];
+        console.log("Fetched all users for posts mapping:", allUsers.length);
+      } catch (error) {
+        console.warn(
+          "Failed to get all users, falling back to barbers endpoint:",
+          error,
+        );
+        const barbersResponse = await apiClient.getBarbers();
+        allUsers = barbersResponse.barbers || [];
+        console.log(
+          "Fetched users from barbers endpoint (fallback):",
+          allUsers.length,
+        );
+      }
 
       // Create a user lookup map for faster access
       const userMap = new Map();
