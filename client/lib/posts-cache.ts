@@ -185,9 +185,29 @@ class PostsCacheManager {
       // Notify about updates
       this.notifyUpdate(followedPosts);
 
+      // Debug info for posts breakdown
+      const postsPerUser = followingIds.map((userId) => {
+        const userPosts = followedPosts.filter((p) => p.user_id === userId);
+        const userName =
+          userMap.get(userId)?.name || `User ${userId.slice(-4)}`;
+        return `${userName}: ${userPosts.length} posts`;
+      });
+
       console.log(
-        `✅ Background sync completed: ${followedPosts.length} posts`,
+        `✅ Background sync completed: ${followedPosts.length} posts from ${followingIds.length} followed users`,
       );
+      console.log(`📅 Posts breakdown by user:`, postsPerUser);
+      if (followedPosts.length > 0) {
+        console.log(
+          `📅 Recent posts:`,
+          followedPosts
+            .slice(0, 3)
+            .map(
+              (p) =>
+                `${p.author.name} (${new Date(p.created_at).toLocaleDateString()})`,
+            ),
+        );
+      }
     } catch (error) {
       console.error("Background sync failed:", error);
     } finally {
