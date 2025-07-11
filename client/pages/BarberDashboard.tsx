@@ -48,6 +48,7 @@ export default function BarberDashboard({
   const [state, store] = useAppStore();
   const [newPostCaption, setNewPostCaption] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
   // Followers system state
   const [followers, setFollowers] = useState<any[]>([]);
