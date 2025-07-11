@@ -821,7 +821,7 @@ export default function InstagramNewsFeed({
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium shadow-lg z-50 animate-fade-in">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 border-2 border-primary-foreground rounded-full animate-spin border-t-transparent"></div>
-            {isManualRefresh ? "جاري التحديث..." : "تحديث تلقائي..."}
+            {isManualRefresh ? "جاري ا��تحديث..." : "تحديث تلقائي..."}
           </div>
         </div>
       )}
