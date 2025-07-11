@@ -41,6 +41,8 @@ import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
+import { getBarberCache } from "./lib/barber-cache";
+import { getUltraFastBarberCache } from "./lib/ultra-fast-barber-cache";
 
 const queryClient = new QueryClient();
 
@@ -148,7 +150,7 @@ const AppContent = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفت�� صفحة التشخيص");
     console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -163,9 +165,24 @@ const AppContent = () => {
     }
   }, [state.user, isPermissionRequested]);
 
-  const handleAuth = (authenticatedUser: User) => {
+  const handleAuth = async (authenticatedUser: User) => {
     // User is already set in store by login/register
     setActiveTab("home");
+
+    // Preload barbers for customers in background
+    if (authenticatedUser.role === "customer") {
+      try {
+        console.log(
+          "🚀 Preloading barbers for customer:",
+          authenticatedUser.id,
+        );
+        const ultraCache = await getUltraFastBarberCache(authenticatedUser.id);
+        await ultraCache.preloadOnLogin();
+        console.log("✅ Barbers preloaded successfully");
+      } catch (error) {
+        console.warn("⚠️ Barber preloading failed:", error);
+      }
+    }
   };
 
   const handleLogout = () => {
