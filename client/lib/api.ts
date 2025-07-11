@@ -197,7 +197,7 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    // التحقق من صحة مسار API إذا لم يتم التح��ق مسبقاً
+    // التحقق من ��حة مسار API إذا لم يتم التح��ق مسبقاً
     await this.verifyApiUrl();
 
     // التحقق من auth token للمسارات المحمية
@@ -348,7 +348,7 @@ class ApiClient {
           console.info(`💡 ${suggestion}`);
         }
 
-        // إنشاء خطأ مخصص مع معلومات إضافية
+        // إنشاء خطأ مخصص مع معلومات ��ضافية
         const customError = new Error(errorMessage) as any;
         customError.errorType = errorType;
         customError.details = errorDetails;
@@ -453,7 +453,7 @@ class ApiClient {
     }
   }
 
-  // دالة طلب محسنة مع معالجة أخطاء أفضل
+  // دالة طلب محسنة مع معا��جة أخطاء أفضل
   private async requestWithFallback<T>(
     endpoint: string,
     options: RequestInit = {},
@@ -702,7 +702,8 @@ class ApiClient {
 
   // Search all users (requires authentication)
   async searchUsers(query: string = ""): Promise<{ users: User[] }> {
-    const params = query ? `?q=${encodeURIComponent(query)}` : "";
+    // Always send q parameter, even if empty, to get all users
+    const params = `?q=${encodeURIComponent(query)}`;
     return this.request<{ users: User[] }>(`/users/search${params}`);
   }
 
