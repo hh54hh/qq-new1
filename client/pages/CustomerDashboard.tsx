@@ -1344,24 +1344,22 @@ export default function CustomerDashboard({
             <BarberSkeletonGrid count={6} variant="default" />
           )}
 
-          {/* No Barbers Message */}
-          {!state.isLoading && nearbyBarbers.length === 0 && (
+          {/* No Barbers Message - Only show if not loading and no skeletons */}
+          {!barbersLoading && !showSkeletons && nearbyBarbers.length === 0 && (
             <Card className="border-border/50 bg-card/50">
               <CardContent className="p-8 text-center">
                 <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  لا توجد حلاقين متاحين
+                  جاري البحث عن حلاقين
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  جاري البحث عن حلاقين في منطقتك...
+                  يتم تحديث قائمة الحلاقين في الخلفية...
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => loadBarbers()}
-                >
-                  إعادة المحاولة
-                </Button>
+                {barbersFromCache && (
+                  <div className="text-xs text-muted-foreground">
+                    📱 البيانات المحفوظة متاحة
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
