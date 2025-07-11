@@ -211,25 +211,43 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       const followingIds =
         followingResponse.follows?.map((f: any) => f.followed_id) || [];
 
-      // Get all users using search endpoint (accessible to authenticated users)
+      // Get users - start with barbers endpoint (always works, no auth needed)
       let allUsers = [];
+
+      console.log("🔍 Starting to fetch users...");
+
       try {
-        // Use empty search to get all users
-        const usersResponse = await apiClient.searchUsers("");
-        allUsers = usersResponse.users || [];
-        console.log("Fetched all users from search endpoint:", allUsers.length);
-      } catch (error) {
-        console.warn(
-          "Failed to get users from search endpoint, falling back to barbers endpoint:",
-          error,
-        );
-        // Fallback to barbers endpoint if search fails
+        // Primary: Use barbers endpoint (public, reliable)
         const barbersResponse = await apiClient.getBarbers();
         allUsers = barbersResponse.barbers || [];
-        console.log(
-          "Fetched users from barbers endpoint (fallback):",
-          allUsers.length,
-        );
+        console.log("✅ Fetched users from barbers endpoint:", allUsers.length);
+
+        // Secondary: Try to get additional users from search if we have auth
+        if (allUsers.length >= 0) {
+          // Always try search
+          try {
+            const usersResponse = await apiClient.searchUsers("");
+            const searchUsers = usersResponse.users || [];
+            console.log(
+              "✅ Fetched additional users from search:",
+              searchUsers.length,
+            );
+
+            // Merge without duplicates
+            const userIds = new Set(allUsers.map((u) => u.id));
+            const newUsers = searchUsers.filter((u) => !userIds.has(u.id));
+            allUsers = [...allUsers, ...newUsers];
+            console.log("✅ Total after merge:", allUsers.length);
+          } catch (searchError) {
+            console.log(
+              "⚠️ Search endpoint failed (normal if no auth), continuing with barbers:",
+              searchError.message,
+            );
+          }
+        }
+      } catch (error) {
+        console.warn("❌ Barbers endpoint failed:", error);
+        allUsers = [];
       }
 
       // Final fallback: Add mock users if no users found
