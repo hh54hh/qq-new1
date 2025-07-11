@@ -3,7 +3,7 @@ import "./global.css";
 import React, { useState, useEffect, Component } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import SafeTooltipProvider from "@/components/SafeTooltipProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   BrowserRouter,
@@ -335,7 +335,7 @@ const App = () => {
       console.log("🔧 تم فتح صفحة الت��خيص");
     };
 
-    // إضافة دالة عالمية لفتح صفحة التشخيص الشام��
+    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
@@ -359,7 +359,7 @@ const App = () => {
     console.log("💡 نصا��ح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة ��لتشخيص");
     console.log("  - اكتب openDiagnostic() في ا����ونسول لفتح التشخيص الشامل");
-    console.log("  - اكت�� resetNotifications() لإعادة تعيين الإشعارات");
+    console.log("  - اكتب resetNotifications() لإعادة تعيين الإشعارات");
   }, []);
 
   return (
