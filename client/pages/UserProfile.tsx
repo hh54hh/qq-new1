@@ -72,7 +72,52 @@ export default function UserProfile({
   useEffect(() => {
     loadUserPosts();
     loadUserStats();
+    checkFollowStatus();
   }, [profileUser.id]);
+
+  // تحديث حالة المتابعة عند تغيير البيانات
+  useEffect(() => {
+    setIsFollowing(profileUser.isFollowed || false);
+  }, [profileUser.isFollowed]);
+
+  // تحديث ح��لة المتابعة من store
+  useEffect(() => {
+    checkFollowStatus();
+  }, [state.follows, profileUser.id]);
+
+  const checkFollowStatus = async () => {
+    try {
+      // تحقق من حالة المتابعة من store أولاً
+      const isFollowingFromStore = state.follows?.some(
+        (follow: any) => follow.followed_id === profileUser.id,
+      );
+
+      if (isFollowingFromStore !== undefined) {
+        setIsFollowing(isFollowingFromStore);
+        return;
+      }
+
+      // إذا لم نجد في store، تحقق من API
+      const followingResponse = await networkAwareAPI.safeRequest(
+        () => apiClient.getFollows("following"),
+        { follows: [] },
+      );
+
+      const isFollowingFromAPI =
+        followingResponse.follows?.some(
+          (follow: any) => follow.followed_id === profileUser.id,
+        ) || false;
+
+      setIsFollowing(isFollowingFromAPI);
+      console.log(
+        `🔍 Follow status for ${profileUser.name}: ${isFollowingFromAPI}`,
+      );
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+      // العودة للقيمة الممررة
+      setIsFollowing(profileUser.isFollowed || false);
+    }
+  };
 
   const loadUserStats = async () => {
     setIsLoadingStats(true);
