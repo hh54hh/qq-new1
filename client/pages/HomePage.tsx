@@ -210,18 +210,19 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       const followingIds =
         followingResponse.follows?.map((f: any) => f.followed_id) || [];
 
-      // Get all users from admin endpoint to include everyone
+      // Get all users using search endpoint (accessible to authenticated users)
       let allUsers = [];
       try {
-        const usersResponse = await apiClient.getAllUsers();
+        // Use empty search to get all users
+        const usersResponse = await apiClient.searchUsers("");
         allUsers = usersResponse.users || [];
-        console.log("Fetched all users from admin endpoint:", allUsers.length);
+        console.log("Fetched all users from search endpoint:", allUsers.length);
       } catch (error) {
         console.warn(
-          "Failed to get all users from admin endpoint, falling back to barbers endpoint:",
+          "Failed to get users from search endpoint, falling back to barbers endpoint:",
           error,
         );
-        // Fallback to barbers endpoint if admin endpoint fails (permission issues)
+        // Fallback to barbers endpoint if search fails
         const barbersResponse = await apiClient.getBarbers();
         allUsers = barbersResponse.barbers || [];
         console.log(
