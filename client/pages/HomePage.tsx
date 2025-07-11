@@ -612,6 +612,117 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
           </ScrollArea>
         </TabsContent>
       </Tabs>
+
+      {/* Post Detail Dialog */}
+      <Dialog
+        open={selectedPost !== null}
+        onOpenChange={(open) => !open && setSelectedPost(null)}
+      >
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedPost && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-3 space-x-reverse">
+                  <Avatar>
+                    <AvatarImage
+                      src={
+                        selectedPost.author?.avatar_url || "/placeholder.svg"
+                      }
+                    />
+                    <AvatarFallback>
+                      {selectedPost.author?.name?.charAt(0) ||
+                        selectedPost.user_name?.charAt(0) ||
+                        "؟"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">
+                      {selectedPost.author?.name ||
+                        selectedPost.user_name ||
+                        "مستخدم مجهول"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(
+                        selectedPost.created_at || selectedPost.createdAt || "",
+                      ).toLocaleDateString("ar")}
+                    </p>
+                  </div>
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                {/* Post Content */}
+                {selectedPost.content && (
+                  <p className="text-sm leading-relaxed">
+                    {selectedPost.content}
+                  </p>
+                )}
+
+                {/* Post Image */}
+                {selectedPost.image_url && (
+                  <div className="rounded-lg overflow-hidden">
+                    <img
+                      src={selectedPost.image_url}
+                      alt="منشور"
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Post Stats */}
+                <div className="flex items-center justify-between py-3 border-t border-b">
+                  <div className="flex items-center space-x-4 space-x-reverse">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "text-muted-foreground hover:text-red-500 transition-colors",
+                        selectedPost.isLiked && "text-red-500",
+                      )}
+                      onClick={() =>
+                        handlePostLike(
+                          selectedPost.id,
+                          selectedPost.isLiked || false,
+                        )
+                      }
+                    >
+                      <Heart
+                        className={cn(
+                          "w-5 h-5 ml-1 transition-all",
+                          selectedPost.isLiked && "fill-current scale-110",
+                        )}
+                      />
+                      <span className="font-medium">
+                        {selectedPost.likes || 0} إعجاب
+                      </span>
+                    </Button>
+
+                    <div className="flex items-center text-muted-foreground">
+                      <MessageCircle className="w-5 h-5 ml-1" />
+                      <span>{selectedPost.comments_count || 0} تعليق</span>
+                    </div>
+                  </div>
+
+                  <Button variant="outline" size="sm">
+                    <Share2 className="w-4 h-4 ml-1" />
+                    مشاركة
+                  </Button>
+                </div>
+
+                {/* Comments Section */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold">التعليقات</h4>
+                  <div className="text-center py-6 text-muted-foreground">
+                    <MessageCircle className="w-8 h-8 mx-auto mb-2" />
+                    <p>لا توجد تعليقات حتى الآن</p>
+                    <p className="text-xs">كن أول من يعلق على هذا المنشور</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
