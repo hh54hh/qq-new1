@@ -428,7 +428,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                   </Avatar>
                   <div>
                     <p className="font-semibold text-sm">
-                      {post.author?.name || post.user_name || "مستخدم مجهول"}
+                      {post.author?.name || post.user_name || "مست��دم مجهول"}
                     </p>
                     <div className="flex items-center text-xs text-muted-foreground space-x-1">
                       <Clock className="w-3 h-3" />
@@ -602,8 +602,8 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                 isFollowing,
                 {
                   userFollows: state.follows?.map((f) => ({
-                    following_id: f.following_id,
                     followed_id: f.followed_id,
+                    follower_id: f.follower_id,
                   })),
                 },
               );
