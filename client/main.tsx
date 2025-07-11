@@ -35,7 +35,7 @@ async function debugIndexedDB() {
       );
     };
   } catch (error) {
-    console.error("❌ [STARTUP] خطأ في فحص ��اعدة البيانات:", error);
+    console.error("❌ [STARTUP] خطأ في فحص قاعدة البيانات:", error);
   }
 }
 
@@ -47,37 +47,5 @@ if (!container) {
   throw new Error("Failed to find the root element");
 }
 
-// Verify React is properly loaded before starting the app
-if (!React || !React.useState || !React.useEffect) {
-  console.error("React is not properly loaded. Required hooks are missing.");
-  document.body.innerHTML = `
-    <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
-      <h2 style="color: #dc3545;">خطأ في تحميل التطبيق</h2>
-      <p>React لم يتم تحميله بشكل صحيح. يرجى إعادة تحميل الصفحة.</p>
-      <button onclick="window.location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-        إعادة تحميل
-      </button>
-    </div>
-  `;
-} else {
-  console.log("✅ React loaded successfully with all required hooks");
-
-  try {
-    const root = createRoot(container);
-    root.render(<App />);
-  } catch (error) {
-    console.error("Failed to render app:", error);
-    document.body.innerHTML = `
-      <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
-        <h2 style="color: #dc3545;">خطأ في تشغيل التطبيق</h2>
-        <p>حدث خطأ أثناء تشغيل التطبيق. يرجى إعادة تحميل الصفحة.</p>
-        <pre style="background: #f8f9fa; padding: 10px; border-radius: 4px; text-align: left; overflow: auto;">
-          ${error instanceof Error ? error.message : "Unknown error"}
-        </pre>
-        <button onclick="window.location.reload()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-          إعادة تحميل
-        </button>
-      </div>
-    `;
-  }
-}
+const root = createRoot(container);
+root.render(<App />);
