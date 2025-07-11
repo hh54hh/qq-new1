@@ -332,6 +332,15 @@ const IndexRoute = () => {
 const App = () => {
   const [state, store] = useAppStore();
 
+  // Verify React is working properly
+  useEffect(() => {
+    if (typeof React === "undefined" || !React.useState) {
+      console.error("React is not properly loaded!");
+      window.location.reload();
+      return;
+    }
+  }, []);
+
   // Initialize global functions
   useEffect(() => {
     // إض��فة دالة عالمية لفتح صفحة التشخيص
