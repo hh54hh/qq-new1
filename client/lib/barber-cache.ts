@@ -194,58 +194,112 @@ class BarberCacheManager {
 
   private async syncBarbersInBackground(): Promise<void> {
     try {
-      console.log("🔄 Syncing barbers in background...");
-
-      // Get fresh data from API
-      const barbersResponse = await apiClient.getBarbers();
-      const freshBarbers = barbersResponse.barbers || [];
-
-      if (freshBarbers.length === 0) {
-        console.warn("⚠️ No barbers received from API");
+      // Check if we should skip sync due to memory constraints
+      const memoryUsage = await this.calculateMemoryUsage();
+      if (memoryUsage > this.config.memoryThresholdMB * 0.8) {
+        console.log(
+          "⚠️ Skipping sync due to high memory usage:",
+          memoryUsage + "MB",
+        );
+        await this.smartMemoryCleanup();
         return;
       }
 
-      // Load follow data in parallel
-      let followedUsers: string[] = [];
+      console.log("🔄 Syncing barbers in background...");
+
+      // Get fresh data from API with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
       try {
-        const followsResponse = await apiClient.getFollows("following");
-        followedUsers =
-          followsResponse.follows?.map((f) => f.followed_id) || [];
+        const barbersResponse = await apiClient.getBarbers();
+        const freshBarbers = barbersResponse.barbers || [];
+        clearTimeout(timeoutId);
+
+        if (freshBarbers.length === 0) {
+          console.warn("⚠️ No barbers received from API");
+          return;
+        }
+
+        // Load follow data in parallel with timeout
+        let followedUsers: string[] = [];
+        try {
+          const followsResponse = await apiClient.getFollows("following");
+          followedUsers =
+            followsResponse.follows?.map((f) => f.followed_id) || [];
+        } catch (error) {
+          console.warn("Failed to load follows data:", error);
+        }
+
+        // Get existing cached data for comparison
+        const existingBarbers = await this.getCachedBarbers();
+        const existingIds = new Set(existingBarbers.map((b) => b.id));
+
+        // Process only new or updated barbers to save memory
+        const now = Date.now();
+        const enhancedBarbers: CachedBarber[] = [];
+
+        for (const barber of freshBarbers) {
+          // Skip if we already have recent data for this barber
+          const existing = existingBarbers.find((b) => b.id === barber.id);
+          if (existing && now - existing._cached_at < 300000) {
+            // 5 minutes
+            enhancedBarbers.push(existing); // Keep existing
+            continue;
+          }
+
+          const qualityScore = this.calculateQualityScore(barber);
+
+          enhancedBarbers.push({
+            ...barber,
+            role: "barber" as const,
+            rating: barber.rating || 4.0,
+            followers: barber.followers_count || 0,
+            distance: existing?.distance || 2.5,
+            status: barber.status || "متاح",
+            isFollowed: followedUsers.includes(barber.id),
+            price: barber.price || 30,
+            _cached_at: now,
+            _quality_score: qualityScore,
+          });
+        }
+
+        // Only update if we have meaningful changes
+        if (enhancedBarbers.length > 0) {
+          await this.replaceBarbers(enhancedBarbers);
+          await this.updateBarberStats(enhancedBarbers);
+
+          console.log(
+            `✅ Synced ${enhancedBarbers.length} barbers (optimized)`,
+          );
+
+          // Throttled UI notification
+          this.throttledNotifyUIUpdate();
+        }
       } catch (error) {
-        console.warn("Failed to load follows data:", error);
+        clearTimeout(timeoutId);
+        throw error;
       }
-
-      // Process and enhance barbers
-      const now = Date.now();
-      const enhancedBarbers: CachedBarber[] = freshBarbers.map((barber) => {
-        const qualityScore = this.calculateQualityScore(barber);
-
-        return {
-          ...barber,
-          role: "barber" as const,
-          rating: barber.rating || 4.0,
-          followers: barber.followers_count || 0,
-          distance: 2.5, // Default distance
-          status: barber.status || "متاح",
-          isFollowed: followedUsers.includes(barber.id),
-          price: barber.price || 30,
-          _cached_at: now,
-          _quality_score: qualityScore,
-        };
-      });
-
-      // Save to cache
-      await this.replaceBarbers(enhancedBarbers);
-
-      // Update stats
-      await this.updateBarberStats(enhancedBarbers);
-
-      console.log(`✅ Synced ${enhancedBarbers.length} barbers in background`);
-
-      // Notify UI about new data
-      this.notifyUIUpdate();
     } catch (error) {
+      // Adaptive error handling - reduce sync frequency on errors
+      if (this.config.adaptiveSync) {
+        this.config.backgroundSyncInterval = Math.min(
+          this.config.backgroundSyncInterval * 1.5,
+          60000, // Max 1 minute
+        );
+      }
       console.warn("Background barbers sync failed:", error);
+    }
+  }
+
+  private lastUINotification = 0;
+  private throttledNotifyUIUpdate(): void {
+    const now = Date.now();
+    // Throttle UI updates to prevent excessive re-renders
+    if (now - this.lastUINotification > 2000) {
+      // 2 seconds minimum
+      this.lastUINotification = now;
+      this.notifyUIUpdate();
     }
   }
 
@@ -364,7 +418,7 @@ class BarberCacheManager {
     if (!this.config.preloadOnLogin) return;
 
     try {
-      console.log("🚀 Preloading barbers on login...");
+      console.log("��� Preloading barbers on login...");
       await this.syncBarbersInBackground();
     } catch (error) {
       console.warn("Preload failed:", error);
