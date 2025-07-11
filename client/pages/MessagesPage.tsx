@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Search, MessageCircle } from "lucide-react";
+import { ArrowRight, Search, MessageCircle, Settings } from "lucide-react";
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import apiClient from "@/lib/api";
 import { MessageSkeleton } from "@/components/ui/loading-skeleton";
+import ChatStorageMonitor from "@/components/debug/ChatStorageMonitor";
+import OptimizedMessagesPage from "./OptimizedMessagesPage";
 
 interface MessagesPageProps {
   user: User;
