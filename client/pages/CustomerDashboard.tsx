@@ -612,7 +612,7 @@ export default function CustomerDashboard({
       store.addNotification({
         id: Date.now().toString(),
         type: "new_booking",
-        title: "تم إرسال طلب الحجز",
+        title: "تم إر��ال طلب الحجز",
         message: `ت�� إرسال طلب حجز إلى ${selectedBarber?.name}`,
         data: newBooking,
         read: false,
@@ -855,7 +855,7 @@ export default function CustomerDashboard({
       store.addNotification({
         id: Date.now().toString(),
         type: "friend_request",
-        title: "إلغاء المتابعة",
+        title: "إلغاء ا��متابعة",
         message: "تم إلغاء المتابعة بنجاح",
         data: { userId },
         read: false,
@@ -1339,7 +1339,7 @@ export default function CustomerDashboard({
                     className="text-xs text-primary p-0 h-auto ml-2"
                     onClick={requestLocation}
                   >
-                    إعادة ����ل��حاولة
+                    إعادة المحاولة
                   </Button>
                 </div>
               )}
@@ -1448,7 +1448,7 @@ export default function CustomerDashboard({
               className="text-xs sm:text-sm"
               onClick={() => setShowNearbyBarbers(true)}
             >
-              عرض ����كل
+              عرض الكل
             </Button>
           </div>
 
