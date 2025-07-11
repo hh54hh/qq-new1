@@ -5,6 +5,7 @@
 
 import { CachedBarber, BarberCacheConfig } from "./barber-cache";
 import apiClient from "./api";
+import { measurePerformance } from "./performance-monitor";
 
 interface UltraFastCache {
   barbers: CachedBarber[];
