@@ -45,12 +45,6 @@ const navItems: NavItem[] = [
     icon: Search,
     roles: ["customer"],
   },
-  {
-    id: "bookings",
-    label: "حجوزات",
-    icon: Calendar,
-    roles: ["customer"],
-  },
 
   {
     id: "messages",
