@@ -726,7 +726,12 @@ export default function InstagramNewsFeed({
               </div>
 
               {/* Post Image */}
-              <div className="aspect-square bg-muted">
+              <div
+                className="aspect-square bg-muted relative"
+                data-post-id={post.id}
+                onClick={() => handleImageDoubleTap(post.id)}
+                style={{ cursor: "pointer" }}
+              >
                 <img
                   src={post.image_url}
                   alt="Post"
@@ -749,12 +754,17 @@ export default function InstagramNewsFeed({
                         className={cn(
                           "w-5 h-5 sm:w-6 sm:h-6 transition-all duration-200",
                           post.isLiked
-                            ? "fill-red-500 text-red-500 scale-110"
-                            : "text-foreground hover:text-muted-foreground",
+                            ? "fill-yellow-500 text-yellow-500 scale-110 drop-shadow-lg"
+                            : "text-foreground hover:text-yellow-500",
                         )}
                       />
                     </Button>
-                    <Button variant="ghost" size="icon" className="p-0 h-auto">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="p-0 h-auto"
+                      onClick={() => handleCommentsClick(post)}
+                    >
                       <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                     </Button>
                     <Button variant="ghost" size="icon" className="p-0 h-auto">
@@ -786,6 +796,7 @@ export default function InstagramNewsFeed({
                   <Button
                     variant="ghost"
                     className="p-0 h-auto text-muted-foreground text-xs sm:text-sm mt-1"
+                    onClick={() => handleCommentsClick(post)}
                   >
                     عرض جميع التعليقات ({post.comments_count})
                   </Button>
