@@ -296,13 +296,32 @@ export default function CustomerDashboard({
   useEffect(() => {
     const handleBarbersUpdate = () => {
       console.log("🔄 Barbers updated from background sync");
-      loadBarbersFromCache();
+      // Debounce updates to prevent excessive re-renders
+      clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = setTimeout(() => {
+        loadBarbersFromCache();
+      }, 300);
     };
 
     window.addEventListener("barbersUpdated", handleBarbersUpdate);
-    return () =>
+    return () => {
       window.removeEventListener("barbersUpdated", handleBarbersUpdate);
+      clearTimeout(updateTimeoutRef.current);
+    };
   }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Clean up cache if user changes
+      if (user?.id) {
+        getBarberCache(user.id)
+          .then((cache) => cache.destroy())
+          .catch(console.warn);
+      }
+      clearTimeout(updateTimeoutRef.current);
+    };
+  }, [user?.id]);
 
   const loadFriendRequests = () => {
     // إضافة طلب��ت صداقة تجريبية للإشعارات
@@ -1221,7 +1240,7 @@ export default function CustomerDashboard({
                     {userLocation.address}
                   </span>
                   <div className="text-xs text-primary/80 mt-0.5">
-                    موقعك الحالي • دقة عالية
+                    موقعك الحالي • ��قة عالية
                   </div>
                 </div>
               ) : (
