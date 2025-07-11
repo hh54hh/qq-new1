@@ -140,55 +140,71 @@ export default function OptimizedChatPage() {
     if (!newMessage.trim() || !otherUserId || !user || isSending) return;
 
     const messageText = newMessage.trim();
-    setNewMessage("");
+    setNewMessage(""); // Clear input immediately
     setIsSending(true);
 
-    try {
-      const chatCache = await getChatCache();
+    // Create optimistic message immediately for instant UI feedback
+    const optimisticMessage: CachedMessage = {
+      id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      sender_id: user.id,
+      receiver_id: otherUserId,
+      message: messageText,
+      message_type: "text",
+      is_read: false,
+      created_at: new Date().toISOString(),
+      conversation_id: otherUserId,
+      _cached_at: Date.now(),
+      _pending: true,
+    };
 
-      // Add optimistic message immediately
-      const optimisticMessage = await chatCache.addOptimisticMessage({
+    // Add to UI immediately - no await needed here
+    setMessages((prev) => [...prev, optimisticMessage]);
+
+    // Clear sending state immediately - don't wait for server response
+    setIsSending(false);
+
+    // Scroll to bottom immediately
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 10);
+
+    // Send to server in background (don't block UI)
+    apiClient
+      .createMessage({
         receiver_id: otherUserId,
         message: messageText,
-        sender_id: user.id,
+      })
+      .then((sentMessage) => {
+        // Replace optimistic message with real one when response comes back
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === optimisticMessage.id
+              ? {
+                  ...sentMessage,
+                  conversation_id: otherUserId,
+                  _cached_at: Date.now(),
+                }
+              : msg,
+          ),
+        );
+        console.log("✅ رسالة أُرسلت بنجاح");
+      })
+      .catch((error) => {
+        console.error("❌ فشل ��رسال الرسالة:", error);
+        // Mark message as failed but keep it in UI
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === optimisticMessage.id
+              ? {
+                  ...msg,
+                  _pending: true,
+                  _retry_count: (msg._retry_count || 0) + 1,
+                }
+              : msg,
+          ),
+        );
       });
-
-      // Update UI immediately
-      setMessages((prev) => [...prev, optimisticMessage]);
-
-      // If offline and background sync is ready, queue the message
-      if (!isOnline && isReady) {
-        try {
-          await queueMessage({
-            receiver_id: otherUserId,
-            message: messageText,
-          });
-          console.log("📱 رسالة أضيفت للطابور - سيتم الإرسال عند الاتصال");
-        } catch (error) {
-          console.warn("Failed to queue message:", error);
-        }
-      }
-
-      // Scroll to bottom
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 50);
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      // Restore message text if failed
-      setNewMessage(messageText);
-    } finally {
-      setIsSending(false);
-    }
-  }, [
-    newMessage,
-    otherUserId,
-    user,
-    isSending,
-    isOnline,
-    isReady,
-    queueMessage,
-  ]);
+  }, [newMessage, otherUserId, user, isSending]);
 
   // Load older messages (lazy loading)
   const loadOlderMessages = useCallback(async () => {
