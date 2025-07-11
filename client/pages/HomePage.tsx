@@ -239,10 +239,11 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
             allUsers = [...allUsers, ...newUsers];
             console.log("✅ Total after merge:", allUsers.length);
           } catch (searchError) {
-            console.log(
-              "⚠️ Search endpoint failed (normal if no auth), continuing with barbers:",
-              searchError.message,
-            );
+            console.log("⚠️ Search endpoint failed:", {
+              message: searchError.message,
+              status: searchError.status,
+              error: searchError,
+            });
           }
         }
       } catch (error) {
