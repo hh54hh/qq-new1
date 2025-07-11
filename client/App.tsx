@@ -8,7 +8,7 @@ if (typeof React === "undefined" || !React) {
 }
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import SafeTooltipProvider from "@/components/SafeTooltipProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   BrowserRouter,
@@ -157,7 +157,7 @@ const AppContent = () => {
 
     initAuth();
 
-    // إضافة دالة عالمية لفتح صفحة التشخيص
+    // إضافة دالة عالمية لفتح صفحة ال��شخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
