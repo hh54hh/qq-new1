@@ -387,7 +387,7 @@ class ApiClient {
 
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        console.error("🌐 Network error details:", {
+        console.error("���� Network error details:", {
           message: error.message,
           url: url,
           endpoint: endpoint,
@@ -515,7 +515,7 @@ class ApiClient {
           console.error(`❌ فشلت إعادة المحاولة لـ ${endpoint}`);
           if (fallbackData !== undefined) {
             console.log(
-              `🔄 استخدام البيانات الاحتياطية بعد فشل إعادة المحاولة`,
+              `🔄 استخدام البيانات الاحتياطية بعد فشل إعادة المحاول��`,
             );
             return fallbackData;
           }
@@ -608,7 +608,7 @@ class ApiClient {
 
       const response = await this.request<GetBarbersResponse>("/barbers");
 
-      console.log("✅ getBarbers successful:", {
+      console.log("�� getBarbers successful:", {
         barbersCount: response?.barbers?.length || 0,
         hasBarbers: !!response?.barbers,
       });
@@ -686,6 +686,7 @@ class ApiClient {
                 "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150",
             },
           ],
+          total: 4,
         };
       }
 
