@@ -78,7 +78,7 @@ class ApiClient {
       currentBaseUrl: this.baseUrl,
     });
 
-    // إذ�� كان على Netlify، استخدم م��ار Functions مباشرة دون اختبار
+    // إذ�� كان على Netlify، استخدم م��ار Functions مباشرة ��ون اختبار
     if (hostname.includes("netlify")) {
       this.baseUrl = window.location.origin + "/.netlify/functions/api";
       this.apiUrlVerified = true;
@@ -523,7 +523,7 @@ class ApiClient {
         }
       }
 
-      // إذا و��دت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
+      // إذا و����دت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
       if (fallbackData !== undefined) {
         console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
         return fallbackData;
@@ -690,6 +690,24 @@ class ApiClient {
         };
       }
 
+      throw error;
+    }
+  }
+
+  // Get all customers
+  async getCustomers(): Promise<{ customers: User[]; total: number }> {
+    try {
+      console.log("📍 Starting getCustomers API call...");
+      const response = await this.request<{ customers: User[]; total: number }>(
+        "/customers",
+      );
+      console.log("✅ getCustomers successful:", {
+        customersCount: response?.customers?.length || 0,
+        hasCustomers: !!response?.customers,
+      });
+      return response;
+    } catch (error) {
+      console.error("❌ getCustomers failed:", error);
       throw error;
     }
   }
