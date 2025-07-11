@@ -38,6 +38,7 @@ import { User, UserRole } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
+import { getChatCache } from "@/lib/chat-cache";
 
 interface HomePageProps {
   user: User;
