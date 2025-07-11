@@ -164,9 +164,24 @@ const AppContent = () => {
     }
   }, [state.user, isPermissionRequested]);
 
-  const handleAuth = (authenticatedUser: User) => {
+  const handleAuth = async (authenticatedUser: User) => {
     // User is already set in store by login/register
     setActiveTab("home");
+
+    // Preload barbers for customers in background
+    if (authenticatedUser.role === "customer") {
+      try {
+        console.log(
+          "🚀 Preloading barbers for customer:",
+          authenticatedUser.id,
+        );
+        const barberCache = await getBarberCache(authenticatedUser.id);
+        await barberCache.preloadBarbersOnLogin();
+        console.log("✅ Barbers preloaded successfully");
+      } catch (error) {
+        console.warn("⚠️ Barber preloading failed:", error);
+      }
+    }
   };
 
   const handleLogout = () => {
@@ -297,7 +312,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إض��فة دالة عالمية لفت�� صفحة التشخيص
+    // إض��فة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة الت��خيص");
