@@ -38,6 +38,9 @@ export default function InstagramNewsFeed({
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [postsFromCache, setPostsFromCache] = useState(false);
   const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const [startY, setStartY] = useState(0);
 
   // Load posts with ultra-fast cache
   const loadPostsUltraFast = useCallback(async () => {
@@ -270,6 +273,42 @@ export default function InstagramNewsFeed({
     }
   }, [user.id]);
 
+  // Pull to refresh handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setStartY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (window.scrollY === 0 && startY > 0) {
+      const currentY = e.touches[0].clientY;
+      const distance = currentY - startY;
+
+      if (distance > 0) {
+        setPullDistance(Math.min(distance, 100));
+        setIsPulling(distance > 20);
+
+        // Add resistance effect
+        if (distance > 100) {
+          e.preventDefault();
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (pullDistance > 60) {
+      // Trigger refresh
+      manualRefresh();
+    }
+
+    // Reset pull state
+    setPullDistance(0);
+    setIsPulling(false);
+    setStartY(0);
+  };
+
   // Load posts on mount only (no automatic updates)
   useEffect(() => {
     loadPostsUltraFast();
@@ -356,9 +395,35 @@ export default function InstagramNewsFeed({
   }
 
   return (
-    <div className="w-full max-w-md mx-auto bg-background min-h-screen relative">
+    <div
+      className="w-full max-w-md mx-auto bg-background min-h-screen relative"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Mobile PWA optimizations */}
       <div className="safe-area-top"></div>
+
+      {/* Pull to refresh indicator */}
+      {isPulling && (
+        <div
+          className="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-200"
+          style={{
+            top: `${Math.max(20, pullDistance - 40)}px`,
+            opacity: Math.min(1, pullDistance / 60),
+          }}
+        >
+          <div className="bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-2">
+            <div
+              className={cn(
+                "w-4 h-4 border-2 border-primary-foreground rounded-full",
+                pullDistance > 60 ? "animate-spin border-t-transparent" : "",
+              )}
+            ></div>
+            {pullDistance > 60 ? "اتركه للتحديث" : "اسحب للتحديث"}
+          </div>
+        </div>
+      )}
 
       {/* Instagram-style Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b px-4 py-3 safe-area-top">
