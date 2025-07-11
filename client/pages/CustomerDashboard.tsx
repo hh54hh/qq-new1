@@ -49,6 +49,7 @@ import EditProfilePage from "./EditProfilePage";
 import MessagesPage from "./MessagesPage";
 import AdvancedSearchPage from "./AdvancedSearchPage";
 import HomePageSimple from "./HomePageSimple";
+import InstagramNewsFeed from "./InstagramNewsFeed";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -415,7 +416,7 @@ export default function CustomerDashboard({
     const NOTIFICATIONS_SHOWN_KEY = `friend_requests_shown_${user.id}`;
     const hasShownNotifications = localStorage.getItem(NOTIFICATIONS_SHOWN_KEY);
 
-    // إذا تم عرض الإشعارات من قبل، لا تعرضها مرة أخرى
+    // إذا ��م عرض الإشعارات من قبل، لا تعرضها مرة أخرى
     if (hasShownNotifications) {
       return;
     }
@@ -709,7 +710,7 @@ export default function CustomerDashboard({
       store.addNotification({
         id: Date.now().toString(),
         type: isFollowed ? "friend_request" : "new_follower",
-        title: isFollowed ? "إلغاء المتابعة" : "متابع�� ج��يدة",
+        title: isFollowed ? "إلغاء ال��تابعة" : "متابع�� ج��يدة",
         message: isFollowed
           ? `تم إلغاء متابعة ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`
           : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`,
@@ -1617,7 +1618,7 @@ export default function CustomerDashboard({
                 className="text-xs sm:text-sm"
                 onClick={() => setShowFollowedBarbers(true)}
               >
-                عرض الكل ({followedBarbers.length})
+                عر�� الكل ({followedBarbers.length})
               </Button>
             </div>
 
@@ -2364,7 +2365,7 @@ export default function CustomerDashboard({
   switch (activeTab) {
     case "homepage":
       return (
-        <HomePageSimple
+        <InstagramNewsFeed
           user={user}
           onUserClick={(selectedUser) => {
             setSelectedProfile(selectedUser);
