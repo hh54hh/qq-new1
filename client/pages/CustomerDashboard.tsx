@@ -50,6 +50,7 @@ import MessagesPage from "./MessagesPage";
 import AdvancedSearchPage from "./AdvancedSearchPage";
 import HomePageSimple from "./HomePageSimple";
 import InstagramNewsFeed from "./InstagramNewsFeed";
+import ExplorePageWithTabs from "./ExplorePageWithTabs";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -1885,7 +1886,7 @@ export default function CustomerDashboard({
                 لا توجد حلا��ين قريبين
               </h3>
               <p className="text-muted-foreground mb-4">
-                سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
+                سنعرض لك الحلاقين ا��متاحين في من��قت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
                 تحد��ث الموقع
@@ -2376,7 +2377,15 @@ export default function CustomerDashboard({
     case "home":
       return renderHome();
     case "search":
-      return renderSearch();
+      return (
+        <ExplorePageWithTabs
+          user={user}
+          onUserClick={(selectedUser) => {
+            setSelectedProfile(selectedUser);
+            setShowProfile(true);
+          }}
+        />
+      );
     case "bookings":
       return renderBookings();
     case "messages":
