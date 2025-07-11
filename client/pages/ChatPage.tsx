@@ -118,9 +118,9 @@ export default function ChatPage() {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 10);
 
-    // Send to server in background
+    // Send to server in background using fast method
     try {
-      const sentMessage = await apiClient.createMessage({
+      const sentMessage = await apiClient.sendMessageFast({
         receiver_id: otherUserId,
         message: messageText,
       });
