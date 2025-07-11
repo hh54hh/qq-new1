@@ -111,8 +111,8 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       const allPosts = postsResponse.posts || [];
 
       // Get all users to map user data to posts
-      const usersResponse = await apiClient.getBarbers();
-      const allUsers = usersResponse.barbers || [];
+      const usersResponse = await apiClient.getAllUsers();
+      const allUsers = usersResponse.users || [];
 
       // Create a user lookup map for faster access
       const userMap = new Map();
