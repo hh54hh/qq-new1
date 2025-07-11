@@ -326,7 +326,7 @@ export default function UserProfile({
     }
   };
 
-  // إذا كانت صفحة عرض المنشور مفتوحة
+  // إذا كانت صفحة عرض ال��نشور مفتوحة
   if (showPostView && selectedPost) {
     return (
       <PostViewPage
@@ -607,7 +607,7 @@ export default function UserProfile({
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">تاريخ الت��جيل:</span>
+                <span className="text-muted-foreground">تاريخ التسجيل:</span>
                 <span className="font-medium">
                   {new Date(profileUser.created_at).toLocaleDateString("ar-SA")}
                 </span>
