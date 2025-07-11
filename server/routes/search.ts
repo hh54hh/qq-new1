@@ -353,20 +353,26 @@ export const searchUsers: RequestHandler = async (req, res) => {
 
     const { q: query } = req.query;
 
-    if (!query || typeof query !== "string" || query.trim().length < 2) {
-      return res.json({ users: [] });
-    }
-
     console.log("🔍 البحث عن المستخدمين:", { query, requesterId: userId });
 
-    // Get all users except current user
-    const { data: users, error } = await supabase
+    // Build query - if empty search, get all users
+    let dbQuery = supabase
       .from("users")
       .select("id, name, email, role, status, avatar_url, is_verified")
       .neq("id", userId) // Exclude current user
       .eq("status", "active") // Only active users
-      .ilike("name", `%${query.trim()}%`) // Search by name
-      .limit(20);
+      .order("created_at", { ascending: false })
+      .limit(50); // More users for suggestions
+
+    // Add name filter only if query is provided and valid
+    if (query && typeof query === "string" && query.trim().length >= 2) {
+      dbQuery = dbQuery.ilike("name", `%${query.trim()}%`);
+      console.log("🔍 Searching with filter:", query.trim());
+    } else {
+      console.log("🔍 Getting all users (no filter)");
+    }
+
+    const { data: users, error } = await dbQuery;
 
     if (error) {
       console.error("User search error:", error);
@@ -397,7 +403,7 @@ export const searchUsers: RequestHandler = async (req, res) => {
     res.json({ users: searchResults });
   } catch (error) {
     console.error("User search error:", error);
-    res.status(500).json({ error: "خطأ في البحث عن المستخدمين" });
+    res.status(500).json({ error: "خط�� في البحث عن المستخدمين" });
   }
 };
 
