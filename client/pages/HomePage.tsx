@@ -230,10 +230,18 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
         );
       }
 
+      console.log("All users received:", allUsers.length);
+      console.log("User roles breakdown:", {
+        customers: allUsers.filter((u) => u.role === "customer").length,
+        barbers: allUsers.filter((u) => u.role === "barber").length,
+        admins: allUsers.filter((u) => u.role === "admin").length,
+        total: allUsers.length,
+      });
       console.log(
-        "All users received:",
-        allUsers.length,
-        allUsers.map((u) => ({ id: u.id, name: u.name, role: u.role })),
+        "Sample users:",
+        allUsers
+          .slice(0, 5)
+          .map((u) => ({ id: u.id, name: u.name, role: u.role })),
       );
 
       // Filter suggestions: exclude self and already followed users
@@ -419,7 +427,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
             className="mt-4"
             onClick={() => setActiveTab("friends")}
           >
-            است��شف الأصدقاء
+            اس����شف الأصدقاء
           </Button>
         </div>
       );
