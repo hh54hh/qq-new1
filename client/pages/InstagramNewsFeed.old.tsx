@@ -67,7 +67,7 @@ export default function InstagramNewsFeed({
       setLoading(source === "skeleton");
 
       // Update liked posts state
-      const likedIds = new Set<string>(
+      const likedIds = new Set(
         cachedPosts.filter((p) => p.isLiked).map((p) => p.id),
       );
       setLikedPosts(likedIds);
@@ -109,7 +109,6 @@ export default function InstagramNewsFeed({
       comments_count: 23,
       created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       isLiked: false,
-      cached_at: Date.now(),
     },
     {
       id: "demo_2",
@@ -128,7 +127,6 @@ export default function InstagramNewsFeed({
       comments_count: 15,
       created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
       isLiked: true,
-      cached_at: Date.now(),
     },
     {
       id: "demo_3",
@@ -278,12 +276,9 @@ export default function InstagramNewsFeed({
   // Loading skeleton
   if (loading && posts.length === 0) {
     return (
-      <div className="w-full max-w-md mx-auto bg-background min-h-screen relative">
-        {/* Mobile PWA optimizations */}
-        <div className="safe-area-top"></div>
-
+      <div className="max-w-md mx-auto bg-background min-h-screen">
         {/* Header Skeleton */}
-        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b px-4 py-3 safe-area-top">
+        <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="h-6 w-24 bg-muted rounded animate-pulse"></div>
             <div className="h-6 w-6 bg-muted rounded animate-pulse"></div>
@@ -291,11 +286,11 @@ export default function InstagramNewsFeed({
         </div>
 
         {/* Stories Skeleton */}
-        <div className="p-3 sm:p-4 border-b">
-          <div className="flex space-x-3 space-x-reverse overflow-x-auto scrollbar-hide">
+        <div className="p-4 border-b">
+          <div className="flex space-x-4 space-x-reverse overflow-x-auto">
             {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="flex-shrink-0 text-center">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-muted rounded-full animate-pulse mb-2"></div>
+                <div className="w-16 h-16 bg-muted rounded-full animate-pulse mb-2"></div>
                 <div className="h-3 w-12 bg-muted rounded animate-pulse"></div>
               </div>
             ))}
@@ -322,7 +317,7 @@ export default function InstagramNewsFeed({
               <div className="aspect-square bg-muted animate-pulse"></div>
 
               {/* Post Actions */}
-              <div className="p-3 sm:p-4 space-y-3">
+              <div className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex space-x-4 space-x-reverse">
                     <div className="w-6 h-6 bg-muted rounded animate-pulse"></div>
@@ -345,7 +340,6 @@ export default function InstagramNewsFeed({
     <div className="w-full max-w-md mx-auto bg-background min-h-screen relative">
       {/* Mobile PWA optimizations */}
       <div className="safe-area-top"></div>
-
       {/* Instagram-style Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b px-4 py-3 safe-area-top">
         <div className="flex items-center justify-between">
@@ -360,22 +354,19 @@ export default function InstagramNewsFeed({
 
       {/* Stories Section */}
       <div className="p-3 sm:p-4 border-b bg-background">
-        <div className="flex space-x-3 space-x-reverse overflow-x-auto pb-2 scrollbar-hide">
-          {/* Custom scrollbar hiding for mobile */}
+        <div className="flex space-x-4 space-x-reverse overflow-x-auto pb-2">
           {/* Add Your Story */}
           <div className="flex-shrink-0 text-center">
             <div className="relative">
-              <Avatar className="w-14 h-14 sm:w-16 sm:h-16 border-2 border-dashed border-muted-foreground">
+              <Avatar className="w-16 h-16 border-2 border-dashed border-muted-foreground">
                 <AvatarImage src={user.avatar_url} />
                 <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
               </Avatar>
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 sm:w-5 sm:h-5 bg-primary rounded-full flex items-center justify-center">
+              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                 <Plus className="w-3 h-3 text-primary-foreground" />
               </div>
             </div>
-            <p className="text-2xs sm:text-xs mt-1 truncate w-14 sm:w-16">
-              إضافة
-            </p>
+            <p className="text-xs mt-1 truncate w-16">إضافة</p>
           </div>
 
           {/* Demo Stories */}
@@ -410,13 +401,11 @@ export default function InstagramNewsFeed({
               key={index}
               className="flex-shrink-0 text-center cursor-pointer"
             >
-              <Avatar className="w-14 h-14 sm:w-16 sm:h-16 border-2 border-gradient-to-r from-pink-500 to-orange-500 p-0.5">
+              <Avatar className="w-16 h-16 border-2 border-gradient-to-r from-pink-500 to-orange-500 p-0.5">
                 <AvatarImage src={story.avatar} className="rounded-full" />
                 <AvatarFallback>{story.name.charAt(0)}</AvatarFallback>
               </Avatar>
-              <p className="text-2xs sm:text-xs mt-1 truncate w-14 sm:w-16">
-                {story.name}
-              </p>
+              <p className="text-xs mt-1 truncate w-16">{story.name}</p>
             </div>
           ))}
         </div>
@@ -439,12 +428,12 @@ export default function InstagramNewsFeed({
           posts.map((post) => (
             <div key={post.id} className="bg-background border-b">
               {/* Post Header */}
-              <div className="flex items-center justify-between p-3 sm:p-4">
+              <div className="flex items-center justify-between p-4">
                 <div
                   className="flex items-center space-x-3 space-x-reverse cursor-pointer"
                   onClick={() => onUserClick?.(post.author)}
                 >
-                  <Avatar className="w-7 h-7 sm:w-8 sm:h-8">
+                  <Avatar className="w-8 h-8">
                     <AvatarImage
                       src={post.author.avatar_url || "/placeholder.svg"}
                     />
@@ -454,26 +443,22 @@ export default function InstagramNewsFeed({
                   </Avatar>
                   <div>
                     <div className="flex items-center space-x-1 space-x-reverse">
-                      <p className="font-semibold text-xs sm:text-sm">
+                      <p className="font-semibold text-sm">
                         {post.author.name}
                       </p>
                       {post.author.is_verified && (
-                        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-white rounded-full"></div>
+                        <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                         </div>
                       )}
                     </div>
-                    <p className="text-2xs sm:text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {formatTimeAgo(post.created_at)}
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-8 h-8 sm:w-10 sm:h-10"
-                >
-                  <MoreHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
+                <Button variant="ghost" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </div>
 
@@ -488,7 +473,7 @@ export default function InstagramNewsFeed({
               </div>
 
               {/* Post Actions */}
-              <div className="p-3 sm:p-4">
+              <div className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex space-x-4 space-x-reverse">
                     <Button
@@ -499,7 +484,7 @@ export default function InstagramNewsFeed({
                     >
                       <Heart
                         className={cn(
-                          "w-5 h-5 sm:w-6 sm:h-6 transition-all duration-200",
+                          "w-6 h-6 transition-all duration-200",
                           post.isLiked
                             ? "fill-red-500 text-red-500 scale-110"
                             : "text-foreground hover:text-muted-foreground",
@@ -507,25 +492,23 @@ export default function InstagramNewsFeed({
                       />
                     </Button>
                     <Button variant="ghost" size="icon" className="p-0 h-auto">
-                      <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
+                      <MessageCircle className="w-6 h-6" />
                     </Button>
                     <Button variant="ghost" size="icon" className="p-0 h-auto">
-                      <Send className="w-5 h-5 sm:w-6 sm:h-6" />
+                      <Send className="w-6 h-6" />
                     </Button>
                   </div>
                   <Button variant="ghost" size="icon" className="p-0 h-auto">
-                    <Bookmark className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <Bookmark className="w-6 h-6" />
                   </Button>
                 </div>
 
                 {/* Likes Count */}
-                <p className="font-semibold text-xs sm:text-sm mb-1">
-                  {post.likes} إعجاب
-                </p>
+                <p className="font-semibold text-sm mb-1">{post.likes} إعجاب</p>
 
                 {/* Caption */}
                 {post.caption && (
-                  <div className="text-xs sm:text-sm">
+                  <div className="text-sm">
                     <span className="font-semibold ml-2">
                       {post.author.name}
                     </span>
@@ -537,7 +520,7 @@ export default function InstagramNewsFeed({
                 {post.comments_count > 0 && (
                   <Button
                     variant="ghost"
-                    className="p-0 h-auto text-muted-foreground text-xs sm:text-sm mt-1"
+                    className="p-0 h-auto text-muted-foreground text-sm mt-1"
                   >
                     عرض جميع التعليقات ({post.comments_count})
                   </Button>
@@ -550,13 +533,10 @@ export default function InstagramNewsFeed({
 
       {/* Refresh indicator */}
       {refreshing && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium shadow-lg z-50 animate-fade-in">
+        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium shadow-lg z-50">
           جاري التحديث...
         </div>
       )}
-
-      {/* Safe area bottom for mobile */}
-      <div className="safe-area-bottom"></div>
     </div>
   );
 }
