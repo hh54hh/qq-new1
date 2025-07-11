@@ -594,9 +594,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
             {filteredSuggestions.map((suggestedUser) => {
               // Check if currently following this user
               const isFollowing = state.follows?.some(
-                (follow: any) =>
-                  follow.following_id === suggestedUser.id ||
-                  follow.followed_id === suggestedUser.id,
+                (follow: any) => follow.followed_id === suggestedUser.id,
               );
 
               console.log(
@@ -861,7 +859,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
 
                   <Button variant="outline" size="sm">
                     <Share2 className="w-4 h-4 ml-1" />
-                    مشار��ة
+                    مشاركة
                   </Button>
                 </div>
 
