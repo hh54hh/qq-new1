@@ -3,8 +3,8 @@ import "./global.css";
 import React, { useState, useEffect, Component } from "react";
 
 // Ensure React is properly accessible
-if (typeof React === 'undefined' || !React) {
-  throw new Error('React is not properly imported');
+if (typeof React === "undefined" || !React) {
+  throw new Error("React is not properly imported");
 }
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -65,16 +65,21 @@ class SimpleErrorBoundary extends Component<
     return { hasError: true, error };
   }
 
-    componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: any) {
     console.error("Error Boundary caught an error:", error, errorInfo);
 
     // Special handling for React Context errors
-    if (error.message?.includes('useState') || error.message?.includes('null')) {
-      console.error('React Context error detected. This might be a React version mismatch or import issue.');
-      console.error('Error details:', {
+    if (
+      error.message?.includes("useState") ||
+      error.message?.includes("null")
+    ) {
+      console.error(
+        "React Context error detected. This might be a React version mismatch or import issue.",
+      );
+      console.error("Error details:", {
         message: error.message,
         stack: error.stack,
-        componentStack: errorInfo.componentStack
+        componentStack: errorInfo.componentStack,
       });
     }
   }
@@ -329,8 +334,8 @@ const App = () => {
 
   // Verify React is working properly
   useEffect(() => {
-    if (typeof React === 'undefined' || !React.useState) {
-      console.error('React is not properly loaded!');
+    if (typeof React === "undefined" || !React.useState) {
+      console.error("React is not properly loaded!");
       window.location.reload();
       return;
     }
@@ -371,7 +376,7 @@ const App = () => {
     console.log("  - اكتب resetNotifications() لإعادة تعيين الإشعارات");
   }, []);
 
-    return (
+  return (
     <QueryClientProvider client={queryClient}>
       <SafeTooltipProvider>
         <BrowserRouter>
@@ -415,7 +420,7 @@ const App = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </TooltipProvider>
+      </SafeTooltipProvider>
     </QueryClientProvider>
   );
 };
