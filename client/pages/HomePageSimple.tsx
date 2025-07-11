@@ -270,20 +270,49 @@ export default function HomePageSimple({ user, onUserClick }: HomePageProps) {
       const startTime = performance.now();
 
       try {
-        // Use the exact same API call that works for barbers
-        const response = await apiClient.getBarbers();
-        const loadTime = performance.now() - startTime;
+        // Step 2a: Get barbers (proven to work)
+        const barbersResponse = await apiClient.getBarbers();
+        const barbersLoadTime = performance.now() - startTime;
 
-        console.log("✅ API response received:", {
-          responseTime: `${loadTime.toFixed(1)}ms`,
-          usersCount: response?.barbers?.length || 0,
-          hasData: !!response?.barbers,
+        console.log("✅ Barbers API response:", {
+          responseTime: `${barbersLoadTime.toFixed(1)}ms`,
+          barbersCount: barbersResponse?.barbers?.length || 0,
+          hasData: !!barbersResponse?.barbers,
         });
 
-        const realUsers = response?.barbers || [];
+        let realUsers = barbersResponse?.barbers || [];
+
+        // Step 2b: Try to get ALL users (including customers) using admin endpoint
+        try {
+          const allUsersStartTime = performance.now();
+          const allUsersResponse = await apiClient.getAllUsers();
+          const allUsersLoadTime = performance.now() - allUsersStartTime;
+
+          console.log("✅ All users API response:", {
+            responseTime: `${allUsersLoadTime.toFixed(1)}ms`,
+            usersCount: allUsersResponse?.users?.length || 0,
+            hasData: !!allUsersResponse?.users,
+          });
+
+          if (allUsersResponse?.users && allUsersResponse.users.length > 0) {
+            // Use ALL users (includes customers!)
+            realUsers = allUsersResponse.users;
+            console.log("🎉 Successfully got ALL users including customers!");
+          } else {
+            console.log(
+              "⚠️ All users endpoint returned empty, using barbers only",
+            );
+          }
+        } catch (allUsersError) {
+          console.log(
+            "⚠️ All users endpoint failed (permission issue?), using barbers only:",
+            allUsersError.message,
+          );
+          // Keep using barbers only - that's fine
+        }
 
         if (realUsers.length > 0) {
-          console.log("📊 Real users breakdown:", {
+          console.log("📊 Final users breakdown:", {
             total: realUsers.length,
             customers: realUsers.filter((u) => u.role === "customer").length,
             barbers: realUsers.filter((u) => u.role === "barber").length,
