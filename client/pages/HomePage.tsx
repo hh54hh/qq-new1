@@ -250,18 +250,44 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
     isCurrentlyFollowing: boolean,
   ) => {
     try {
+      console.log(
+        `Attempting to ${isCurrentlyFollowing ? "unfollow" : "follow"} user: ${targetUserId}`,
+      );
+
       if (isCurrentlyFollowing) {
         await apiClient.unfollowUser(targetUserId);
-        console.log(`Unfollowed user: ${targetUserId}`);
+        console.log(`Successfully unfollowed user: ${targetUserId}`);
+
+        // Update the store to remove from follows
+        const updatedFollows =
+          state.follows?.filter(
+            (follow: any) => follow.following_id !== targetUserId,
+          ) || [];
+        store.setFollows(updatedFollows);
       } else {
-        await apiClient.followUser(targetUserId);
-        console.log(`Followed user: ${targetUserId}`);
+        const followResult = await apiClient.followUser(targetUserId);
+        console.log(
+          `Successfully followed user: ${targetUserId}`,
+          followResult,
+        );
+
+        // Update the store to add to follows
+        const newFollow = {
+          id: Date.now().toString(), // temporary ID
+          follower_id: user.id,
+          following_id: targetUserId,
+          created_at: new Date().toISOString(),
+        };
+        const updatedFollows = [...(state.follows || []), newFollow];
+        store.setFollows(updatedFollows);
       }
 
-      // Refresh suggestions to update follow status
-      await loadSuggestedUsers();
+      // Refresh the current data
+      if (activeTab === "friends") {
+        await loadSuggestedUsers();
+      }
 
-      // If on news tab, refresh posts as well
+      // If on news tab, refresh posts as well to show new content
       if (activeTab === "news") {
         await loadNewsPosts();
       }
@@ -594,7 +620,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                             {suggestedUser.role === "barber" && (
                               <Badge variant="secondary" className="text-xs">
                                 <Scissors className="w-3 h-3 ml-1" />
-                                حلاق
+                                حل��ق
                               </Badge>
                             )}
 
