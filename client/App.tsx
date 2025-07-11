@@ -1,11 +1,6 @@
 import "./global.css";
 
 import React, { useState, useEffect, Component } from "react";
-
-// Ensure React is properly accessible
-if (typeof React === "undefined" || !React) {
-  throw new Error("React is not properly imported");
-}
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import SafeTooltipProvider from "@/components/SafeTooltipProvider";
@@ -157,7 +152,7 @@ const AppContent = () => {
 
     initAuth();
 
-    // إضافة دالة عالمية لفتح صفحة التشخيص
+    // إضافة دال�� عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة التشخيص");
@@ -367,7 +362,7 @@ const App = () => {
       localStorage.removeItem("user_location");
 
       console.log("✅ تم إعادة تعيين جميع الإشعارات وإعدادات الموقع");
-      console.log("🔄 قم بإعادة تحميل الصفحة لرؤية الإشعارات مرة أخرى");
+      console.log("🔄 قم بإعادة تحميل الصفحة لرؤية الإشعار��ت مرة أخرى");
     };
 
     console.log("💡 نصا��ح مفيدة:");
