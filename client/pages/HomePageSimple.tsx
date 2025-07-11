@@ -305,10 +305,37 @@ export default function HomePageSimple({ user, onUserClick }: HomePageProps) {
           }
         } catch (allUsersError) {
           console.log(
-            "⚠️ All users endpoint failed (permission issue?), using barbers only:",
+            "⚠️ All users endpoint failed (permission issue?), trying search endpoint:",
             allUsersError.message,
           );
-          // Keep using barbers only - that's fine
+
+          // Step 2c: Try search endpoint as another fallback
+          try {
+            const searchStartTime = performance.now();
+            const searchResponse = await apiClient.searchUsers("");
+            const searchLoadTime = performance.now() - searchStartTime;
+
+            console.log("✅ Search users API response:", {
+              responseTime: `${searchLoadTime.toFixed(1)}ms`,
+              usersCount: searchResponse?.users?.length || 0,
+              hasData: !!searchResponse?.users,
+            });
+
+            if (searchResponse?.users && searchResponse.users.length > 0) {
+              // Merge search users with existing barbers (avoid duplicates)
+              const existingIds = new Set(realUsers.map((u) => u.id));
+              const newUsers = searchResponse.users.filter(
+                (u) => !existingIds.has(u.id),
+              );
+              realUsers = [...realUsers, ...newUsers];
+              console.log("🎉 Added users from search endpoint!");
+            }
+          } catch (searchError) {
+            console.log(
+              "⚠️ Search endpoint also failed, using barbers only:",
+              searchError.message,
+            );
+          }
         }
 
         if (realUsers.length > 0) {
