@@ -599,9 +599,17 @@ export default function CustomerDashboard({
         created_at: new Date().toISOString(),
       });
 
-      // Reload barbers to get updated follow status from server
+      // Update cache with new follow status
+      try {
+        const barberCache = await getBarberCache(user.id);
+        await barberCache.updateFollowStatus(barberId, !isFollowed);
+      } catch (error) {
+        console.warn("Failed to update follow status in cache:", error);
+      }
+
+      // Reload barbers from cache to get updated follow status
       setTimeout(() => {
-        loadBarbers();
+        loadBarbersFromCache();
       }, 500);
     } catch (error) {
       // Handle 409 conflict gracefully - data already exists/doesn't exist
