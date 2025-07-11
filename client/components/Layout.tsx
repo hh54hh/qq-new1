@@ -9,6 +9,7 @@ import {
   PlusCircle,
   MessageCircle,
   Bell,
+  Newspaper,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { User as UserType, UserRole } from "@shared/api";
