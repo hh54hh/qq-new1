@@ -748,7 +748,7 @@ export default function InstagramNewsFeed({
                 <img
                   src={post.image_url}
                   alt="Post"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain max-h-96"
                   loading="lazy"
                 />
               </div>
