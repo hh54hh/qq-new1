@@ -388,10 +388,20 @@ export default function BarberDashboard({
       {/* Recent Booking Requests */}
       <Card className="border-border/50 bg-card/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            طلبات الحجز الجديدة
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              طلبات الحجز الجديدة
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs sm:text-sm text-primary"
+              onClick={() => setShowAllRequests(true)}
+            >
+              عرض الكل
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {state.bookings
