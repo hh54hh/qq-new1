@@ -82,6 +82,7 @@ export default function CustomerDashboard({
   const [barbersLoading, setBarbersLoading] = useState(true);
   const [barbersFromCache, setBarbersFromCache] = useState(false);
   const [showSkeletons, setShowSkeletons] = useState(false);
+  const updateTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Explore page state
   const [exploreSearchQuery, setExploreSearchQuery] = useState("");
