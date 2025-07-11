@@ -343,151 +343,133 @@ export default function CustomerDashboard({
     });
   };
 
-  const loadBarbers = async () => {
-    console.log("💇‍♂️ loadBarbers called", { userId: user?.id, hasUser: !!user });
+  // Smart barber loading with instant cache and background sync
+  const loadBarbersWithSmartCache = async () => {
+    console.log("🚀 Smart barber loading initiated for user:", user?.id);
 
-    // Only load if user is logged in
     if (!user?.id) {
       console.log("❌ No user ID, skipping barbers load");
       return;
     }
 
     try {
-      store.setLoading(true);
-      console.log("📡 Fetching barbers from API...");
-      console.log("🌐 API Base URL:", (apiClient as any).baseUrl);
+      setBarbersLoading(true);
+      setShowSkeletons(true);
 
-      // Test API connectivity first
-      try {
-        console.log("🏓 Testing ping endpoint...");
-        const pingResponse = await fetch("/api/ping");
-        console.log("🏓 Ping response:", pingResponse.status, pingResponse.ok);
-      } catch (pingError) {
-        console.warn("⚠️ Ping failed:", pingError);
+      // Get barber cache manager
+      const barberCache = await getBarberCache(user.id);
+
+      // Get instant cached data
+      const { barbers, isFromCache, needsSync } =
+        await barberCache.getBarbersWithInstantLoad();
+
+      console.log(`📊 Barber loading results:`, {
+        barbersCount: barbers.length,
+        isFromCache,
+        needsSync,
+      });
+
+      if (barbers.length > 0) {
+        // Show cached data immediately (0ms delay)
+        setAllBarbers(barbers);
+        setFilteredBarbers(barbers);
+        setBarbersFromCache(isFromCache);
+        setShowSkeletons(false);
+        setBarbersLoading(false);
+        console.log("⚡ Instant barbers loaded from cache:", barbers.length);
+      } else {
+        // No cache available - show skeletons while loading
+        console.log("📱 No cached data - showing skeletons while syncing");
+        const skeletons = barberCache.generateSkeletonBarbers();
+        setAllBarbers(skeletons);
+        setFilteredBarbers(skeletons);
+        setBarbersFromCache(false);
+
+        // Load from cache after background sync (with timeout)
+        setTimeout(() => {
+          loadBarbersFromCache();
+        }, 2000);
       }
 
-      // Load barbers with fallback
+      // Background sync will update data automatically via event listener
+    } catch (error) {
+      console.error("❌ Smart barber loading failed:", error);
+
+      // Fallback to skeleton loading
+      setShowSkeletons(true);
+      setBarbersLoading(false);
+
+      // Try to load from old method as last resort
+      setTimeout(() => {
+        loadBarbersLegacy();
+      }, 1000);
+    }
+  };
+
+  // Load barbers from cache only (used by background sync updates)
+  const loadBarbersFromCache = useCallback(async () => {
+    if (!user?.id) return;
+
+    try {
+      const barberCache = await getBarberCache(user.id);
+      const cachedBarbers = await barberCache.getCachedBarbers();
+
+      if (cachedBarbers.length > 0) {
+        // Filter out skeleton entries
+        const realBarbers = cachedBarbers.filter(
+          (barber) => !(barber as any)._isSkeleton,
+        );
+
+        if (realBarbers.length > 0) {
+          setAllBarbers(realBarbers);
+          setFilteredBarbers(realBarbers);
+          setShowSkeletons(false);
+          setBarbersLoading(false);
+          console.log("🔄 Barbers updated from cache:", realBarbers.length);
+        }
+      }
+    } catch (error) {
+      console.warn("Failed to load barbers from cache:", error);
+    }
+  }, [user?.id]);
+
+  // Legacy barber loading (fallback)
+  const loadBarbersLegacy = async () => {
+    console.log("🔄 Fallback to legacy barber loading");
+
+    if (!user?.id) return;
+
+    try {
       const barbersResponse = await apiClient.getBarbers();
-      console.log("📋 Barbers response:", barbersResponse);
-      console.log("📋 Barbers data:", barbersResponse.barbers);
-      console.log("📋 Barbers count:", barbersResponse.barbers?.length || 0);
       const barbers = barbersResponse.barbers || [];
 
-      // Load real follow data - handle network errors gracefully
-      let followedUsers = [];
-      try {
-        const followsResponse = await apiClient.getFollows("following");
-        followedUsers =
-          followsResponse.follows?.map((f) => f.followed_id) || [];
+      if (barbers.length > 0) {
+        // Basic enhancement
+        const enhancedBarbers = barbers.map((barber: any) => ({
+          ...barber,
+          rating: barber.rating || 4.0,
+          followers: barber.followers_count || 0,
+          distance: 2.5,
+          status: barber.status || "متاح",
+          isFollowed: false,
+          price: barber.price || 30,
+        }));
 
-        // Update store with real follows data
-        if (followsResponse.follows) {
-          store.setFollows(followsResponse.follows);
-        }
-      } catch (error) {
-        // Silently handle network errors - use store data or empty array
-        followedUsers = state.follows?.map((f) => f.followed_id) || [];
-      }
-
-      // Enhance barbers with real data and calculated distances
-      const enhancedBarbers = await Promise.all(
-        barbers.map(async (barber) => {
-          // Calculate real distance if user location is available
-          let distance = null;
-          if (userLocation && barber.lat && barber.lng) {
-            distance = calculateDistance(
-              userLocation.lat,
-              userLocation.lng,
-              barber.lat,
-              barber.lng,
-            );
-          }
-
-          return {
-            ...barber,
-            rating: barber.rating || 0,
-            followers: barber.followers_count || 0,
-            distance: distance ? parseFloat(distance.toFixed(1)) : 2.5,
-            status: barber.status || "متاح",
-            isFollowed: followedUsers.includes(barber.id),
-            price: barber.price || 30,
-            lat: barber.lat || 0,
-            lng: barber.lng || 0,
-          };
-        }),
-      );
-
-      console.log(
-        "✅ Enhanced barbers ready:",
-        enhancedBarbers.length,
-        "barbers",
-      );
-      console.log("First barber:", enhancedBarbers[0]);
-
-      setAllBarbers(enhancedBarbers);
-      setFilteredBarbers(enhancedBarbers);
-    } catch (error) {
-      console.error("❌ Error loading barbers:", error);
-
-      // More detailed error logging
-      if (error instanceof Error) {
-        console.error("❌ Error message:", error.message);
-        console.error("❌ Error stack:", error.stack);
-      }
-
-      // Check if it's a network error
-      if (error instanceof TypeError && error.message.includes("fetch")) {
-        console.error("🌐 Network error - API might be unavailable");
-      }
-
-      // Set some dummy data for testing if we're in development
-      if (process.env.NODE_ENV === "development") {
-        console.log("🧪 Setting dummy barbers for development testing...");
-        const dummyBarbers = [
-          {
-            id: "dummy-1",
-            name: "حلاق تجر��بي 1",
-            email: "test1@test.com",
-            role: "barber" as const,
-            status: "active" as const,
-            level: 50,
-            points: 500,
-            is_verified: true,
-            created_at: new Date().toISOString(),
-            rating: 4.5,
-            followers: 25,
-            distance: 1.2,
-            price: 40,
-            isFollowed: false,
-            avatar_url: "https://i.pravatar.cc/150?img=1",
-          },
-          {
-            id: "dummy-2",
-            name: "حلاق تجريبي 2",
-            email: "test2@test.com",
-            role: "barber" as const,
-            status: "active" as const,
-            level: 80,
-            points: 800,
-            is_verified: true,
-            created_at: new Date().toISOString(),
-            rating: 4.8,
-            followers: 45,
-            distance: 2.1,
-            price: 50,
-            isFollowed: false,
-            avatar_url: "https://i.pravatar.cc/150?img=2",
-          },
-        ];
-        setAllBarbers(dummyBarbers);
-        setFilteredBarbers(dummyBarbers);
+        setAllBarbers(enhancedBarbers);
+        setFilteredBarbers(enhancedBarbers);
       } else {
-        // Set empty arrays in production
         setAllBarbers([]);
         setFilteredBarbers([]);
       }
-    } finally {
-      store.setLoading(false);
+
+      setShowSkeletons(false);
+      setBarbersLoading(false);
+    } catch (error) {
+      console.error("Legacy barber loading failed:", error);
+      setShowSkeletons(false);
+      setBarbersLoading(false);
+      setAllBarbers([]);
+      setFilteredBarbers([]);
     }
   };
 
@@ -556,7 +538,7 @@ export default function CustomerDashboard({
         id: Date.now().toString(),
         type: "booking_rejected",
         title: "تم إلغاء الحجز",
-        message: "تم إلغاء حجزك بنجاح",
+        message: "تم إلغاء حجزك ��نجاح",
         data: { bookingId },
         read: false,
         created_at: new Date().toISOString(),
@@ -809,7 +791,7 @@ export default function CustomerDashboard({
     switch (status) {
       case "متاح":
         return "bg-green-500/10 text-green-500 border-green-500/20";
-      case "مشغول":
+      case "��شغول":
         return "bg-red-500/10 text-red-500 border-red-500/20";
       default:
         return "bg-gray-500/10 text-gray-500 border-gray-500/20";
@@ -1257,7 +1239,7 @@ export default function CustomerDashboard({
               مرحباً {user.name}
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground">
-              ابحث عن أفضل الحلاقين واحجز موعدك
+              ابحث عن أفضل ا��حلاقين واحجز موعدك
             </p>
           </div>
         </div>
