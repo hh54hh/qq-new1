@@ -110,8 +110,31 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       const postsResponse = await apiClient.getPosts();
       const allPosts = postsResponse.posts || [];
 
+      // Get all users to map user data to posts
+      const usersResponse = await apiClient.getBarbers();
+      const allUsers = usersResponse.barbers || [];
+
+      // Create a user lookup map for faster access
+      const userMap = new Map();
+      allUsers.forEach((user: any) => {
+        userMap.set(user.id, user);
+      });
+
+      // Enrich posts with user data and filter by followed users
+      const enrichedPosts = allPosts.map((post: any) => ({
+        ...post,
+        author:
+          post.user || userMap.get(post.user_id) || userMap.get(post.author_id),
+        // Fallback user info if not found
+        user_name:
+          post.user?.name ||
+          userMap.get(post.user_id)?.name ||
+          userMap.get(post.author_id)?.name ||
+          "مستخدم مجهول",
+      }));
+
       // Filter posts to show only from followed users
-      const newsFeeds = allPosts.filter(
+      const newsFeeds = enrichedPosts.filter(
         (post: any) =>
           followingIds.includes(post.user_id) ||
           followingIds.includes(post.author_id),
@@ -778,7 +801,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                   <div className="text-center py-6 text-muted-foreground">
                     <MessageCircle className="w-8 h-8 mx-auto mb-2" />
                     <p>لا توجد تعليقات حتى الآن</p>
-                    <p className="text-xs">كن أول من يعلق على هذا المنشور</p>
+                    <p className="text-xs">ك�� أول من يعلق على هذا المنشور</p>
                   </div>
                 </div>
               </div>
