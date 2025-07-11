@@ -418,7 +418,7 @@ class BarberCacheManager {
     if (!this.config.preloadOnLogin) return;
 
     try {
-      console.log("��� Preloading barbers on login...");
+      console.log("🚀 Preloading barbers on login...");
       await this.syncBarbersInBackground();
     } catch (error) {
       console.warn("Preload failed:", error);
@@ -695,6 +695,7 @@ class BarberCacheManager {
   }
 
   destroy(): void {
+    // Clear all intervals
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
       this.syncInterval = null;
@@ -705,10 +706,40 @@ class BarberCacheManager {
       this.cleanupInterval = null;
     }
 
+    // Clear memory tracking
+    this.lastAccessTimes.clear();
+    this.accessCounts.clear();
+    this.currentMemoryUsage = 0;
+
+    // Reset flags
     this.isInitialized = false;
+    this.isBackgroundActive = false;
     this.currentUserId = null;
-    console.log("🔌 Barber cache manager destroyed");
+    this.lastUINotification = 0;
+
+    // Remove event listeners
+    document.removeEventListener(
+      "visibilitychange",
+      this.handleVisibilityChange,
+    );
+
+    console.log("🔌 Barber cache manager destroyed - memory cleaned");
   }
+
+  private handleVisibilityChange = () => {
+    if (document.visibilityState === "hidden") {
+      this.isBackgroundActive = false;
+      if (this.syncInterval) {
+        clearInterval(this.syncInterval);
+        this.syncInterval = null;
+      }
+    } else {
+      this.isBackgroundActive = true;
+      if (!this.syncInterval) {
+        this.startBackgroundSync();
+      }
+    }
+  };
 }
 
 // Singleton instance
