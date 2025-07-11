@@ -388,7 +388,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
             className="mt-4"
             onClick={() => setActiveTab("friends")}
           >
-            استكشف الأصدقاء
+            است��شف الأصدقاء
           </Button>
         </div>
       );
@@ -619,10 +619,16 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                     <div className="flex items-center justify-between">
                       {/* User Info */}
                       <div
-                        className="flex items-center space-x-3 space-x-reverse cursor-pointer flex-1"
-                        onClick={() =>
-                          onUserClick && onUserClick(suggestedUser)
-                        }
+                        className="flex items-center space-x-3 space-x-reverse cursor-pointer flex-1 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
+                        onClick={() => {
+                          if (onUserClick) {
+                            console.log(
+                              "Opening profile for suggested user:",
+                              suggestedUser,
+                            );
+                            onUserClick(suggestedUser);
+                          }
+                        }}
                       >
                         <Avatar className="w-12 h-12">
                           <AvatarImage
