@@ -584,8 +584,22 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
         ) : (
           <div className="space-y-3">
             {filteredSuggestions.map((suggestedUser) => {
+              // Check if currently following this user
               const isFollowing = state.follows?.some(
-                (follow: any) => follow.following_id === suggestedUser.id,
+                (follow: any) =>
+                  follow.following_id === suggestedUser.id ||
+                  follow.followed_id === suggestedUser.id,
+              );
+
+              console.log(
+                `User ${suggestedUser.name} (${suggestedUser.id}) - Following status:`,
+                isFollowing,
+                {
+                  userFollows: state.follows?.map((f) => ({
+                    following_id: f.following_id,
+                    followed_id: f.followed_id,
+                  })),
+                },
               );
 
               return (
@@ -620,7 +634,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                             {suggestedUser.role === "barber" && (
                               <Badge variant="secondary" className="text-xs">
                                 <Scissors className="w-3 h-3 ml-1" />
-                                حل��ق
+                                حلاق
                               </Badge>
                             )}
 
