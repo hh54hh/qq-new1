@@ -82,6 +82,12 @@ class PostsCacheManager {
     };
   }
 
+  // Force sync now (for manual refresh)
+  async forceSyncNow(): Promise<void> {
+    console.log("🔄 Force sync requested");
+    await this.backgroundSync();
+  }
+
   // Background sync for posts
   private async backgroundSync() {
     if (this.isLoading) return;
@@ -283,7 +289,7 @@ class PostsCacheManager {
         },
         image_url:
           "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&h=600&fit=crop",
-        caption: "فن الحلاقة الكلاسيكية 🎨",
+        caption: "فن الحلاق�� الكلاسيكية 🎨",
         likes: 156,
         comments_count: 31,
         created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
@@ -302,20 +308,13 @@ class PostsCacheManager {
     );
   }
 
-  // Start automatic background sync
+  // Start automatic background sync (disabled by default)
   startBackgroundSync() {
-    // Clear existing interval
-    this.stopBackgroundSync();
-
-    // Start new interval - sync every 2 minutes
-    this.backgroundSyncInterval = setInterval(
-      () => {
-        this.backgroundSync();
-      },
-      2 * 60 * 1000,
+    // Background sync is now disabled by default
+    // Only manual refresh is allowed
+    console.log(
+      "⚠️ Posts background sync is disabled - use manual refresh only",
     );
-
-    console.log("🔄 Posts background sync started");
   }
 
   // Stop background sync
