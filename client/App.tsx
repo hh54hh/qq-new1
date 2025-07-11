@@ -150,7 +150,7 @@ const AppContent = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفتح صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفت�� صفحة التشخيص");
     console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -176,8 +176,8 @@ const AppContent = () => {
           "🚀 Preloading barbers for customer:",
           authenticatedUser.id,
         );
-        const barberCache = await getBarberCache(authenticatedUser.id);
-        await barberCache.preloadBarbersOnLogin();
+        const ultraCache = await getUltraFastBarberCache(authenticatedUser.id);
+        await ultraCache.preloadOnLogin();
         console.log("✅ Barbers preloaded successfully");
       } catch (error) {
         console.warn("⚠️ Barber preloading failed:", error);
