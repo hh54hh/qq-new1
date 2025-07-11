@@ -550,7 +550,7 @@ export default function InstagramNewsFeed({
               </div>
 
               {/* Post Image */}
-              <div className="aspect-square bg-muted animate-pulse"></div>
+              <div className="w-full h-auto bg-muted animate-pulse"></div>
 
               {/* Post Actions */}
               <div className="p-3 sm:p-4 space-y-3">
@@ -740,7 +740,7 @@ export default function InstagramNewsFeed({
 
               {/* Post Image */}
               <div
-                className="aspect-square bg-muted relative"
+                className="w-full h-auto bg-muted relative"
                 data-post-id={post.id}
                 onClick={() => handleImageDoubleTap(post.id)}
                 style={{ cursor: "pointer" }}
