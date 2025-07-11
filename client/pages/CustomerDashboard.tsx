@@ -427,7 +427,7 @@ export default function CustomerDashboard({
       {
         id: "friend_req_2",
         type: "friend_request" as const,
-        title: "طلب صداقة جديد",
+        title: "طلب ص��اقة جديد",
         message: "محمد العلي يريد متابعتك",
         data: {
           senderId: "barber_2",
@@ -1452,9 +1452,9 @@ export default function CustomerDashboard({
             </Button>
           </div>
 
-          {/* Smart Loading State */}
+          {/* Ultra-Fast Loading State */}
           {(showSkeletons || (barbersLoading && allBarbers.length === 0)) && (
-            <BarberSkeletonGrid count={6} variant="default" />
+            <UltraFastSkeletonGrid count={6} variant="barber" />
           )}
 
           {/* No Barbers Message - Only show if not loading and no skeletons */}
@@ -1744,7 +1744,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جر�� البحث بكلمة أخرى من المنشورات ��ل����يزة"
+              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
@@ -1881,7 +1881,7 @@ export default function CustomerDashboard({
             <CardContent className="p-8 text-center">
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                لا ��وجد حجوز��ت
+                لا ��وجد حجوزات
               </h3>
               <p className="text-muted-foreground mb-4">
                 احجز موعدك الأ��ل مع أحد الحل��قين
