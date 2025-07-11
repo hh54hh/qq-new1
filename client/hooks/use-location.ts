@@ -129,7 +129,7 @@ export function useLocation() {
         setState((prev) => ({
           ...prev,
           hasPermission: false,
-          error: "تحديد الموقع يتطلب اتصالاً آمناً (HTTPS)",
+          error: "تحديد المو��ع يتطلب اتصالاً آمناً (HTTPS)",
           isLoading: false,
         }));
         return null;
@@ -224,7 +224,7 @@ export function useLocation() {
                 break;
               default:
                 errorMessage = "حدث خطأ في تحديد الموقع";
-                technicalDetails = `كود الخطأ: ${error.code || "غير معروف"}, الرسالة: ${error.message || "غير متوفرة"}`;
+                technicalDetails = `كود الخطأ: ${error.code || "غير معروف"}, الرسالة: ${error.message || "غ��ر متوفرة"}`;
                 break;
             }
 
@@ -257,6 +257,18 @@ export function useLocation() {
     }));
   }, []);
 
+  const resetLocationPermission = useCallback(() => {
+    localStorage.removeItem(LOCATION_STORAGE_KEY);
+    localStorage.removeItem(PERMISSION_STORAGE_KEY);
+    localStorage.removeItem("location_permission_denied");
+    setState((prev) => ({
+      ...prev,
+      location: null,
+      hasPermission: null,
+      error: null,
+    }));
+  }, []);
+
   const isPermissionRequested = useCallback(() => {
     return localStorage.getItem(PERMISSION_STORAGE_KEY) === "true";
   }, []);
@@ -266,6 +278,7 @@ export function useLocation() {
     requestLocation,
     checkPermission,
     clearLocation,
+    resetLocationPermission,
     isPermissionRequested,
   };
 }
