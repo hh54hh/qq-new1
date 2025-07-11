@@ -276,7 +276,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة، يرجى الت��قق م�� جميع الحقول";
+                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م�� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -698,6 +698,12 @@ class ApiClient {
   async getUsers(): Promise<User[]> {
     const response = await this.getBarbers();
     return response.barbers || [];
+  }
+
+  // Search all users (requires authentication)
+  async searchUsers(query: string = ""): Promise<{ users: User[] }> {
+    const params = query ? `?q=${encodeURIComponent(query)}` : "";
+    return this.request<{ users: User[] }>(`/users/search${params}`);
   }
 
   async searchBarbers(filters: SearchFilters): Promise<{ data: User[] }> {
