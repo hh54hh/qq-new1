@@ -671,7 +671,7 @@ export default function CustomerDashboard({
         id: Date.now().toString(),
         type: "booking_rejected",
         title: "تم إلغاء الحجز",
-        message: "تم إلغاء حجزك ��نجاح",
+        message: "تم إل��اء حجزك ��نجاح",
         data: { bookingId },
         read: false,
         created_at: new Date().toISOString(),
@@ -693,8 +693,8 @@ export default function CustomerDashboard({
             : barber,
         );
 
-      setFilteredBarbers(updateBarberFollow);
-      setAllBarbers(updateBarberFollow);
+      setFilteredBarbers(updateBarberFollow(filteredBarbers));
+      setAllBarbers(updateBarberFollow(allBarbers));
 
       // Make the API call to update database
       let followResult;
@@ -2064,7 +2064,7 @@ export default function CustomerDashboard({
           <SelectContent>
             <SelectItem value="newest">⏱ ا��أحدث</SelectItem>
             <SelectItem value="rating">⭐ الأفض��</SelectItem>
-            <SelectItem value="distance">📍 الأقرب</SelectItem>
+            <SelectItem value="distance">📍 الأقر��</SelectItem>
           </SelectContent>
         </Select>
       </div>
