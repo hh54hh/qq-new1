@@ -281,8 +281,7 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage =
-                  "البريد الإلكت��وني ��و ��لمة الم��ور ��ير صحيحة";
+                errorMessage = "البريد الإلكت��وني ��و ��لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -306,10 +305,10 @@ class ApiClient {
                 "خ��مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
-                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل ب��لدعم ��لفني على: 07800657822";
+                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
-              errorMessage = "ا��بيانات موجودة بالفعل في النظام";
+              errorMessage = "ا��بي��نات موجودة بالفعل في النظام";
               errorType = "CONFLICT_ERROR";
               break;
             case 429:
@@ -371,7 +370,7 @@ class ApiClient {
       });
       return data;
     } catch (error) {
-      // تنظيف timeout في حالة الخطأ
+      // تنظيف timeout ��ي حالة الخطأ
       if (timeoutId) clearTimeout(timeoutId);
 
       // Handle AbortError (timeout or cancellation)
@@ -401,7 +400,7 @@ class ApiClient {
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
 
         if (error.message.includes("Failed to fetch")) {
-          networkErrorMessage = "فشل في الاتصا�� بالخادم";
+          networkErrorMessage = "فشل في الاتصال بالخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
           networkErrorMessage = "خطأ في ا����شبكة";
@@ -661,7 +660,7 @@ class ApiClient {
               name: "يوسف الأستاذ",
               email: "yousef@barbershop.com",
               role: "barber" as const,
-              status: "busy",
+              status: "active",
               level: 78,
               points: 780,
               is_verified: true,
@@ -1261,7 +1260,7 @@ export { ApiClient };
 // Example: import apiClient from './api';
 // Only import { ApiClient } if you need the class itself
 
-// دالة تشخيص سريعة لاختبار API
+// دالة تشخيص سريعة ��اختبار API
 export const diagnoseAPI = async () => {
   console.log("🔧 تشخيص API:", {
     baseUrl: apiClient["baseUrl"],
