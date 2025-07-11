@@ -24,6 +24,7 @@ import {
   MessagesListSkeleton,
   ChatHeaderSkeleton,
 } from "@/components/ui/chat-skeleton";
+import { useBackgroundSync } from "@/hooks/use-background-sync";
 
 export default function OptimizedChatPage() {
   const [searchParams] = useSearchParams();
