@@ -55,6 +55,7 @@ export default function BarberDashboard({
   const [followingCount, setFollowingCount] = useState(0);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [showAllRequests, setShowAllRequests] = useState(false);
 
   const uploadImage = async (file: File): Promise<string> => {
     try {
