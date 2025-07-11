@@ -181,9 +181,10 @@ class BarberCacheManager {
 
         return {
           ...barber,
+          role: "barber" as const,
           rating: barber.rating || 4.0,
           followers: barber.followers_count || 0,
-          distance: barber.distance || 2.5,
+          distance: 2.5, // Default distance
           status: barber.status || "متاح",
           isFollowed: followedUsers.includes(barber.id),
           price: barber.price || 30,
