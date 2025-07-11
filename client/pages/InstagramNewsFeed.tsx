@@ -145,14 +145,15 @@ export default function InstagramNewsFeed({
       comments_count: 31,
       created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
       isLiked: false,
+      cached_at: Date.now(),
     },
   ];
 
   // Handle post like/unlike with cache update
   const handleLike = async (postId: string) => {
-    try {
-      const isCurrentlyLiked = likedPosts.has(postId);
+    const isCurrentlyLiked = likedPosts.has(postId);
 
+    try {
       // Optimistic UI update
       setLikedPosts((prev) => {
         const newSet = new Set(prev);
