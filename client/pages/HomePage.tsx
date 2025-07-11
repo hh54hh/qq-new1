@@ -298,11 +298,21 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       );
 
       // Filter suggestions: exclude self and already followed users
-      const suggestions = allUsers.filter(
+      let suggestions = allUsers.filter(
         (suggestedUser: any) =>
           suggestedUser.id !== user.id &&
           !followingIds.includes(suggestedUser.id),
       );
+
+      // If no suggestions after filtering, show some anyway (except self)
+      if (suggestions.length === 0 && allUsers.length > 1) {
+        suggestions = allUsers.filter(
+          (suggestedUser: any) => suggestedUser.id !== user.id,
+        );
+        console.log(
+          "No suggestions after following filter, showing all users except self",
+        );
+      }
 
       console.log("Filtered suggestions:", suggestions.length);
       console.log("Current user ID:", user.id);
@@ -486,7 +496,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
           <Sparkles className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">لا توجد أخبار حتى الآن</h3>
           <p className="text-muted-foreground">
-            ابدأ بمتابعة بعض الحلاقين لرؤية منشوراتهم هنا
+            ابدأ ��متابعة بعض الحلاقين لرؤية منشوراتهم هنا
           </p>
           <Button
             variant="outline"
