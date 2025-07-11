@@ -679,12 +679,24 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                         "text-muted-foreground hover:text-red-500 transition-colors",
                         selectedPost.isLiked && "text-red-500",
                       )}
-                      onClick={() =>
-                        handlePostLike(
+                      onClick={async () => {
+                        await handlePostLike(
                           selectedPost.id,
                           selectedPost.isLiked || false,
-                        )
-                      }
+                        );
+                        // Update the selectedPost state to reflect the change
+                        setSelectedPost((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                isLiked: !prev.isLiked,
+                                likes: prev.isLiked
+                                  ? (prev.likes || 1) - 1
+                                  : (prev.likes || 0) + 1,
+                              }
+                            : null,
+                        );
+                      }}
                     >
                       <Heart
                         className={cn(
