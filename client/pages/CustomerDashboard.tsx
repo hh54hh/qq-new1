@@ -456,6 +456,9 @@ export default function CustomerDashboard({
         store.addNotification(request);
       }
     });
+
+    // حفظ أن الإشعارات تم عرضها
+    localStorage.setItem(NOTIFICATIONS_SHOWN_KEY, "true");
   };
 
   // Smart barber loading with instant cache and background sync
@@ -980,7 +983,7 @@ export default function CustomerDashboard({
               <ArrowRight className="h-5 w-5" />
             </Button>
             <h1 className="text-base sm:text-lg font-bold text-foreground">
-              الحلاقين المتابعين ({followedBarbers.length})
+              الحلاقين ال��تابعين ({followedBarbers.length})
             </h1>
           </div>
         </div>
@@ -1883,7 +1886,7 @@ export default function CustomerDashboard({
                 سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
-                تحديث الموقع
+                تحد��ث الموقع
               </Button>
             </CardContent>
           </Card>
