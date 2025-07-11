@@ -19,6 +19,7 @@ import {
   Settings,
   User as UserIcon,
   Scissors,
+  ArrowRight,
 } from "lucide-react";
 import { User, Booking } from "@shared/api";
 import { cn } from "@/lib/utils";
@@ -55,6 +56,7 @@ export default function BarberDashboard({
   const [followingCount, setFollowingCount] = useState(0);
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+  const [showAllRequests, setShowAllRequests] = useState(false);
 
   const uploadImage = async (file: File): Promise<string> => {
     try {
@@ -387,10 +389,20 @@ export default function BarberDashboard({
       {/* Recent Booking Requests */}
       <Card className="border-border/50 bg-card/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            طلبات الحجز الجديدة
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              طلبات الحجز الجديدة
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs sm:text-sm text-primary"
+              onClick={() => setShowAllRequests(true)}
+            >
+              عرض الكل
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {state.bookings
@@ -559,7 +571,7 @@ export default function BarberDashboard({
                 لا ت��جد طلبات جديدة
               </h3>
               <p className="text-muted-foreground">
-                سيظهر هنا طلبات الحج�� الجديدة من العملاء
+                سيظهر هنا طلبات الحج�� ا��جديدة من العملاء
               </p>
             </CardContent>
           </Card>
@@ -910,7 +922,7 @@ export default function BarberDashboard({
         >
           <X className="h-4 w-4" />
         </Button>
-        <h2 className="text-lg font-bold">المتابعين ({followerCount})</h2>
+        <h2 className="text-lg font-bold">المتا��عين ({followerCount})</h2>
       </div>
 
       <div className="space-y-3">
@@ -1049,13 +1061,35 @@ export default function BarberDashboard({
     return renderFollowing();
   }
 
+  // Show all requests page
+  if (showAllRequests) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border/50 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAllRequests(false)}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <h1 className="text-base sm:text-lg font-bold text-foreground">
+              جميع طلبات الحجز
+            </h1>
+          </div>
+        </div>
+        <div className="p-4">{renderRequests()}</div>
+      </div>
+    );
+  }
+
   switch (activeTab) {
     case "home":
       return renderHome();
     case "friends":
       return <FriendsPage user={user} />;
-    case "requests":
-      return renderRequests();
+
     case "messages":
       return <MessagesPage user={user} onBack={() => window.history.back()} />;
     case "new-post":

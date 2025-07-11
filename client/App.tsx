@@ -159,7 +159,8 @@ const AppContent = () => {
     if (
       state.user &&
       state.user.role === "customer" &&
-      !isPermissionRequested()
+      !isPermissionRequested() &&
+      !localStorage.getItem("location_permission_denied")
     ) {
       setShowLocationDialog(true);
     }
@@ -325,9 +326,25 @@ const App = () => {
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
     };
 
+    // إضافة دالة عالمية لإعادة تعيين الإشعارات
+    (window as any).resetNotifications = () => {
+      // إعادة تعيين إشعارات طلبات الصداقة
+      const userId = localStorage.getItem("barbershop_user_id") || "user";
+      localStorage.removeItem(`friend_requests_shown_${userId}`);
+
+      // إعادة تعيين إعدادات الموقع
+      localStorage.removeItem("location_permission_requested");
+      localStorage.removeItem("location_permission_denied");
+      localStorage.removeItem("user_location");
+
+      console.log("✅ تم إعادة تعيين جميع الإشعارات وإعدادات الموقع");
+      console.log("🔄 قم بإعادة تحميل الصفحة لرؤية الإشعارات مرة أخرى");
+    };
+
     console.log("💡 نصا��ح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفتح صفحة ��لتشخيص");
     console.log("  - اكتب openDiagnostic() في ا����ونسول لفتح التشخيص الشامل");
+    console.log("  - اكتب resetNotifications() لإعادة تعيين الإشعارات");
   }, []);
 
   return (

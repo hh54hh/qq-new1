@@ -78,6 +78,7 @@ export default function CustomerDashboard({
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showFollowedBarbers, setShowFollowedBarbers] = useState(false);
   const [showNearbyBarbers, setShowNearbyBarbers] = useState(false);
+  const [showAllBookings, setShowAllBookings] = useState(false);
 
   const [allBarbers, setAllBarbers] = useState<CachedBarber[]>([]);
   const [filteredBarbers, setFilteredBarbers] = useState<CachedBarber[]>([]);
@@ -409,7 +410,16 @@ export default function CustomerDashboard({
   }, [user?.id]);
 
   const loadFriendRequests = () => {
-    // إضافة طلب��ت صداقة تجريبية للإشعارات
+    // تحقق من أن الإشعارات لم يتم عرضها من قبل
+    const NOTIFICATIONS_SHOWN_KEY = `friend_requests_shown_${user.id}`;
+    const hasShownNotifications = localStorage.getItem(NOTIFICATIONS_SHOWN_KEY);
+
+    // إذا تم عرض الإشعارات من قبل، لا تعرضها مرة أخرى
+    if (hasShownNotifications) {
+      return;
+    }
+
+    // إضافة طلب��ت صداقة تجريبية للإشعارات (مرة واحدة فقط)
     const friendRequests = [
       {
         id: "friend_req_1",
@@ -446,6 +456,9 @@ export default function CustomerDashboard({
         store.addNotification(request);
       }
     });
+
+    // حفظ أن الإشعارات تم عرضها
+    localStorage.setItem(NOTIFICATIONS_SHOWN_KEY, "true");
   };
 
   // Smart barber loading with instant cache and background sync
@@ -747,7 +760,7 @@ export default function CustomerDashboard({
           type: "friend_request",
           title: "خطأ في المتابعة",
           message:
-            "حدث خطأ ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
+            "حدث خط�� ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
           read: false,
           created_at: new Date().toISOString(),
@@ -970,7 +983,7 @@ export default function CustomerDashboard({
               <ArrowRight className="h-5 w-5" />
             </Button>
             <h1 className="text-base sm:text-lg font-bold text-foreground">
-              الحلاقين المتابعين ({followedBarbers.length})
+              الحلاقين ال��تابعين ({followedBarbers.length})
             </h1>
           </div>
         </div>
@@ -1068,6 +1081,119 @@ export default function CustomerDashboard({
                 <p className="text-muted-foreground">
                   ا��دأ بمتابعة الحلاقين لرؤ��ت��م ه��ا
                 </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Show all bookings
+  if (showAllBookings) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border/50 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAllBookings(false)}
+            >
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+            <h1 className="text-base sm:text-lg font-bold text-foreground">
+              جميع الحجوزات ({state.bookings.length})
+            </h1>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-4">
+          {state.bookings.map((booking) => (
+            <Card key={booking.id} className="border-border/50 bg-card/50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-foreground">
+                      {booking.barber?.name || "الحلاق"}
+                    </h4>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(booking.datetime)}</span>
+                    </div>
+                    {(booking as any).message && (
+                      <p className="text-sm text-muted-foreground">
+                        "الرسالة: {(booking as any).message}"
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2">
+                    <Badge
+                      className={cn(
+                        "text-xs",
+                        getBookingStatusColor(booking.status),
+                      )}
+                    >
+                      {getBookingStatusLabel(booking.status)}
+                    </Badge>
+                    {booking.status === "pending" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCancelBooking(booking.id)}
+                      >
+                        إلغاء
+                      </Button>
+                    )}
+                    {booking.status === "cancelled" && (
+                      <Badge className="text-xs bg-destructive/10 text-destructive border-destructive/20">
+                        ملغي
+                      </Badge>
+                    )}
+                    {booking.status === "completed" && (
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90"
+                        onClick={() => handleRateBooking(booking)}
+                      >
+                        <Star className="h-3 w-3 mr-1" />
+                        تقييم
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {state.bookings.length === 0 && (
+            <Card className="border-border/50 bg-card/50">
+              <CardContent className="p-8 text-center">
+                <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  لا توجد حجوزات
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  احجز موعدك الأول مع أحد الحلاقين
+                </p>
+                <Button
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    setShowAllBookings(false);
+                    // Scroll to nearby barbers after a short delay
+                    setTimeout(() => {
+                      const nearbySection = document.querySelector(
+                        '[data-section="nearby-barbers"]',
+                      );
+                      if (nearbySection) {
+                        nearbySection.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }, 100);
+                  }}
+                >
+                  احجز الآن
+                </Button>
               </CardContent>
             </Card>
           )}
@@ -1357,6 +1483,126 @@ export default function CustomerDashboard({
           </div>
         </div>
 
+        {/* Quick Actions & Bookings Section */}
+        <div className="space-y-4">
+          {/* Recent Bookings */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                حجوزاتي الأخيرة
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs sm:text-sm text-primary"
+                onClick={() => setShowAllBookings(true)}
+              >
+                عرض الكل
+              </Button>
+            </div>
+
+            {/* Show last 2 bookings */}
+            {state.bookings.length > 0 ? (
+              <div className="space-y-3">
+                {state.bookings.slice(0, 2).map((booking) => (
+                  <Card
+                    key={booking.id}
+                    className="border-border/50 bg-card/50"
+                  >
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <h4 className="font-medium text-foreground text-sm sm:text-base">
+                            {booking.barber?.name || "الحلاق"}
+                          </h4>
+                          <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
+                            <span>{formatDate(booking.datetime)}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-2">
+                          <Badge
+                            className={cn(
+                              "text-xs",
+                              getBookingStatusColor(booking.status),
+                            )}
+                          >
+                            {getBookingStatusLabel(booking.status)}
+                          </Badge>
+                          {booking.status === "pending" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                              onClick={() => handleCancelBooking(booking.id)}
+                            >
+                              إلغاء
+                            </Button>
+                          )}
+                          {booking.status === "completed" && (
+                            <Button
+                              size="sm"
+                              className="bg-primary hover:bg-primary/90 text-xs"
+                              onClick={() => handleRateBooking(booking)}
+                            >
+                              <Star className="h-3 w-3 mr-1" />
+                              تقييم
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                {/* Show All Bookings Button */}
+                {state.bookings.length > 2 && (
+                  <Card className="border-border/50 bg-card/50">
+                    <CardContent className="p-3 text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-sm text-primary w-full"
+                        onClick={() => setShowAllBookings(true)}
+                      >
+                        عرض جميع الحجوزات ({state.bookings.length})
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            ) : (
+              <Card className="border-border/50 bg-card/50">
+                <CardContent className="p-6 text-center">
+                  <Calendar className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                  <h4 className="font-medium text-foreground mb-2">
+                    لا توجد حجوزات
+                  </h4>
+                  <p className="text-muted-foreground text-sm mb-4">
+                    احجز موعدك الأول مع أحد الحلاقين
+                  </p>
+                  <Button
+                    size="sm"
+                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => {
+                      // Scroll to nearby barbers section
+                      const nearbySection = document.querySelector(
+                        '[data-section="nearby-barbers"]',
+                      );
+                      if (nearbySection) {
+                        nearbySection.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }}
+                  >
+                    احجز الآن
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+
         {/* Followed Barbers Section */}
         {followedBarbers.length > 0 && (
           <div className="space-y-4">
@@ -1437,7 +1683,7 @@ export default function CustomerDashboard({
         )}
 
         {/* Nearby Barbers Section */}
-        <div className="space-y-4">
+        <div className="space-y-4" data-section="nearby-barbers">
           <div className="flex items-center justify-between">
             <h3 className="text-base sm:text-lg font-semibold text-foreground">
               الحلاقين القريبين
@@ -1640,7 +1886,7 @@ export default function CustomerDashboard({
                 سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
-                تحديث الموقع
+                تحد��ث الموقع
               </Button>
             </CardContent>
           </Card>
