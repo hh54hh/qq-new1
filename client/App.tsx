@@ -150,7 +150,7 @@ const AppContent = () => {
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفت�� صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفت�� صفحة ��لتشخيص");
     console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -188,7 +188,7 @@ const AppContent = () => {
 
   const handleLogout = () => {
     store.logout();
-    setActiveTab("home");
+    setActiveTab("homepage");
   };
 
   const handleLocationDialogComplete = () => {
