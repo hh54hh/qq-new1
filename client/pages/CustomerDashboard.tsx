@@ -289,7 +289,7 @@ export default function CustomerDashboard({
   // Load data on component mount with smart barber loading
   useEffect(() => {
     loadBookings();
-    loadBarbersWithSmartCache();
+    loadBarbersUltraFast();
     loadFriendRequests();
   }, [user.id]);
 
