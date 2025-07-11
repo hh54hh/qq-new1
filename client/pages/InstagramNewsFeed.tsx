@@ -246,7 +246,7 @@ export default function InstagramNewsFeed({
         setLoading(false);
 
         // Update liked posts state
-        const likedIds = new Set(
+        const likedIds = new Set<string>(
           updatedPosts
             .filter((p: PostType) => p.isLiked)
             .map((p: PostType) => p.id),
