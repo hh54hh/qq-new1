@@ -193,7 +193,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       // Get current following list to exclude them
       const followingResponse = await apiClient.getFollows("following");
       const followingIds =
-        followingResponse.follows?.map((f: any) => f.following_id) || [];
+        followingResponse.follows?.map((f: any) => f.followed_id) || [];
 
       // Get all users from barbers endpoint (includes customers too, despite the name)
       const barbersResponse = await apiClient.getBarbers();
@@ -568,7 +568,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
         <div className="relative">
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
-            placeholder="ابحث عن أشخاص..."
+            placeholder="ابحث عن أشخا��..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pr-10"
