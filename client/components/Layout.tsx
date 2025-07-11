@@ -35,9 +35,21 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     id: "home",
-    label: "الرئيس��ة",
+    label: "حلاقتي",
     icon: Home,
-    roles: ["customer", "barber", "admin"],
+    roles: ["customer"],
+  },
+  {
+    id: "home",
+    label: "الإدارة",
+    icon: Home,
+    roles: ["barber"],
+  },
+  {
+    id: "home",
+    label: "الرئيسية",
+    icon: Home,
+    roles: ["admin"],
   },
   {
     id: "search",
