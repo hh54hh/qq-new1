@@ -244,80 +244,109 @@ export default function HomePageSimple({ user, onUserClick }: HomePageProps) {
     }
   }, [user?.id]);
 
-  // Load suggested users - SIMPLE AND RELIABLE
+  // Load suggested users - Using EXACT same method as successful barber loading
   const loadSuggestedUsers = useCallback(async () => {
     if (!user?.id) return;
 
     setFriendsLoading(true);
-    console.log("🔄 Loading user suggestions...");
+    console.log(
+      "🔄 Loading user suggestions using proven barber loading method...",
+    );
 
     try {
-      // Get following list
+      // Step 1: Get following list (same as working code)
       let followingIds = [];
       try {
         const followingResponse = await apiClient.getFollows("following");
         followingIds =
           followingResponse.follows?.map((f: any) => f.followed_id) || [];
-        console.log("Following IDs:", followingIds.length);
+        console.log("📋 Following list:", followingIds.length, "users");
       } catch (error) {
-        console.warn("Could not get following list:", error.message);
+        console.warn("⚠️ Could not get following list:", error.message);
       }
 
-      // Start with quality suggestions
-      let allUsers = createQualitySuggestions();
+      // Step 2: Get real users using EXACT same method as working barber loading
+      console.log("📡 Fetching users using proven getBarbers method...");
+      const startTime = performance.now();
 
-      // Try to get real users and add them
       try {
-        const barbersResponse = await apiClient.getBarbers();
-        const realUsers = barbersResponse.barbers || [];
-        console.log("✅ Got real users:", realUsers.length);
+        // Use the exact same API call that works for barbers
+        const response = await apiClient.getBarbers();
+        const loadTime = performance.now() - startTime;
 
-        // Add real users to the mix (normalize their structure)
-        const normalizedRealUsers = realUsers.map((user: any) => ({
-          ...user,
-          shop_name: user.shop_name || "", // Add missing fields for compatibility
-          rating: user.rating || 0,
-        }));
-        allUsers = [...allUsers, ...normalizedRealUsers];
+        console.log("✅ API response received:", {
+          responseTime: `${loadTime.toFixed(1)}ms`,
+          usersCount: response?.barbers?.length || 0,
+          hasData: !!response?.barbers,
+        });
+
+        const realUsers = response?.barbers || [];
+
+        if (realUsers.length > 0) {
+          console.log("📊 Real users breakdown:", {
+            total: realUsers.length,
+            customers: realUsers.filter((u) => u.role === "customer").length,
+            barbers: realUsers.filter((u) => u.role === "barber").length,
+            admins: realUsers.filter((u) => u.role === "admin").length,
+          });
+
+          // Normalize user structure (add missing fields for UI compatibility)
+          const normalizedUsers = realUsers.map((user: any) => ({
+            ...user,
+            shop_name: user.shop_name || user.business_name || "",
+            rating: user.rating || 0,
+            location: user.location || user.address || "",
+          }));
+
+          // Filter out self and already followed users
+          const suggestions = normalizedUsers.filter(
+            (suggestedUser: any) =>
+              suggestedUser.id !== user.id &&
+              !followingIds.includes(suggestedUser.id),
+          );
+
+          // Sort exactly like the working barber code
+          suggestions.sort((a: any, b: any) => {
+            // Verified users first
+            if (a.is_verified && !b.is_verified) return -1;
+            if (b.is_verified && !a.is_verified) return 1;
+
+            // Barbers second
+            if (a.role === "barber" && b.role !== "barber") return -1;
+            if (b.role === "barber" && a.role !== "barber") return 1;
+
+            // Then by level
+            return (b.level || 0) - (a.level || 0);
+          });
+
+          console.log("✅ Final suggestions processed:", {
+            total: suggestions.length,
+            customers: suggestions.filter((u) => u.role === "customer").length,
+            barbers: suggestions.filter((u) => u.role === "barber").length,
+          });
+
+          setSuggestedUsers(suggestions);
+          setFilteredSuggestions(suggestions);
+          return; // Success - exit function
+        } else {
+          console.log("⚠️ API returned empty users array");
+        }
       } catch (error) {
-        console.warn("Could not get real users:", error.message);
+        console.error("❌ API call failed:", error);
       }
 
-      console.log("📊 Total users available:", allUsers.length);
-
-      // Filter out self and already followed
-      const suggestions = allUsers.filter(
-        (suggestedUser: any) =>
-          suggestedUser.id !== user.id &&
-          !followingIds.includes(suggestedUser.id),
-      );
-
-      // Sort by quality: verified first, then by level
-      suggestions.sort((a: any, b: any) => {
-        if (a.is_verified && !b.is_verified) return -1;
-        if (b.is_verified && !a.is_verified) return 1;
-        return (b.level || 0) - (a.level || 0);
-      });
-
-      console.log("✅ Final suggestions:", suggestions.length, {
-        customers: suggestions.filter((u) => u.role === "customer").length,
-        barbers: suggestions.filter((u) => u.role === "barber").length,
-      });
-
-      setSuggestedUsers(suggestions);
-      setFilteredSuggestions(suggestions);
+      // If we reach here, API failed or returned empty - show message
+      console.log("📝 No real users available - API may be down or empty");
+      setSuggestedUsers([]);
+      setFilteredSuggestions([]);
     } catch (error) {
-      console.error("Error loading user suggestions:", error);
-      // Fallback to quality suggestions only
-      const fallbackSuggestions = createQualitySuggestions().filter(
-        (u) => u.id !== user.id,
-      );
-      setSuggestedUsers(fallbackSuggestions);
-      setFilteredSuggestions(fallbackSuggestions);
+      console.error("❌ Critical error in loadSuggestedUsers:", error);
+      setSuggestedUsers([]);
+      setFilteredSuggestions([]);
     } finally {
       setFriendsLoading(false);
     }
-  }, [user?.id, createQualitySuggestions]);
+  }, [user?.id]);
 
   // Handle follow/unfollow
   const handleFollowToggle = async (
