@@ -1,9 +1,9 @@
 /**
  * Ultra-Fast Barber Cache System
- * Instagram-level performance with <50ms load times
+ * <50ms load times with instant response
  */
 
-import { CachedBarber, BarberCacheConfig } from "./barber-cache";
+import { CachedBarber } from "./barber-cache";
 import apiClient from "./api";
 import { measurePerformance } from "./performance-monitor";
 
@@ -24,13 +24,12 @@ class UltraFastBarberCache {
   private isInitialized = false;
   private currentUserId: string | null = null;
 
-  // Ultra-fast config - optimized for speed
   private readonly config = {
-    memoryRetention: 300000, // 5 minutes in memory
-    maxMemoryBarbers: 50, // Keep top 50 in memory
-    instantLoadThreshold: 10000, // 10 seconds for "instant"
-    preloadBatchSize: 20, // Load 20 barbers immediately
-    backgroundSyncDelay: 100, // 100ms delay for background sync
+    memoryRetention: 300000, // 5 minutes
+    maxMemoryBarbers: 50,
+    instantLoadThreshold: 10000, // 10 seconds
+    preloadBatchSize: 20,
+    backgroundSyncDelay: 100,
   };
 
   async initialize(userId: string): Promise<void> {
@@ -44,54 +43,48 @@ class UltraFastBarberCache {
     console.log("⚡ Ultra-fast barber cache initialized");
   }
 
-  // ================= INSTANT LOADING (< 50ms) =================
+  // ================= INSTANT LOADING =================
 
-    async getInstantBarbers(): Promise<{
+  async getInstantBarbers(): Promise<{
     barbers: CachedBarber[];
     source: "memory" | "indexeddb" | "skeleton";
     loadTime: number;
   }> {
-    return measurePerformance.async(
-      "getInstantBarbers",
-      "ultra-fast-cache",
-      async () => {
-        const startTime = performance.now();
+    const startTime = performance.now();
 
-        // 1. Memory cache first (fastest - <5ms)
-        if (this.memoryCache.barbers.length > 0) {
-          const loadTime = performance.now() - startTime;
-          console.log(`⚡ Memory cache hit: ${loadTime.toFixed(1)}ms`);
+    // 1. Memory cache first (fastest - <5ms)
+    if (this.memoryCache.barbers.length > 0) {
+      const loadTime = performance.now() - startTime;
+      console.log(`⚡ Memory cache hit: ${loadTime.toFixed(1)}ms`);
 
-          // Start background refresh if data is old
-          if (
-            Date.now() - this.memoryCache.lastUpdate >
-            this.config.instantLoadThreshold
-          ) {
-            setTimeout(
-              () => this.backgroundRefresh(),
-              this.config.backgroundSyncDelay,
-            );
-          }
+      // Start background refresh if data is old
+      if (
+        Date.now() - this.memoryCache.lastUpdate >
+        this.config.instantLoadThreshold
+      ) {
+        setTimeout(
+          () => this.backgroundRefresh(),
+          this.config.backgroundSyncDelay,
+        );
+      }
 
-          return {
-            barbers: this.memoryCache.barbers,
-            source: "memory" as const,
-            loadTime,
-          };
-        }
+      return {
+        barbers: this.memoryCache.barbers,
+        source: "memory",
+        loadTime,
+      };
+    }
 
     // 2. IndexedDB cache (fast - <20ms)
     if (this.indexedDBCache) {
       try {
         const cached = await this.readFromIndexedDB();
         if (cached && cached.length > 0) {
-          // Update memory cache
           this.updateMemoryCache(cached);
 
           const loadTime = performance.now() - startTime;
           console.log(`📱 IndexedDB cache hit: ${loadTime.toFixed(1)}ms`);
 
-          // Start background refresh
           setTimeout(
             () => this.backgroundRefresh(),
             this.config.backgroundSyncDelay,
@@ -108,7 +101,7 @@ class UltraFastBarberCache {
       }
     }
 
-    // 3. Generate skeletons immediately (ultra-fast - <2ms)
+    // 3. Generate skeletons immediately (<2ms)
     const skeletons = this.generateSkeletons();
     const loadTime = performance.now() - startTime;
     console.log(`🦴 Skeleton generation: ${loadTime.toFixed(1)}ms`);
@@ -123,7 +116,7 @@ class UltraFastBarberCache {
     };
   }
 
-  // ================= ULTRA-FAST SKELETONS =================
+  // ================= SKELETON GENERATION =================
 
   private generateSkeletons(): CachedBarber[] {
     const count = 6;
@@ -160,9 +153,7 @@ class UltraFastBarberCache {
     try {
       console.log("🔥 Starting aggressive background load...");
 
-      // Use Promise.race for fastest response
       const loadPromises = [this.loadFromAPI(), this.loadCachedFollowData()];
-
       const results = await Promise.allSettled(loadPromises);
 
       const apiResult = results[0];
@@ -186,9 +177,8 @@ class UltraFastBarberCache {
   }
 
   private async loadFromAPI(): Promise<any[]> {
-    // Use AbortController with short timeout for speed
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s max
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     try {
       const response = (await Promise.race([
@@ -227,17 +217,14 @@ class UltraFastBarberCache {
         followers: barber.followers_count || 0,
         distance: 2.5,
         status: barber.status || "متاح",
-        isFollowed: false, // Will be updated by follow data
+        isFollowed: false,
         price: barber.price || 30,
         _cached_at: Date.now(),
         _quality_score: this.calculateQualityScore(barber),
       })) as CachedBarber[];
 
-    // Update caches
     this.updateMemoryCache(processed);
     this.saveToIndexedDB(processed);
-
-    // Notify UI immediately
     this.notifyUIUpdate();
   }
 
@@ -307,7 +294,6 @@ class UltraFastBarberCache {
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const barbers = request.result as CachedBarber[];
-        // Filter out old data (older than 1 hour)
         const oneHourAgo = Date.now() - 3600000;
         const fresh = barbers.filter((b) => b._cached_at > oneHourAgo);
         resolve(fresh.length > 0 ? fresh : null);
@@ -325,14 +311,12 @@ class UltraFastBarberCache {
       );
       const store = transaction.objectStore("barbers");
 
-      // Clear old data first
       await new Promise<void>((resolve, reject) => {
         const clearRequest = store.clear();
         clearRequest.onerror = () => reject(clearRequest.error);
         clearRequest.onsuccess = () => resolve();
       });
 
-      // Add new data
       for (const barber of barbers) {
         store.add(barber);
       }
@@ -358,8 +342,6 @@ class UltraFastBarberCache {
 
   async preloadOnLogin(): Promise<void> {
     console.log("🚀 Ultra-fast preload initiated");
-
-    // Don't wait - start loading immediately
     setTimeout(() => {
       this.aggressiveBackgroundLoad();
     }, 0);
@@ -376,22 +358,6 @@ class UltraFastBarberCache {
     this.isInitialized = false;
     this.currentUserId = null;
     console.log("⚡ Ultra-fast cache destroyed");
-  }
-
-  // ================= STATS =================
-
-  getStats(): {
-    memoryCount: number;
-    lastUpdate: number;
-    cacheAge: number;
-    isPreloaded: boolean;
-  } {
-    return {
-      memoryCount: this.memoryCache.barbers.length,
-      lastUpdate: this.memoryCache.lastUpdate,
-      cacheAge: Date.now() - this.memoryCache.lastUpdate,
-      isPreloaded: this.memoryCache.preloadedData,
-    };
   }
 }
 
