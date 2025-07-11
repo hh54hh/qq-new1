@@ -539,22 +539,65 @@ class BarberCacheManager {
 
   private async performCleanup(): Promise<void> {
     try {
+      console.log("🧹 Starting comprehensive cleanup...");
+
+      // 1. Check memory usage first
+      await this.smartMemoryCleanup();
+
+      // 2. Clean old data
       const now = Date.now();
       const retentionMs = this.config.dataRetention * 24 * 60 * 60 * 1000;
 
-      // Clean old barbers
       const allBarbers = await this.storage.getAllData("barbers");
       let cleanedCount = 0;
+      let memoryFreed = 0;
+
+      // Filter out old and low-value barbers
+      const barbersToKeep = [];
 
       for (const barber of allBarbers) {
-        if (now - barber._cached_at > retentionMs) {
-          await this.storage.deleteData("barbers", barber.id);
+        const isOld = now - barber._cached_at > retentionMs;
+        const isLowValue = this.calculateSmartScore(barber) < 10; // Low threshold
+        const isRarelyAccessed = (this.accessCounts.get(barber.id) || 0) < 2;
+
+        if (isOld || (isLowValue && isRarelyAccessed)) {
+          const barberSize = new Blob([JSON.stringify(barber)]).size;
+          memoryFreed += barberSize;
           cleanedCount++;
+
+          // Remove from tracking
+          this.lastAccessTimes.delete(barber.id);
+          this.accessCounts.delete(barber.id);
+        } else {
+          barbersToKeep.push(barber);
         }
       }
 
+      // Replace with cleaned data
       if (cleanedCount > 0) {
-        console.log(`🧹 Cleaned ${cleanedCount} old barbers from cache`);
+        await this.storage.clearStore("barbers");
+        for (const barber of barbersToKeep) {
+          await this.storage.saveData("barbers", barber, barber.id, "barber");
+        }
+
+        const memoryFreedMB =
+          Math.round((memoryFreed / (1024 * 1024)) * 100) / 100;
+        console.log(
+          `✅ Cleanup completed: ${cleanedCount} barbers removed, ${memoryFreedMB}MB freed`,
+        );
+      }
+
+      // 3. Clean stats if too old
+      const stats = await this.storage.getAllData("barber_stats");
+      for (const stat of stats) {
+        if (now - stat._cached_at > retentionMs) {
+          await this.storage.deleteData("barber_stats", stat.id || "current");
+        }
+      }
+
+      // 4. Force garbage collection hint (if available)
+      if (typeof window !== "undefined" && (window as any).gc) {
+        (window as any).gc();
       }
     } catch (error) {
       console.warn("Cleanup failed:", error);
