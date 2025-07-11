@@ -62,6 +62,21 @@ class SimpleErrorBoundary extends Component<
 
   componentDidCatch(error: Error, errorInfo: any) {
     console.error("Error Boundary caught an error:", error, errorInfo);
+
+    // Special handling for React Context errors
+    if (
+      error.message?.includes("useState") ||
+      error.message?.includes("null")
+    ) {
+      console.error(
+        "React Context error detected. This might be a React version mismatch or import issue.",
+      );
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+      });
+    }
   }
 
   render() {
@@ -109,7 +124,7 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
 const AppContent = () => {
   const [state, store] = useAppStore();
   const routerLocation = useRouterLocation();
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("homepage");
 
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -146,11 +161,11 @@ const AppContent = () => {
     // إضافة دالة عالمية ��فتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
-      console.log("🔍 تم فتح صفحة التشخيص الشامل");
+      console.log("🔍 تم فتح صفحة ��لتشخيص الشامل");
     };
 
     console.log("💡 نصائح مفيدة:");
-    console.log("  - اكتب openDebug() في الكونسول لفت�� صفحة التشخيص");
+    console.log("  - اكتب openDebug() في الكونسول لفت�� صفحة ��لتشخيص");
     console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
   }, []);
 
@@ -168,7 +183,7 @@ const AppContent = () => {
 
   const handleAuth = async (authenticatedUser: User) => {
     // User is already set in store by login/register
-    setActiveTab("home");
+    setActiveTab("homepage");
 
     // Preload barbers for customers in background
     if (authenticatedUser.role === "customer") {
@@ -188,7 +203,7 @@ const AppContent = () => {
 
   const handleLogout = () => {
     store.logout();
-    setActiveTab("home");
+    setActiveTab("homepage");
   };
 
   const handleLocationDialogComplete = () => {

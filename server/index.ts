@@ -22,6 +22,7 @@ import { debugLogin } from "./routes/debug-auth";
 import { resetTestPassword } from "./routes/reset-test-password";
 import {
   getBarbers,
+  getCustomers,
   searchBarbers,
   getBookings,
   createBooking,
@@ -349,6 +350,8 @@ function createAppWithRoutes(app: express.Application) {
   // Barbers routes - both /api and direct paths for Netlify compatibility
   app.get("/api/barbers", getBarbers);
   app.get("/barbers", getBarbers);
+  app.get("/api/customers", getCustomers);
+  app.get("/customers", getCustomers);
   app.get("/api/barbers/search", searchBarbers);
   app.get("/barbers/search", searchBarbers);
   app.get("/api/barbers/search/advanced", advancedSearchBarbers);

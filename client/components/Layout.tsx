@@ -9,6 +9,7 @@ import {
   PlusCircle,
   MessageCircle,
   Bell,
+  Newspaper,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { User as UserType, UserRole } from "@shared/api";
@@ -33,6 +34,12 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
+  {
+    id: "homepage",
+    label: "الرئيسية",
+    icon: Newspaper,
+    roles: ["customer"],
+  },
   {
     id: "home",
     label: "حلاقتي",

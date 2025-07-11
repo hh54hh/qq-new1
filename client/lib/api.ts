@@ -78,7 +78,7 @@ class ApiClient {
       currentBaseUrl: this.baseUrl,
     });
 
-    // إذ�� كان على Netlify، استخدم م��ار Functions مباشرة دون اختبار
+    // إذ�� كان على Netlify، استخدم م��ار Functions مباشرة ��ون اختبار
     if (hostname.includes("netlify")) {
       this.baseUrl = window.location.origin + "/.netlify/functions/api";
       this.apiUrlVerified = true;
@@ -197,7 +197,7 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
-    // التحقق من صحة مسار API إذا لم يتم التح��ق مسبقاً
+    // التحقق من ��حة مسار API إذا لم يتم التح��ق مسبقاً
     await this.verifyApiUrl();
 
     // التحقق من auth token للمسارات المحمية
@@ -276,7 +276,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة، يرجى الت��قق م�� جميع الحقول";
+                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م�� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -348,7 +348,7 @@ class ApiClient {
           console.info(`💡 ${suggestion}`);
         }
 
-        // إنشاء خطأ مخصص مع معلومات إضافية
+        // إنشاء خطأ مخصص مع معلومات ��ضافية
         const customError = new Error(errorMessage) as any;
         customError.errorType = errorType;
         customError.details = errorDetails;
@@ -453,7 +453,7 @@ class ApiClient {
     }
   }
 
-  // دالة طلب محسنة مع معالجة أخطاء أفضل
+  // دالة طلب محسنة مع معا��جة أخطاء أفضل
   private async requestWithFallback<T>(
     endpoint: string,
     options: RequestInit = {},
@@ -523,7 +523,7 @@ class ApiClient {
         }
       }
 
-      // إذا و��دت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
+      // إذا و����دت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
       if (fallbackData !== undefined) {
         console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
         return fallbackData;
@@ -694,10 +694,35 @@ class ApiClient {
     }
   }
 
+  // Get all customers
+  async getCustomers(): Promise<{ customers: User[]; total: number }> {
+    try {
+      console.log("📍 Starting getCustomers API call...");
+      const response = await this.request<{ customers: User[]; total: number }>(
+        "/customers",
+      );
+      console.log("✅ getCustomers successful:", {
+        customersCount: response?.customers?.length || 0,
+        hasCustomers: !!response?.customers,
+      });
+      return response;
+    } catch (error) {
+      console.error("❌ getCustomers failed:", error);
+      throw error;
+    }
+  }
+
   // Users (alias for getBarbers for compatibility)
   async getUsers(): Promise<User[]> {
     const response = await this.getBarbers();
     return response.barbers || [];
+  }
+
+  // Search all users (requires authentication)
+  async searchUsers(query: string = ""): Promise<{ users: User[] }> {
+    // Always send q parameter, even if empty, to get all users
+    const params = `?q=${encodeURIComponent(query)}`;
+    return this.request<{ users: User[] }>(`/users/search${params}`);
   }
 
   async searchBarbers(filters: SearchFilters): Promise<{ data: User[] }> {

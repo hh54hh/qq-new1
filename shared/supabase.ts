@@ -108,6 +108,18 @@ export const db = {
       return data;
     },
 
+    async getCustomers() {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("role", "customer")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+
     async delete(userId: string) {
       // Delete user (CASCADE will handle related data)
       const { error } = await supabase.from("users").delete().eq("id", userId);
