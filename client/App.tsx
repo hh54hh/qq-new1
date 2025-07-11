@@ -1,6 +1,11 @@
 import "./global.css";
 
 import React, { useState, useEffect, Component } from "react";
+
+// Ensure React is properly accessible
+if (typeof React === "undefined" || !React) {
+  throw new Error("React is not properly imported");
+}
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
