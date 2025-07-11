@@ -773,7 +773,7 @@ export default function CustomerDashboard({
         store.addNotification({
           id: Date.now().toString(),
           type: "friend_request",
-          title: "خطأ في المتابعة",
+          title: "��طأ في المتابعة",
           message:
             "حدث خط�� ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
@@ -845,8 +845,14 @@ export default function CustomerDashboard({
       const followersData = followersResponse.follows || [];
       const followingData = followingResponse.follows || [];
 
-      setProfileFollowers(followersData);
-      setProfileFollowing(followingData);
+      // تحميل بيانات المستخدمين الكاملة للمتابعين والمتابعين
+      const [enrichedFollowers, enrichedFollowing] = await Promise.all([
+        enrichFollowData(followersData, "follower_id"),
+        enrichFollowData(followingData, "followed_id"),
+      ]);
+
+      setProfileFollowers(enrichedFollowers);
+      setProfileFollowing(enrichedFollowing);
       setProfileStats({
         bookings: bookingsData.bookings?.length || 0,
         followers: followersData.length,
@@ -2005,7 +2011,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
+              ? "جر�� البحث بكل��ة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
