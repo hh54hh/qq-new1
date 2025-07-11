@@ -1088,8 +1088,7 @@ export default function BarberDashboard({
       return renderHome();
     case "friends":
       return <FriendsPage user={user} />;
-    case "requests":
-      return renderRequests();
+
     case "messages":
       return <MessagesPage user={user} onBack={() => window.history.back()} />;
     case "new-post":
