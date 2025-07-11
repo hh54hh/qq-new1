@@ -46,35 +46,39 @@ class UltraFastBarberCache {
 
   // ================= INSTANT LOADING (< 50ms) =================
 
-  async getInstantBarbers(): Promise<{
+    async getInstantBarbers(): Promise<{
     barbers: CachedBarber[];
     source: "memory" | "indexeddb" | "skeleton";
     loadTime: number;
   }> {
-    const startTime = performance.now();
+    return measurePerformance.async(
+      "getInstantBarbers",
+      "ultra-fast-cache",
+      async () => {
+        const startTime = performance.now();
 
-    // 1. Memory cache first (fastest - <5ms)
-    if (this.memoryCache.barbers.length > 0) {
-      const loadTime = performance.now() - startTime;
-      console.log(`⚡ Memory cache hit: ${loadTime.toFixed(1)}ms`);
+        // 1. Memory cache first (fastest - <5ms)
+        if (this.memoryCache.barbers.length > 0) {
+          const loadTime = performance.now() - startTime;
+          console.log(`⚡ Memory cache hit: ${loadTime.toFixed(1)}ms`);
 
-      // Start background refresh if data is old
-      if (
-        Date.now() - this.memoryCache.lastUpdate >
-        this.config.instantLoadThreshold
-      ) {
-        setTimeout(
-          () => this.backgroundRefresh(),
-          this.config.backgroundSyncDelay,
-        );
-      }
+          // Start background refresh if data is old
+          if (
+            Date.now() - this.memoryCache.lastUpdate >
+            this.config.instantLoadThreshold
+          ) {
+            setTimeout(
+              () => this.backgroundRefresh(),
+              this.config.backgroundSyncDelay,
+            );
+          }
 
-      return {
-        barbers: this.memoryCache.barbers,
-        source: "memory",
-        loadTime,
-      };
-    }
+          return {
+            barbers: this.memoryCache.barbers,
+            source: "memory" as const,
+            loadTime,
+          };
+        }
 
     // 2. IndexedDB cache (fast - <20ms)
     if (this.indexedDBCache) {
