@@ -490,10 +490,22 @@ export default function OptimizedChatPage() {
           </Button>
         </div>
 
-        {/* Offline indicator */}
+        {/* Offline indicator and sync status */}
         {!isOnline && (
           <div className="mt-2 text-xs text-orange-600 text-center">
             وضع أوفلاين - سيتم إرسال الرسائل عند الاتصال
+            {syncStatus.pendingMessages > 0 && (
+              <span className="block">
+                {syncStatus.pendingMessages} رسالة في الانتظار
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Sync status when online */}
+        {isOnline && syncStatus.isSyncing && (
+          <div className="mt-2 text-xs text-green-600 text-center">
+            جاري المزامنة مع الخادم...
           </div>
         )}
       </div>
