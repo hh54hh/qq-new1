@@ -426,7 +426,7 @@ export default function CustomerDashboard({
         id: "friend_req_1",
         type: "friend_request" as const,
         title: "طلب صداقة جديد",
-        message: "أحمد الحلاق يريد متابعتك",
+        message: "��حمد الحلاق يريد متابعتك",
         data: {
           senderId: "barber_1",
           senderName: "أحمد ا��حلاق",
@@ -2180,7 +2180,9 @@ export default function CustomerDashboard({
                           `مستخدم ${follower.follower_id.slice(-4)}`}
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        {follower.follower?.role === "barber" ? "حلاق" : "زبون"}
+                        {follower.follower?.role === "barber"
+                          ? "حلاق"
+                          : "��بون"}
                       </p>
                     </div>
                     <Button size="sm" variant="outline">
@@ -2248,7 +2250,7 @@ export default function CustomerDashboard({
                         handleUnfollowFromProfile(follow.followed_id)
                       }
                     >
-                      إلغاء المتابعة
+                      إلغاء المتا��عة
                     </Button>
                   </div>
                 </CardContent>
@@ -2362,7 +2364,7 @@ export default function CustomerDashboard({
   switch (activeTab) {
     case "homepage":
       return (
-        <HomePage
+        <HomePageSimple
           user={user}
           onUserClick={(selectedUser) => {
             setSelectedProfile(selectedUser);
