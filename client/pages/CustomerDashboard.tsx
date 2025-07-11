@@ -343,12 +343,43 @@ export default function CustomerDashboard({
   // Listen for barber updates from background sync
   useEffect(() => {
     const handleBarbersUpdate = () => {
-      console.log("🔄 Barbers updated from background sync");
+      console.log("Regular barbers updated from background sync");
       // Debounce updates to prevent excessive re-renders
       clearTimeout(updateTimeoutRef.current);
       updateTimeoutRef.current = setTimeout(() => {
         loadBarbersFromCache();
       }, 300);
+    };
+
+    const handleUltraFastUpdate = async () => {
+      console.log("ULTRA-FAST barbers update received");
+      if (!user?.id) return;
+
+      try {
+        const ultraCache = await getUltraFastBarberCache(user.id);
+        const { barbers, source } = await ultraCache.getInstantBarbers();
+
+        if (source !== "skeleton" && barbers.length > 0) {
+          // Filter out skeleton entries
+          const realBarbers = barbers.filter(
+            (barber) => !(barber as any)._isSkeleton,
+          );
+
+          if (realBarbers.length > 0) {
+            setAllBarbers(realBarbers);
+            setFilteredBarbers(realBarbers);
+            setShowSkeletons(false);
+            setBarbersLoading(false);
+            console.log(
+              "ULTRA-FAST update applied:",
+              realBarbers.length,
+              "barbers",
+            );
+          }
+        }
+      } catch (error) {
+        console.warn("Failed to handle ultra-fast update:", error);
+      }
     };
 
     window.addEventListener("barbersUpdated", handleBarbersUpdate);
@@ -377,7 +408,7 @@ export default function CustomerDashboard({
   }, [user?.id]);
 
   const loadFriendRequests = () => {
-    // إضافة طلب��ت صداقة تجريبية ��لإشعارات
+    // إضافة طلب��ت صداقة تجريبية للإشعارات
     const friendRequests = [
       {
         id: "friend_req_1",
@@ -1521,7 +1552,7 @@ export default function CustomerDashboard({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-semibold text-foreground">
-                اقتراحات مميزة
+                اقتراحات مميز��
               </h3>
               <Badge variant="outline" className="text-xs">
                 جديد
@@ -1713,7 +1744,7 @@ export default function CustomerDashboard({
           <p className="text-muted-foreground">
             {exploreSearchQuery
               ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
-              : "لا توجد منشورات مميزة متا��ة حالياً"}
+              : "لا تو��د منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
       )}
