@@ -168,7 +168,7 @@ const AppContent = () => {
 
   const handleAuth = async (authenticatedUser: User) => {
     // User is already set in store by login/register
-    setActiveTab("home");
+    setActiveTab("homepage");
 
     // Preload barbers for customers in background
     if (authenticatedUser.role === "customer") {
