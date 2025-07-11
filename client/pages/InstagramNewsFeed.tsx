@@ -301,7 +301,7 @@ export default function InstagramNewsFeed({
           {[1, 2, 3].map((i) => (
             <div key={i} className="bg-background">
               {/* Post Header */}
-              <div className="flex items-center justify-between p-4">
+              <div className="flex items-center justify-between p-3 sm:p-4">
                 <div className="flex items-center space-x-3 space-x-reverse">
                   <div className="w-8 h-8 bg-muted rounded-full animate-pulse"></div>
                   <div className="space-y-2">
