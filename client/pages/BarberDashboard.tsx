@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 
 import {
-  Clock,
+    Clock,
   Check,
   X,
   Star,
@@ -20,6 +20,9 @@ import {
   User as UserIcon,
   Scissors,
   ArrowRight,
+  Eye,
+  Upload,
+  FileImage,
 } from "lucide-react";
 import { User, Booking } from "@shared/api";
 import { cn } from "@/lib/utils";
@@ -961,7 +964,7 @@ export default function BarberDashboard({
             onClick={() => setShowAnalytics(true)}
           >
             <TrendingUp className="h-4 w-4" />
-            التحليلات والإحصائيات
+            الت��ليلات والإحصائيات
           </Button>
         </div>
       </div>
