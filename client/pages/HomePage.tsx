@@ -26,6 +26,7 @@ import {
   TrendingUp,
   Sparkles,
   Users,
+  Scissors,
 } from "lucide-react";
 import { User, UserRole } from "@shared/api";
 import { cn } from "@/lib/utils";
