@@ -658,8 +658,15 @@ export default function HomePageSimple({ user, onUserClick }: HomePageProps) {
           <div className="text-center py-8">
             <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground mb-2">
-              {searchQuery ? "لا توجد نتائج للبحث" : "لا توجد اقتراحات متاحة"}
+              {searchQuery
+                ? "لا توجد نتائج للبحث"
+                : "لا توجد اقتراحات متاحة حالياً"}
             </p>
+            {!searchQuery && (
+              <p className="text-xs text-muted-foreground mb-3">
+                افتح Developer Console (F12) لمراقبة عملية جلب البيانات
+              </p>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -669,7 +676,7 @@ export default function HomePageSimple({ user, onUserClick }: HomePageProps) {
                 loadSuggestedUsers();
               }}
             >
-              إعادة تحميل
+              إعادة تحميل البيانات
             </Button>
           </div>
         ) : (
