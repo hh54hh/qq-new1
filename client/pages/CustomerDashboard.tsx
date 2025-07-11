@@ -348,7 +348,7 @@ export default function CustomerDashboard({
     console.log("🚀 Smart barber loading initiated for user:", user?.id);
 
     if (!user?.id) {
-      console.log("❌ No user ID, skipping barbers load");
+      console.log("�� No user ID, skipping barbers load");
       return;
     }
 
@@ -1364,8 +1364,9 @@ export default function CustomerDashboard({
             </Card>
           )}
 
-          {/* Barbers List */}
-          {!state.isLoading &&
+          {/* Barbers List - Show if not loading skeletons */}
+          {!showSkeletons &&
+            !barbersLoading &&
             nearbyBarbers.slice(0, 3).map((barber) => (
               <Card key={barber.id} className="border-border/50 bg-card/50">
                 <CardContent className="p-3 sm:p-4">
