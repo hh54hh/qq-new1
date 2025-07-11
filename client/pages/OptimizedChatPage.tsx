@@ -340,6 +340,14 @@ export default function OptimizedChatPage() {
                 {!isOnline && (
                   <span className="text-xs text-orange-500">أوفلاين</span>
                 )}
+                {syncStatus.pendingMessages > 0 && (
+                  <span className="text-xs text-blue-500">
+                    {syncStatus.pendingMessages} معلقة
+                  </span>
+                )}
+                {syncStatus.isSyncing && (
+                  <span className="text-xs text-green-500">مزامنة...</span>
+                )}
                 {lastSyncTime && (
                   <span className="text-xs text-muted-foreground">
                     {formatTime(lastSyncTime.toISOString())}
@@ -485,7 +493,7 @@ export default function OptimizedChatPage() {
         {/* Offline indicator */}
         {!isOnline && (
           <div className="mt-2 text-xs text-orange-600 text-center">
-            وضع أوفلاين - سي��م إرسال الرسائل عند الاتصال
+            وضع أوفلاين - سيتم إرسال الرسائل عند الاتصال
           </div>
         )}
       </div>
