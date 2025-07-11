@@ -402,11 +402,19 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div
-                  className="flex items-center space-x-3 space-x-reverse cursor-pointer"
-                  onClick={() =>
-                    onUserClick &&
-                    onUserClick(post.author || { id: post.user_id })
-                  }
+                  className="flex items-center space-x-3 space-x-reverse cursor-pointer hover:bg-muted/50 rounded-lg p-1 -m-1 transition-colors"
+                  onClick={() => {
+                    if (onUserClick) {
+                      const userToShow = post.author || {
+                        id: post.user_id || post.author_id,
+                        name: post.user_name || "مستخدم مجهول",
+                        avatar_url: post.author?.avatar_url,
+                        role: post.author?.role || "customer",
+                      };
+                      console.log("Opening profile for user:", userToShow);
+                      onUserClick(userToShow);
+                    }
+                  }}
                 >
                   <Avatar>
                     <AvatarImage
