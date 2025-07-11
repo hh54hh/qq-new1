@@ -561,23 +561,35 @@ export default function CustomerDashboard({
     if (!user?.id) return;
 
     try {
-      const barbersResponse = await apiClient.getBarbers();
+      // Load barbers and following data in parallel
+      const [barbersResponse, followingResponse] = await Promise.all([
+        apiClient.getBarbers(),
+        apiClient.getFollows("following").catch(() => ({ follows: [] })),
+      ]);
+
       const barbers = barbersResponse.barbers || [];
+      const followingIds = new Set(
+        (followingResponse.follows || []).map((f: any) => f.followed_id),
+      );
 
       if (barbers.length > 0) {
-        // Basic enhancement
+        // Enhanced barbers with correct follow status
         const enhancedBarbers = barbers.map((barber: any) => ({
           ...barber,
           rating: barber.rating || 4.0,
           followers: barber.followers_count || 0,
           distance: 2.5,
           status: barber.status || "متاح",
-          isFollowed: false,
+          isFollowed: followingIds.has(barber.id), // Correct follow status
           price: barber.price || 30,
         }));
 
         setAllBarbers(enhancedBarbers);
         setFilteredBarbers(enhancedBarbers);
+
+        console.log(
+          `🔄 Loaded ${barbers.length} barbers, following ${followingIds.size} users`,
+        );
       } else {
         setAllBarbers([]);
         setFilteredBarbers([]);
@@ -872,7 +884,7 @@ export default function CustomerDashboard({
         id: Date.now().toString(),
         type: "friend_request",
         title: "إلغاء ا��متابعة",
-        message: "تم إلغاء المتابعة بنجاح",
+        message: "تم إلغاء المتابعة ب��جاح",
         data: { userId },
         read: false,
         created_at: new Date().toISOString(),
@@ -1056,7 +1068,7 @@ export default function CustomerDashboard({
                         handleToggleFollow(barber.id, barber.isFollowed)
                       }
                     >
-                      إلغاء المت��بعة
+                      إلغاء المت��ب��ة
                     </Button>
                     <Button
                       size="sm"
@@ -1493,7 +1505,7 @@ export default function CustomerDashboard({
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
-                حجوزاتي الأخيرة
+                حجو��اتي الأخيرة
               </h3>
               <Button
                 variant="ghost"
@@ -1883,7 +1895,7 @@ export default function CustomerDashboard({
             <CardContent className="p-8 text-center">
               <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                لا توجد حلا��ين قريبين
+                لا توجد حلا���ين قريبين
               </h3>
               <p className="text-muted-foreground mb-4">
                 سنعرض لك الحلاقين ا��متاحين في من��قت�� قريباً
