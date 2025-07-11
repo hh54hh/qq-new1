@@ -173,7 +173,7 @@ export default function CustomerDashboard({
             user_id: "featured_user",
             image_url:
               "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&h=400&fit=crop",
-            caption: "قصة شعر مميزة - أسلوب حديث",
+            caption: "قصة شعر مميزة - أسلوب حد��ث",
             created_at: new Date().toISOString(),
             user: {
               id: "featured_user",
@@ -1127,13 +1127,13 @@ export default function CustomerDashboard({
         onFollow={() => {
           // Reload barbers to reflect follow status changes
           setTimeout(() => {
-            loadBarbers();
+            loadBarbersFromCache();
           }, 500);
         }}
         onUnfollow={() => {
           // Reload barbers to reflect follow status changes
           setTimeout(() => {
-            loadBarbers();
+            loadBarbersFromCache();
           }, 500);
         }}
       />
