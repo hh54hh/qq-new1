@@ -19,6 +19,7 @@ import {
   Settings,
   User as UserIcon,
   Scissors,
+  ArrowRight,
 } from "lucide-react";
 import { User, Booking } from "@shared/api";
 import { cn } from "@/lib/utils";
@@ -570,7 +571,7 @@ export default function BarberDashboard({
                 لا ت��جد طلبات جديدة
               </h3>
               <p className="text-muted-foreground">
-                سيظهر هنا طلبات الحج�� الجديدة من العملاء
+                سيظهر هنا طلبات الحج�� ا��جديدة من العملاء
               </p>
             </CardContent>
           </Card>
@@ -921,7 +922,7 @@ export default function BarberDashboard({
         >
           <X className="h-4 w-4" />
         </Button>
-        <h2 className="text-lg font-bold">المتابعين ({followerCount})</h2>
+        <h2 className="text-lg font-bold">المتا��عين ({followerCount})</h2>
       </div>
 
       <div className="space-y-3">
@@ -1071,7 +1072,7 @@ export default function BarberDashboard({
               size="icon"
               onClick={() => setShowAllRequests(false)}
             >
-              <Calendar className="h-5 w-5" />
+              <ArrowRight className="h-5 w-5" />
             </Button>
             <h1 className="text-base sm:text-lg font-bold text-foreground">
               جميع طلبات الحجز
