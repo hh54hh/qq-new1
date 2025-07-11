@@ -195,9 +195,9 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       const followingIds =
         followingResponse.follows?.map((f: any) => f.followed_id) || [];
 
-      // Get all users from barbers endpoint (includes customers too, despite the name)
-      const barbersResponse = await apiClient.getBarbers();
-      const allUsers = barbersResponse.barbers || [];
+      // Get all users from admin endpoint to include everyone
+      const usersResponse = await apiClient.getAllUsers();
+      const allUsers = usersResponse.users || [];
 
       console.log(
         "All users received:",
@@ -428,7 +428,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                   </Avatar>
                   <div>
                     <p className="font-semibold text-sm">
-                      {post.author?.name || post.user_name || "مست��دم مجهول"}
+                      {post.author?.name || post.user_name || "مستخدم مجهول"}
                     </p>
                     <div className="flex items-center text-xs text-muted-foreground space-x-1">
                       <Clock className="w-3 h-3" />
