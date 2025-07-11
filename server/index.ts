@@ -22,6 +22,7 @@ import { debugLogin } from "./routes/debug-auth";
 import { resetTestPassword } from "./routes/reset-test-password";
 import {
   getBarbers,
+  getCustomers,
   searchBarbers,
   getBookings,
   createBooking,
