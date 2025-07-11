@@ -46,7 +46,7 @@ export default function BarberDashboard({
   onLogout,
 }: BarberDashboardProps) {
   const [state, store] = useAppStore();
-  const [newPostCaption, setNewPostCaption] = useState("");
+    const [newPostCaption, setNewPostCaption] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
@@ -626,79 +626,161 @@ export default function BarberDashboard({
 
       <Card className="border-border/50 bg-card/50">
         <CardContent className="p-6 space-y-4">
-          {/* Image Upload */}
-          <div className="space-y-2">
+                    {/* Image Upload with Preview */}
+          <div className="space-y-4">
             <label className="text-sm font-medium text-foreground">
               الصورة
             </label>
-            <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-              {selectedImage ? (
-                <div className="space-y-2">
-                  <div className="w-32 h-32 mx-auto bg-muted rounded-lg flex items-center justify-center">
-                    <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                  </div>
-                  <p className="text-sm text-foreground">
-                    {selectedImage.name}
+
+            {selectedImage && imagePreviewUrl ? (
+              /* Image Preview Section - Facebook Style */
+              <div className="space-y-4">
+                {/* Preview Notice */}
+                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                  <p className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2">
+                    <Eye className="w-4 h-4" />
+                    هذه معاينة للصورة قبل النشر
                   </p>
+                </div>
+
+                {/* Post Preview Container */}
+                <Card className="bg-background border border-border/50">
+                  <CardContent className="p-4">
+                    {/* Post Header */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={user.avatar_url} />
+                        <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-sm">{user.name}</p>
+                          {user.is_verified && (
+                            <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">الآن</p>
+                      </div>
+                    </div>
+
+                    {/* Image Preview - Full Width with Proper Aspect Ratio */}
+                    <div className="relative w-full overflow-hidden rounded-lg bg-muted">
+                      <img
+                        src={imagePreviewUrl}
+                        alt="معاينة الصورة"
+                        className="w-full h-auto object-contain max-h-96"
+                        style={{ aspectRatio: 'auto' }}
+                      />
+                    </div>
+
+                    {/* Caption Preview */}
+                    {newPostCaption.trim() && (
+                      <div className="mt-4">
+                        <p className="text-sm text-foreground">{newPostCaption}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Image Actions */}
+                <div className="flex flex-wrap gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setSelectedImage(null)}
+                    onClick={() => document.getElementById("image-upload")?.click()}
+                    className="flex items-center gap-2"
                   >
+                    <Camera className="w-4 h-4" />
                     تغيير الصورة
                   </Button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Camera className="h-12 w-12 text-muted-foreground mx-auto" />
-                  <p className="text-foreground font-medium">اختر صورة</p>
-                  <p className="text-sm text-muted-foreground">
-                    PNG, JPG, GIF - حتى 10MB
-                  </p>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() =>
-                      document.getElementById("image-upload")?.click()
-                    }
+                    onClick={() => {
+                      setSelectedImage(null);
+                      setImagePreviewUrl(null);
+                    }}
+                    className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
                   >
-                    رفع صورة
+                    <X className="w-4 h-4" />
+                    إزالة الصورة
                   </Button>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        // Validate file type
-                        const validTypes = [
-                          "image/jpeg",
-                          "image/jpg",
-                          "image/png",
-                          "image/gif",
-                        ];
-                        if (!validTypes.includes(file.type)) {
-                          store.addNotification({
-                            id: Date.now().toString(),
-                            type: "system",
-                            title: "نوع ملف غير مدعوم",
-                            message: "يرجى اختيار صورة بصيغة JPG, PNG أو GIF",
-                            data: null,
-                            read: false,
-                            created_at: new Date().toISOString(),
-                          });
-                          return;
-                        }
+                  <div className="text-xs text-muted-foreground flex items-center gap-1 px-2">
+                    <FileImage className="w-3 h-3" />
+                    {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(1)} MB)
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Upload Section */
+              <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center hover:border-border transition-colors">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
+                    <Camera className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-foreground font-medium text-lg">اختر صورة رائعة</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      اعرض عملك بأفضل جودة ممكنة
+                    </p>
+                  </div>
+                  <div>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => document.getElementById("image-upload")?.click()}
+                      className="flex items-center gap-2"
+                    >
+                      <Upload className="w-5 h-5" />
+                      رفع صورة
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      PNG, JPG, GIF - حتى 10MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-                        // Validate file size (10MB limit)
-                        const maxSize = 10 * 1024 * 1024; // 10MB
-                        if (file.size > maxSize) {
-                          store.addNotification({
-                            id: Date.now().toString(),
-                            type: "system",
-                            title: "حجم الملف كبير جداً",
+            {/* Hidden File Input */}
+            <input
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  // Validate file type
+                  const validTypes = [
+                    "image/jpeg",
+                    "image/jpg",
+                    "image/png",
+                    "image/gif",
+                    "image/webp"
+                  ];
+                  if (!validTypes.includes(file.type)) {
+                    store.addNotification({
+                      id: Date.now().toString(),
+                      type: "system",
+                      title: "نوع ملف غير مدعوم",
+                      message: "يرجى اختيار صورة بصيغة JPG, PNG, GIF أو WebP",
+                      data: null,
+                      read: false,
+                      created_at: new Date().toISOString(),
+                    });
+                    return;
+                  }
+
+                  // Validate file size (10MB limit)
+                  const maxSize = 10 * 1024 * 1024; // 10MB
+                  if (file.size > maxSize) {
+                    store.addNotification({
+                      id: Date.now().toString(),
+                      type: "system",
+                      title: "حجم الملف كبير جداً",
                             message: "يرجى اختيار صورة بحجم أقل من 10 ميجابايت",
                             data: null,
                             read: false,
