@@ -64,12 +64,7 @@ const navItems: NavItem[] = [
     icon: MessageCircle,
     roles: ["customer", "barber"],
   },
-  {
-    id: "requests",
-    label: "طلبات",
-    icon: Calendar,
-    roles: ["barber"],
-  },
+
   {
     id: "new-post",
     label: "منشور",
