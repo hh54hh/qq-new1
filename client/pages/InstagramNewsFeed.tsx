@@ -17,29 +17,15 @@ import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
+import { getPostsCache, type CachedPost } from "@/lib/posts-cache";
 
 interface InstagramNewsFeedProps {
   user: User;
   onUserClick?: (user: any) => void;
 }
 
-// Types for posts
-interface PostType {
-  id: string;
-  user_id: string;
-  author: {
-    id: string;
-    name: string;
-    avatar_url?: string;
-    is_verified?: boolean;
-  };
-  image_url: string;
-  caption?: string;
-  likes: number;
-  comments_count: number;
-  created_at: string;
-  isLiked: boolean;
-}
+// Use CachedPost type from cache
+type PostType = CachedPost;
 
 export default function InstagramNewsFeed({
   user,
@@ -50,166 +36,59 @@ export default function InstagramNewsFeed({
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [postsFromCache, setPostsFromCache] = useState(false);
 
-  // Cache key for posts
-  const CACHE_KEY = `instagram_posts_${user.id}`;
-  const CACHE_DURATION = 3 * 60 * 1000; // 3 minutes
+  // Load posts with ultra-fast cache
+  const loadPostsUltraFast = useCallback(async () => {
+    const startTime = performance.now();
+    console.log("🚀 Ultra-fast posts loading initiated for user:", user?.id);
 
-  // Load posts with cache-first approach
-  const loadPosts = useCallback(
-    async (forceRefresh = false) => {
-      try {
-        if (!forceRefresh) {
-          // Try cache first
-          const cached = localStorage.getItem(CACHE_KEY);
-          if (cached) {
-            try {
-              const parsedCache = JSON.parse(cached);
-              if (Date.now() - parsedCache.timestamp < CACHE_DURATION) {
-                console.log("📱 Loading posts from cache");
-                setPosts(parsedCache.data);
-                setLoading(false);
+    if (!user?.id) {
+      console.log("No user ID, skipping posts load");
+      return;
+    }
 
-                // Load likes state
-                const likedIds = new Set(
-                  parsedCache.data
-                    .filter((p: PostType) => p.isLiked)
-                    .map((p: PostType) => p.id),
-                );
-                setLikedPosts(likedIds);
+    try {
+      // Get posts cache manager
+      const postsCache = getPostsCache(user.id);
 
-                // Still fetch in background for updates
-                setTimeout(() => loadPosts(true), 1000);
-                return;
-              }
-            } catch (e) {
-              console.warn("Failed to parse cached posts");
-            }
-          }
-        }
+      // Get instant data (cache/skeleton)
+      const {
+        posts: cachedPosts,
+        source,
+        loadTime,
+      } = await postsCache.getPostsInstant();
 
-        if (forceRefresh) {
-          setRefreshing(true);
-        } else {
-          setLoading(true);
-        }
+      console.log(`ULTRA-FAST load: ${loadTime.toFixed(1)}ms from ${source}`);
 
-        // Get following list
-        const followingResponse = await apiClient.getFollows("following");
-        const followingIds =
-          followingResponse.follows?.map((f: any) => f.followed_id) || [];
+      // Show data immediately regardless of source
+      setPosts(cachedPosts);
+      setPostsFromCache(source === "cache");
+      setLoading(source === "skeleton");
 
-        if (followingIds.length === 0) {
-          // Show demo content if not following anyone
-          const demoPosts = createDemoPosts();
-          setPosts(demoPosts);
+      // Update liked posts state
+      const likedIds = new Set(
+        cachedPosts.filter((p) => p.isLiked).map((p) => p.id),
+      );
+      setLikedPosts(likedIds);
 
-          // Cache demo posts
-          localStorage.setItem(
-            CACHE_KEY,
-            JSON.stringify({
-              data: demoPosts,
-              timestamp: Date.now(),
-            }),
-          );
+      const totalTime = performance.now() - startTime;
+      console.log(`TOTAL UI update time: ${totalTime.toFixed(1)}ms`);
 
-          setLoading(false);
-          setRefreshing(false);
-          return;
-        }
-
-        // Get posts from API
-        const postsResponse = await apiClient.getPosts();
-        const allPosts = postsResponse.posts || [];
-
-        // Get users for author info
-        const usersResponse = await apiClient.getBarbers();
-        const users = usersResponse.barbers || [];
-
-        // Create user lookup
-        const userMap = new Map();
-        users.forEach((u: any) => {
-          userMap.set(u.id, u);
-        });
-
-        // Filter and enhance posts
-        const followedPosts = allPosts
-          .filter((post: any) => followingIds.includes(post.user_id))
-          .map((post: any) => ({
-            id: post.id,
-            user_id: post.user_id,
-            author: userMap.get(post.user_id) || {
-              id: post.user_id,
-              name: "مستخدم مجهول",
-              avatar_url: null,
-              is_verified: false,
-            },
-            image_url: post.image_url,
-            caption: post.caption || post.content,
-            likes: post.likes || 0,
-            comments_count: post.comments_count || 0,
-            created_at: post.created_at,
-            isLiked: false,
-          }))
-          .sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime(),
-          );
-
-        // Get user's liked posts
-        try {
-          const likesResponse = await apiClient.getUserLikes();
-          const userLikedPostIds = new Set(likesResponse.liked_posts || []);
-
-          // Update posts with like status
-          followedPosts.forEach((post) => {
-            post.isLiked = userLikedPostIds.has(post.id);
-          });
-
-          setLikedPosts(userLikedPostIds);
-        } catch (error) {
-          console.warn("Could not load user likes:", error);
-        }
-
-        setPosts(followedPosts);
-
-        // Cache the results
-        localStorage.setItem(
-          CACHE_KEY,
-          JSON.stringify({
-            data: followedPosts,
-            timestamp: Date.now(),
-          }),
-        );
-
-        console.log(
-          `✅ Loaded ${followedPosts.length} posts from ${followingIds.length} followed users`,
-        );
-      } catch (error) {
-        console.error("Error loading posts:", error);
-
-        // Try to use cached data as fallback
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached && !forceRefresh) {
-          try {
-            const parsedCache = JSON.parse(cached);
-            setPosts(parsedCache.data);
-            console.log("📱 Using cached posts as fallback");
-          } catch (e) {
-            // If cache fails, show demo posts
-            setPosts(createDemoPosts());
-          }
-        } else {
-          setPosts(createDemoPosts());
-        }
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
+      if (source === "skeleton") {
+        console.log("Skeletons shown, awaiting real data...");
+      } else {
+        console.log(`Real data displayed (${cachedPosts.length} posts)`);
       }
-    },
-    [user.id, CACHE_KEY],
-  );
+
+      // Start background sync for fresh data
+      postsCache.startBackgroundSync();
+    } catch (error) {
+      console.error("Ultra-fast loading failed:", error);
+      setLoading(false);
+      setPosts(createDemoPosts());
+    }
+  }, [user?.id]);
 
   // Create demo posts for Instagram-like experience
   const createDemoPosts = (): PostType[] => [
@@ -269,7 +148,7 @@ export default function InstagramNewsFeed({
     },
   ];
 
-  // Handle post like/unlike
+  // Handle post like/unlike with cache update
   const handleLike = async (postId: string) => {
     try {
       const isCurrentlyLiked = likedPosts.has(postId);
@@ -297,45 +176,41 @@ export default function InstagramNewsFeed({
         ),
       );
 
+      // Update cache immediately
+      const postsCache = getPostsCache(user.id);
+      postsCache.updatePostLike(postId, !isCurrentlyLiked);
+
       // API call
       if (isCurrentlyLiked) {
         await apiClient.unlikePost(postId);
       } else {
         await apiClient.likePost(postId);
       }
-
-      // Update cache
-      const currentPosts = JSON.parse(
-        localStorage.getItem(CACHE_KEY) || '{"data": []}',
-      );
-      const updatedPosts = currentPosts.data.map((post: PostType) =>
-        post.id === postId
-          ? {
-              ...post,
-              isLiked: !isCurrentlyLiked,
-              likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1,
-            }
-          : post,
-      );
-      localStorage.setItem(
-        CACHE_KEY,
-        JSON.stringify({
-          data: updatedPosts,
-          timestamp: Date.now(),
-        }),
-      );
     } catch (error) {
       console.error("Error toggling like:", error);
       // Revert optimistic update on error
       setLikedPosts((prev) => {
         const newSet = new Set(prev);
-        if (likedPosts.has(postId)) {
+        if (isCurrentlyLiked) {
           newSet.add(postId);
         } else {
           newSet.delete(postId);
         }
         return newSet;
       });
+
+      // Revert UI state
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                isLiked: isCurrentlyLiked,
+                likes: isCurrentlyLiked ? post.likes + 1 : post.likes - 1,
+              }
+            : post,
+        ),
+      );
     }
   };
 
@@ -357,17 +232,45 @@ export default function InstagramNewsFeed({
     return `منذ ${diffInWeeks} أ`;
   };
 
-  // Load posts on mount and set up background sync
+  // Load posts on mount and listen for updates
   useEffect(() => {
-    loadPosts();
+    loadPostsUltraFast();
 
-    // Background sync every 30 seconds
-    const interval = setInterval(() => {
-      loadPosts(true);
-    }, 30000);
+    // Listen for posts updates from background sync
+    const handlePostsUpdate = (event: CustomEvent) => {
+      const { posts: updatedPosts, userId } = event.detail;
+      if (userId === user.id) {
+        console.log("📱 Posts updated from background sync");
+        setPosts(updatedPosts);
+        setPostsFromCache(true);
+        setLoading(false);
 
-    return () => clearInterval(interval);
-  }, [loadPosts]);
+        // Update liked posts state
+        const likedIds = new Set(
+          updatedPosts
+            .filter((p: PostType) => p.isLiked)
+            .map((p: PostType) => p.id),
+        );
+        setLikedPosts(likedIds);
+
+        // Show brief refresh indicator
+        setRefreshing(true);
+        setTimeout(() => setRefreshing(false), 1000);
+      }
+    };
+
+    window.addEventListener("postsUpdated", handlePostsUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener(
+        "postsUpdated",
+        handlePostsUpdate as EventListener,
+      );
+      // Cleanup cache when component unmounts
+      const postsCache = getPostsCache(user.id);
+      postsCache.stopBackgroundSync();
+    };
+  }, [loadPostsUltraFast, user.id]);
 
   // Loading skeleton
   if (loading && posts.length === 0) {
