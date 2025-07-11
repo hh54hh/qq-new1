@@ -425,7 +425,7 @@ export default function CustomerDashboard({
       {
         id: "friend_req_1",
         type: "friend_request" as const,
-        title: "طل�� صداقة جديد",
+        title: "طلب صداقة جديد",
         message: "أحمد الحلاق يريد متابعتك",
         data: {
           senderId: "barber_1",
@@ -735,7 +735,7 @@ export default function CustomerDashboard({
       if (
         error instanceof Error &&
         (error.message.includes("البيانات موجودة بالفعل") ||
-          error.message.includes("تتابع هذا المستخدم بالفع��") ||
+          error.message.includes("تتابع هذا المستخدم بالفع���") ||
           error.message.includes("Already following") ||
           error.message.includes("409"))
       ) {
@@ -1458,7 +1458,7 @@ export default function CustomerDashboard({
               ) : (
                 <div className="text-center">
                   <span className="text-sm text-muted-foreground">
-                    لم يتم تحديد الموقع
+                    ل�� يتم تحديد الموقع
                   </span>
                   <Button
                     variant="ghost"
@@ -2360,6 +2360,16 @@ export default function CustomerDashboard({
   };
 
   switch (activeTab) {
+    case "homepage":
+      return (
+        <HomePage
+          user={user}
+          onUserClick={(selectedUser) => {
+            setSelectedProfile(selectedUser);
+            setShowProfile(true);
+          }}
+        />
+      );
     case "home":
       return renderHome();
     case "search":
