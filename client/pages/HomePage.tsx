@@ -113,12 +113,13 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       // Get all users to map user data to posts
       let allUsers = [];
       try {
-        const usersResponse = await apiClient.getAllUsers();
+        // Use search endpoint to get all users
+        const usersResponse = await apiClient.searchUsers("");
         allUsers = usersResponse.users || [];
         console.log("Fetched all users for posts mapping:", allUsers.length);
       } catch (error) {
         console.warn(
-          "Failed to get all users, falling back to barbers endpoint:",
+          "Failed to get users from search endpoint, falling back to barbers endpoint:",
           error,
         );
         const barbersResponse = await apiClient.getBarbers();
