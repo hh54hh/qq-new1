@@ -284,12 +284,24 @@ export default function CustomerDashboard({
     }
   }, [activeTab]);
 
-  // Load data on component mount
+  // Load data on component mount with smart barber loading
   useEffect(() => {
     loadBookings();
-    loadBarbers();
+    loadBarbersWithSmartCache();
     loadFriendRequests();
   }, [user.id]);
+
+  // Listen for barber updates from background sync
+  useEffect(() => {
+    const handleBarbersUpdate = () => {
+      console.log("🔄 Barbers updated from background sync");
+      loadBarbersFromCache();
+    };
+
+    window.addEventListener("barbersUpdated", handleBarbersUpdate);
+    return () =>
+      window.removeEventListener("barbersUpdated", handleBarbersUpdate);
+  }, []);
 
   const loadFriendRequests = () => {
     // إضافة طلب��ت صداقة تجريبية للإشعارات
@@ -1603,7 +1615,7 @@ export default function CustomerDashboard({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="newest">⏱ الأحدث</SelectItem>
+            <SelectItem value="newest">⏱ ا��أحدث</SelectItem>
             <SelectItem value="rating">⭐ الأفض��</SelectItem>
             <SelectItem value="distance">📍 الأقرب</SelectItem>
           </SelectContent>
