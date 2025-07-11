@@ -748,7 +748,7 @@ export default function CustomerDashboard({
           type: "friend_request",
           title: "خطأ في المتابعة",
           message:
-            "حدث خطأ ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
+            "حدث خط�� ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
           read: false,
           created_at: new Date().toISOString(),
@@ -788,7 +788,7 @@ export default function CustomerDashboard({
       return `منذ ${diffInHours} ساعة`;
     } else {
       const diffInDays = Math.floor(diffInHours / 24);
-      return `��نذ ${diffInDays} ${diffInDays === 1 ? "ي��م" : "أيام"}`;
+      return `��نذ ${diffInDays} ${diffInDays === 1 ? "يوم" : "أيام"}`;
     }
   };
 
@@ -799,7 +799,7 @@ export default function CustomerDashboard({
       rating: barber.level / 20,
       distance: userLocation ? 2.5 : null,
       price: 30,
-      status: "��تاح",
+      status: "متاح",
       isFollowed: false,
     });
   };
@@ -1109,9 +1109,9 @@ export default function CustomerDashboard({
                       <Calendar className="h-4 w-4" />
                       <span>{formatDate(booking.datetime)}</span>
                     </div>
-                    {booking.message && (
+                    {(booking as any).message && (
                       <p className="text-sm text-muted-foreground">
-                        "الرسالة: {booking.message}"
+                        "الرسالة: {(booking as any).message}"
                       </p>
                     )}
                   </div>
@@ -2294,7 +2294,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.followers}
                 </p>
-                <p className="text-sm text-muted-foreground">متاب��ين</p>
+                <p className="text-sm text-muted-foreground">متابعين</p>
               </div>
               <div
                 className="cursor-pointer"
