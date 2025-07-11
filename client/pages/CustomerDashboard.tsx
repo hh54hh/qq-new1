@@ -49,6 +49,8 @@ import EditProfilePage from "./EditProfilePage";
 import MessagesPage from "./MessagesPage";
 import AdvancedSearchPage from "./AdvancedSearchPage";
 import HomePageSimple from "./HomePageSimple";
+import InstagramNewsFeed from "./InstagramNewsFeed";
+import ExplorePageWithTabs from "./ExplorePageWithTabs";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -169,6 +171,29 @@ export default function CustomerDashboard({
       barbersCount: allBarbers.length,
     });
   }, []);
+
+  // تهيئة follows عند تحميل الصفحة
+  useEffect(() => {
+    const initializeFollows = async () => {
+      if (!user?.id) return;
+
+      try {
+        console.log("🔄 Initializing follows data...");
+        const followingResponse = await apiClient.getFollows("following");
+        const follows = followingResponse.follows || [];
+
+        // تحديث store ببيانات المتابعة
+        store.setFollows(follows);
+
+        console.log(`✅ Initialized ${follows.length} follows in store`);
+      } catch (error) {
+        console.error("❌ Error initializing follows:", error);
+        store.setFollows([]);
+      }
+    };
+
+    initializeFollows();
+  }, [user?.id]);
 
   useEffect(() => {
     if (searchQuery) {
@@ -415,7 +440,7 @@ export default function CustomerDashboard({
     const NOTIFICATIONS_SHOWN_KEY = `friend_requests_shown_${user.id}`;
     const hasShownNotifications = localStorage.getItem(NOTIFICATIONS_SHOWN_KEY);
 
-    // إذا تم عرض الإشعارات من قبل، لا تعرضها مرة أخرى
+    // إذا ��م عرض الإشعارات من قبل، لا تعرضها مرة أخرى
     if (hasShownNotifications) {
       return;
     }
@@ -559,23 +584,35 @@ export default function CustomerDashboard({
     if (!user?.id) return;
 
     try {
-      const barbersResponse = await apiClient.getBarbers();
+      // Load barbers and following data in parallel
+      const [barbersResponse, followingResponse] = await Promise.all([
+        apiClient.getBarbers(),
+        apiClient.getFollows("following").catch(() => ({ follows: [] })),
+      ]);
+
       const barbers = barbersResponse.barbers || [];
+      const followingIds = new Set(
+        (followingResponse.follows || []).map((f: any) => f.followed_id),
+      );
 
       if (barbers.length > 0) {
-        // Basic enhancement
+        // Enhanced barbers with correct follow status
         const enhancedBarbers = barbers.map((barber: any) => ({
           ...barber,
           rating: barber.rating || 4.0,
           followers: barber.followers_count || 0,
           distance: 2.5,
           status: barber.status || "متاح",
-          isFollowed: false,
+          isFollowed: followingIds.has(barber.id), // Correct follow status
           price: barber.price || 30,
         }));
 
         setAllBarbers(enhancedBarbers);
         setFilteredBarbers(enhancedBarbers);
+
+        console.log(
+          `🔄 Loaded ${barbers.length} barbers, following ${followingIds.size} users`,
+        );
       } else {
         setAllBarbers([]);
         setFilteredBarbers([]);
@@ -657,7 +694,7 @@ export default function CustomerDashboard({
         id: Date.now().toString(),
         type: "booking_rejected",
         title: "تم إلغاء الحجز",
-        message: "تم إلغاء حجزك ��نجاح",
+        message: "تم إل��اء حجزك ��نجاح",
         data: { bookingId },
         read: false,
         created_at: new Date().toISOString(),
@@ -679,8 +716,8 @@ export default function CustomerDashboard({
             : barber,
         );
 
-      setFilteredBarbers(updateBarberFollow);
-      setAllBarbers(updateBarberFollow);
+      setFilteredBarbers(updateBarberFollow(filteredBarbers));
+      setAllBarbers(updateBarberFollow(allBarbers));
 
       // Make the API call to update database
       let followResult;
@@ -709,7 +746,7 @@ export default function CustomerDashboard({
       store.addNotification({
         id: Date.now().toString(),
         type: isFollowed ? "friend_request" : "new_follower",
-        title: isFollowed ? "إلغاء المتابعة" : "متابع�� ج��يدة",
+        title: isFollowed ? "إلغاء ال��تابعة" : "متابع�� ج��يدة",
         message: isFollowed
           ? `تم إلغاء متابعة ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`
           : `تتابع الآن ${allBarbers.find((b) => b.id === barberId)?.name || "الحلاق"}`,
@@ -831,8 +868,14 @@ export default function CustomerDashboard({
       const followersData = followersResponse.follows || [];
       const followingData = followingResponse.follows || [];
 
-      setProfileFollowers(followersData);
-      setProfileFollowing(followingData);
+      // تحميل بيانات المستخدمين الكاملة للمتابعين والمتابعين
+      const [enrichedFollowers, enrichedFollowing] = await Promise.all([
+        enrichFollowData(followersData, "follower_id"),
+        enrichFollowData(followingData, "followed_id"),
+      ]);
+
+      setProfileFollowers(enrichedFollowers);
+      setProfileFollowing(enrichedFollowing);
       setProfileStats({
         bookings: bookingsData.bookings?.length || 0,
         followers: followersData.length,
@@ -844,6 +887,107 @@ export default function CustomerDashboard({
         bookings: state.bookings.length,
         followers: 0,
         following: 0,
+      });
+    }
+  };
+
+  // دالة مساعدة لإثراء بيانات المتابعة بمعلومات المستخدمين
+  const enrichFollowData = async (followData: any[], userIdField: string) => {
+    if (!followData.length) return followData;
+
+    try {
+      // استخراج معرفات المستخدمين
+      const userIds = followData.map((f) => f[userIdField]);
+
+      // تحميل بيانات المستخدمين من مصادر متعددة
+      const [barbersResponse, usersResponse] = await Promise.all([
+        apiClient.getBarbers().catch(() => ({ barbers: [] })),
+        apiClient.getAllUsers().catch(() => ({ users: [] })),
+      ]);
+
+      // دمج جميع المستخدمين
+      const allUsers = [
+        ...(barbersResponse.barbers || []),
+        ...(usersResponse.users || []),
+      ];
+
+      // إنشاء خريطة للمستخدمين
+      const usersMap = new Map();
+      allUsers.forEach((user) => {
+        if (user.id) {
+          usersMap.set(user.id, user);
+        }
+      });
+
+      console.log(
+        `📊 Enriching ${followData.length} follow records with user data`,
+      );
+      console.log(`�� Found ${allUsers.length} users in system`);
+
+      // إثراء بيانات المتابعة
+      const enrichedData = followData.map((follow) => {
+        const userId = follow[userIdField];
+        const userData = usersMap.get(userId);
+
+        if (userData) {
+          return {
+            ...follow,
+            [userIdField === "follower_id" ? "follower" : "followed"]: {
+              id: userData.id,
+              name: userData.name || "مستخدم مجهول",
+              avatar_url: userData.avatar_url || "",
+              role: userData.role || "customer",
+              is_verified: userData.is_verified || false,
+              level: userData.level || 0,
+            },
+          };
+        } else {
+          // بيانات احتياطية إذا لم نجد المستخدم
+          console.warn(`⚠️ User not found: ${userId}`);
+          return {
+            ...follow,
+            [userIdField === "follower_id" ? "follower" : "followed"]: {
+              id: userId,
+              name: `مستخدم ${userId.slice(-4)}`,
+              avatar_url: "",
+              role: "customer",
+              is_verified: false,
+              level: 0,
+            },
+          };
+        }
+      });
+
+      const foundUsers = enrichedData.filter((f) => {
+        const userField =
+          userIdField === "follower_id" ? "follower" : "followed";
+        return (
+          f[userField] &&
+          f[userField].name !== `مستخدم ${f[userIdField].slice(-4)}`
+        );
+      }).length;
+
+      console.log(
+        `✅ Successfully enriched ${foundUsers}/${followData.length} follow records`,
+      );
+
+      return enrichedData;
+    } catch (error) {
+      console.error("Error enriching follow data:", error);
+      // إرجاع البيانات كما هي مع بيانات احتياطية
+      return followData.map((follow) => {
+        const userId = follow[userIdField];
+        return {
+          ...follow,
+          [userIdField === "follower_id" ? "follower" : "followed"]: {
+            id: userId,
+            name: `مستخدم ${userId.slice(-4)}`,
+            avatar_url: "",
+            role: "customer",
+            is_verified: false,
+            level: 0,
+          },
+        };
       });
     }
   };
@@ -870,7 +1014,7 @@ export default function CustomerDashboard({
         id: Date.now().toString(),
         type: "friend_request",
         title: "إلغاء ا��متابعة",
-        message: "تم إلغاء المتابعة بنجاح",
+        message: "تم إلغاء المتابعة ب��جاح",
         data: { userId },
         read: false,
         created_at: new Date().toISOString(),
@@ -909,7 +1053,7 @@ export default function CustomerDashboard({
 
   const getLevelLabel = (level: number) => {
     if (level >= 100) return "VIP";
-    if (level >= 51) return "ذهبي";
+    if (level >= 51) return "��هبي";
     if (level >= 21) return "محترف";
     return "مبتدئ";
   };
@@ -1054,7 +1198,7 @@ export default function CustomerDashboard({
                         handleToggleFollow(barber.id, barber.isFollowed)
                       }
                     >
-                      إلغاء المت��بعة
+                      إلغاء المت��ب��ة
                     </Button>
                     <Button
                       size="sm"
@@ -1491,7 +1635,7 @@ export default function CustomerDashboard({
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
-                حجوزاتي الأخيرة
+                حجو��اتي الأخيرة
               </h3>
               <Button
                 variant="ghost"
@@ -1617,7 +1761,7 @@ export default function CustomerDashboard({
                 className="text-xs sm:text-sm"
                 onClick={() => setShowFollowedBarbers(true)}
               >
-                عرض الكل ({followedBarbers.length})
+                عر�� الكل ({followedBarbers.length})
               </Button>
             </div>
 
@@ -1881,10 +2025,10 @@ export default function CustomerDashboard({
             <CardContent className="p-8 text-center">
               <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                لا توجد حلا��ين قريبين
+                لا توجد حلا���ين قريبين
               </h3>
               <p className="text-muted-foreground mb-4">
-                سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
+                سنعرض لك الحلاقين ا��متاحين في من��قت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
                 تحد��ث الموقع
@@ -1943,7 +2087,7 @@ export default function CustomerDashboard({
           <SelectContent>
             <SelectItem value="newest">⏱ ا��أحدث</SelectItem>
             <SelectItem value="rating">⭐ الأفض��</SelectItem>
-            <SelectItem value="distance">📍 الأقرب</SelectItem>
+            <SelectItem value="distance">📍 الأقر��</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -2364,7 +2508,7 @@ export default function CustomerDashboard({
   switch (activeTab) {
     case "homepage":
       return (
-        <HomePageSimple
+        <InstagramNewsFeed
           user={user}
           onUserClick={(selectedUser) => {
             setSelectedProfile(selectedUser);
@@ -2375,7 +2519,15 @@ export default function CustomerDashboard({
     case "home":
       return renderHome();
     case "search":
-      return renderSearch();
+      return (
+        <ExplorePageWithTabs
+          user={user}
+          onUserClick={(selectedUser) => {
+            setSelectedProfile(selectedUser);
+            setShowProfile(true);
+          }}
+        />
+      );
     case "bookings":
       return renderBookings();
     case "messages":

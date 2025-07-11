@@ -72,7 +72,52 @@ export default function UserProfile({
   useEffect(() => {
     loadUserPosts();
     loadUserStats();
+    checkFollowStatus();
   }, [profileUser.id]);
+
+  // تحديث حالة المتابعة عند تغيير البيانات
+  useEffect(() => {
+    setIsFollowing(profileUser.isFollowed || false);
+  }, [profileUser.isFollowed]);
+
+  // تحديث حالة المتابعة من store
+  useEffect(() => {
+    checkFollowStatus();
+  }, [state.follows, profileUser.id]);
+
+  const checkFollowStatus = async () => {
+    try {
+      // تحقق من حالة المتابعة من store أولاً
+      const isFollowingFromStore = state.follows?.some(
+        (follow: any) => follow.followed_id === profileUser.id,
+      );
+
+      if (isFollowingFromStore !== undefined) {
+        setIsFollowing(isFollowingFromStore);
+        return;
+      }
+
+      // إذا لم نجد في store، تحقق من API
+      const followingResponse = await networkAwareAPI.safeRequest(
+        () => apiClient.getFollows("following"),
+        { follows: [], total: 0 },
+      );
+
+      const isFollowingFromAPI =
+        followingResponse.follows?.some(
+          (follow: any) => follow.followed_id === profileUser.id,
+        ) || false;
+
+      setIsFollowing(isFollowingFromAPI);
+      console.log(
+        `🔍 Follow status for ${profileUser.name}: ${isFollowingFromAPI}`,
+      );
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+      // العودة للقيمة الممررة
+      setIsFollowing(profileUser.isFollowed || false);
+    }
+  };
 
   const loadUserStats = async () => {
     setIsLoadingStats(true);
@@ -169,11 +214,30 @@ export default function UserProfile({
         await networkAwareAPI.safeRequest(() =>
           apiClient.unfollowUser(profileUser.id),
         );
+
+        // حدف من store
+        const updatedFollows =
+          state.follows?.filter(
+            (follow: any) => follow.followed_id !== profileUser.id,
+          ) || [];
+        store.setFollows(updatedFollows);
+
         onUnfollow?.();
       } else {
         await networkAwareAPI.safeRequest(() =>
           apiClient.followUser(profileUser.id),
         );
+
+        // إضافة لـ store
+        const newFollow = {
+          id: Date.now().toString(),
+          follower_id: currentUser.id,
+          followed_id: profileUser.id,
+          created_at: new Date().toISOString(),
+        };
+        const updatedFollows = [...(state.follows || []), newFollow];
+        store.setFollows(updatedFollows);
+
         onFollow?.();
       }
 
@@ -188,6 +252,10 @@ export default function UserProfile({
         read: false,
         created_at: new Date().toISOString(),
       });
+
+      console.log(
+        `✅ Successfully ${isFollowing ? "unfollowed" : "followed"} ${profileUser.name}`,
+      );
     } catch (error) {
       setIsFollowing(previousState);
       console.error("Error toggling follow:", error);
@@ -258,7 +326,7 @@ export default function UserProfile({
     }
   };
 
-  // إذا كانت صفحة عرض المنشور مفتوحة
+  // إذا كانت صفحة عرض ال��نشور مفتوحة
   if (showPostView && selectedPost) {
     return (
       <PostViewPage
@@ -403,7 +471,7 @@ export default function UserProfile({
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="posts">المنشورات</TabsTrigger>
-              <TabsTrigger value="info">المعلومات</TabsTrigger>
+              <TabsTrigger value="info">ال��علومات</TabsTrigger>
             </TabsList>
 
             <div className="mt-6">

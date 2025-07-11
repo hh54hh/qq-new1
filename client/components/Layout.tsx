@@ -95,8 +95,26 @@ export default function Layout({
   onShowNotifications,
 }: LayoutProps) {
   const [state] = useAppStore();
+  const [lastTap, setLastTap] = useState(0);
 
   const unreadNotifications = state.notifications.filter((n) => !n.read).length;
+
+  // Handle double tap on homepage icon
+  const handleHomepageIconTap = () => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300; // milliseconds
+
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      // Double tap detected
+      console.log("💆 Double tap on homepage icon - triggering refresh");
+      window.dispatchEvent(new Event("manualPostsRefresh"));
+    }
+
+    setLastTap(now);
+
+    // Also handle normal tab change
+    onTabChange("homepage");
+  };
 
   const userNavItems = navItems.filter((item) =>
     item.roles.includes(user.role),
@@ -204,7 +222,13 @@ export default function Layout({
             return (
               <button
                 key={item.id}
-                onClick={() => onTabChange(item.id)}
+                onClick={() => {
+                  if (item.id === "homepage") {
+                    handleHomepageIconTap();
+                  } else {
+                    onTabChange(item.id);
+                  }
+                }}
                 className={cn(
                   "relative flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-all duration-200 min-w-[50px] sm:min-w-[60px]",
                   isActive

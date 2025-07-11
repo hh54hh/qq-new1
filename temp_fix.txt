@@ -1,0 +1,2 @@
+setSelectedImage(null);
+setImagePreviewUrl(null);
