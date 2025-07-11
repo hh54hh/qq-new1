@@ -42,6 +42,7 @@ import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
 import { getBarberCache } from "./lib/barber-cache";
+import { getUltraFastBarberCache } from "./lib/ultra-fast-barber-cache";
 
 const queryClient = new QueryClient();
 
