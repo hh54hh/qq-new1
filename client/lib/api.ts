@@ -200,7 +200,7 @@ class ApiClient {
     // التحقق من صحة مسار API إذا لم يتم التح��ق مسبقاً
     await this.verifyApiUrl();
 
-    // التحقق من auth token لل��سارات المحمية
+    // التحقق من auth token للمسارات المحمية
     this.checkAuthToken(endpoint);
 
     const url = `${this.baseUrl}${endpoint}`;
@@ -276,12 +276,13 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البي��نات المد��لة غير صحيحة، يرجى الت��قق م�� جميع الحقول";
+                "البيانات المد��لة غير صحيحة، يرجى الت��قق م�� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكت��وني ��و ��لمة المرور ��ير صحيحة";
+                errorMessage =
+                  "البريد الإلكت��وني ��و ��لمة الم��ور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -305,7 +306,7 @@ class ApiClient {
                 "خ��مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
-                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
+                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل ب��لدعم ��لفني على: 07800657822";
               break;
             case 409:
               errorMessage = "ا��بيانات موجودة بالفعل في النظام";
@@ -400,7 +401,7 @@ class ApiClient {
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
 
         if (error.message.includes("Failed to fetch")) {
-          networkErrorMessage = "فشل في الاتصال بالخادم";
+          networkErrorMessage = "فشل في الاتصا�� بالخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
           networkErrorMessage = "خطأ في ا����شبكة";
@@ -630,7 +631,7 @@ class ApiClient {
               name: "محمد الحلاق",
               email: "mohammed@barbershop.com",
               role: "barber" as const,
-              status: "متاح",
+              status: "active",
               level: 85,
               points: 850,
               is_verified: true,
@@ -645,7 +646,7 @@ class ApiClient {
               name: "أحمد العلي",
               email: "ahmed@barbershop.com",
               role: "barber" as const,
-              status: "متاح",
+              status: "active",
               level: 92,
               points: 920,
               is_verified: true,
@@ -660,7 +661,7 @@ class ApiClient {
               name: "يوسف الأستاذ",
               email: "yousef@barbershop.com",
               role: "barber" as const,
-              status: "مشغول",
+              status: "busy",
               level: 78,
               points: 780,
               is_verified: true,
@@ -675,7 +676,7 @@ class ApiClient {
               name: "سالم الماهر",
               email: "salem@barbershop.com",
               role: "barber" as const,
-              status: "متاح",
+              status: "active",
               level: 88,
               points: 880,
               is_verified: true,
@@ -1285,7 +1286,7 @@ export const diagnoseAPI = async () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("📋 البيا��ات:", data);
+        console.log("📋 البيانات:", data);
       }
     } catch (error) {
       console.log(`❌ خطأ في ${path}:`, error);
