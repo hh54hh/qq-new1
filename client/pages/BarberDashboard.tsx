@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 
 import {
-    Clock,
+  Clock,
   Check,
   X,
   Star,
@@ -49,7 +49,7 @@ export default function BarberDashboard({
   onLogout,
 }: BarberDashboardProps) {
   const [state, store] = useAppStore();
-    const [newPostCaption, setNewPostCaption] = useState("");
+  const [newPostCaption, setNewPostCaption] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
@@ -629,7 +629,7 @@ export default function BarberDashboard({
 
       <Card className="border-border/50 bg-card/50">
         <CardContent className="p-6 space-y-4">
-                    {/* Image Upload with Preview */}
+          {/* Image Upload with Preview */}
           <div className="space-y-4">
             <label className="text-sm font-medium text-foreground">
               الصورة
@@ -674,14 +674,16 @@ export default function BarberDashboard({
                         src={imagePreviewUrl}
                         alt="معاينة الصورة"
                         className="w-full h-auto object-contain max-h-96"
-                        style={{ aspectRatio: 'auto' }}
+                        style={{ aspectRatio: "auto" }}
                       />
                     </div>
 
                     {/* Caption Preview */}
                     {newPostCaption.trim() && (
                       <div className="mt-4">
-                        <p className="text-sm text-foreground">{newPostCaption}</p>
+                        <p className="text-sm text-foreground">
+                          {newPostCaption}
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -692,7 +694,9 @@ export default function BarberDashboard({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => document.getElementById("image-upload")?.click()}
+                    onClick={() =>
+                      document.getElementById("image-upload")?.click()
+                    }
                     className="flex items-center gap-2"
                   >
                     <Camera className="w-4 h-4" />
@@ -712,7 +716,8 @@ export default function BarberDashboard({
                   </Button>
                   <div className="text-xs text-muted-foreground flex items-center gap-1 px-2">
                     <FileImage className="w-3 h-3" />
-                    {selectedImage.name} ({(selectedImage.size / 1024 / 1024).toFixed(1)} MB)
+                    {selectedImage.name} (
+                    {(selectedImage.size / 1024 / 1024).toFixed(1)} MB)
                   </div>
                 </div>
               </div>
@@ -724,7 +729,9 @@ export default function BarberDashboard({
                     <Camera className="h-8 w-8 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="text-foreground font-medium text-lg">اختر صورة رائعة</p>
+                    <p className="text-foreground font-medium text-lg">
+                      اختر صورة رائعة
+                    </p>
                     <p className="text-sm text-muted-foreground mt-1">
                       اعرض عملك بأفضل جودة ممكنة
                     </p>
@@ -733,7 +740,9 @@ export default function BarberDashboard({
                     <Button
                       variant="outline"
                       size="lg"
-                      onClick={() => document.getElementById("image-upload")?.click()}
+                      onClick={() =>
+                        document.getElementById("image-upload")?.click()
+                      }
                       className="flex items-center gap-2"
                     >
                       <Upload className="w-5 h-5" />
@@ -762,7 +771,7 @@ export default function BarberDashboard({
                     "image/jpg",
                     "image/png",
                     "image/gif",
-                    "image/webp"
+                    "image/webp",
                   ];
                   if (!validTypes.includes(file.type)) {
                     store.addNotification({
@@ -784,21 +793,27 @@ export default function BarberDashboard({
                       id: Date.now().toString(),
                       type: "system",
                       title: "حجم الملف كبير جداً",
-                            message: "يرجى اختيار صورة بحجم أقل من 10 ميجابايت",
-                            data: null,
-                            read: false,
-                            created_at: new Date().toISOString(),
-                          });
-                          return;
-                        }
+                      message: "يرجى اختيار صورة بحجم أقل من 10 ميجابايت",
+                      data: null,
+                      read: false,
+                      created_at: new Date().toISOString(),
+                    });
+                    return;
+                  }
 
-                        setSelectedImage(file);
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+                  setSelectedImage(file);
+
+                  // Create preview URL
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    if (e.target?.result) {
+                      setImagePreviewUrl(e.target.result as string);
+                    }
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
           </div>
 
           {/* Caption */}
