@@ -336,9 +336,11 @@ export default function InstagramNewsFeed({
   }
 
   return (
-    <div className="max-w-md mx-auto bg-background min-h-screen">
+    <div className="w-full max-w-md mx-auto bg-background min-h-screen relative">
+      {/* Mobile PWA optimizations */}
+      <div className="safe-area-top"></div>
       {/* Instagram-style Header */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b px-4 py-3">
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b px-4 py-3 safe-area-top">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold">حلاقتي</h1>
           <div className="flex items-center space-x-3 space-x-reverse">
@@ -350,7 +352,7 @@ export default function InstagramNewsFeed({
       </div>
 
       {/* Stories Section */}
-      <div className="p-4 border-b bg-background">
+      <div className="p-3 sm:p-4 border-b bg-background">
         <div className="flex space-x-4 space-x-reverse overflow-x-auto pb-2">
           {/* Add Your Story */}
           <div className="flex-shrink-0 text-center">
