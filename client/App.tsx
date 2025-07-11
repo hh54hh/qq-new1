@@ -41,6 +41,7 @@ import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@shared/api";
 import { useAppStore } from "./lib/store";
 import { useLocation } from "./hooks/use-location";
+import { getBarberCache } from "./lib/barber-cache";
 
 const queryClient = new QueryClient();
 
@@ -296,7 +297,7 @@ const App = () => {
 
   // Initialize global functions
   useEffect(() => {
-    // إض��فة دالة عالمية لفتح صفحة التشخيص
+    // إض��فة دالة عالمية لفت�� صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
       console.log("🔧 تم فتح صفحة الت��خيص");
