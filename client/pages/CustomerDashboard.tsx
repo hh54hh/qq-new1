@@ -48,6 +48,7 @@ import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
 import MessagesPage from "./MessagesPage";
 import AdvancedSearchPage from "./AdvancedSearchPage";
+import HomePage from "./HomePage";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -424,7 +425,7 @@ export default function CustomerDashboard({
       {
         id: "friend_req_1",
         type: "friend_request" as const,
-        title: "طلب صداقة جديد",
+        title: "طل�� صداقة جديد",
         message: "أحمد الحلاق يريد متابعتك",
         data: {
           senderId: "barber_1",
