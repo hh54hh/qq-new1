@@ -27,6 +27,23 @@ export const getBarbers: RequestHandler = async (req, res) => {
   }
 };
 
+// Get all customers with public information (same pattern as barbers)
+export const getCustomers: RequestHandler = async (req, res) => {
+  try {
+    const customers = await db.users.getCustomers();
+
+    // Remove password hash from response
+    const customersWithoutPassword = customers.map(
+      ({ password_hash, ...customer }) => customer,
+    );
+
+    res.json({ customers: customersWithoutPassword, total: customers.length });
+  } catch (error) {
+    console.error("Get customers error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 export const searchBarbers: RequestHandler = async (req, res) => {
   try {
     const filters: SearchBarbersRequest = req.query;
@@ -173,7 +190,7 @@ export const createBooking: RequestHandler = async (req, res) => {
       // Handle duplicate booking constraint
       if (dbError.code === "23505") {
         return res.status(409).json({
-          error: "هذا الموعد محجوز بالفعل، يرجى اختيار وقت آخر",
+          error: "هذا الموعد محجوز بالفعل، يرجى اخت��ار وقت آخر",
         });
       }
 
