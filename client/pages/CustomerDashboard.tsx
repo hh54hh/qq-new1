@@ -410,7 +410,16 @@ export default function CustomerDashboard({
   }, [user?.id]);
 
   const loadFriendRequests = () => {
-    // إضافة طلب��ت صداقة تجريبية للإشعارات
+    // تحقق من أن الإشعارات لم يتم عرضها من قبل
+    const NOTIFICATIONS_SHOWN_KEY = `friend_requests_shown_${user.id}`;
+    const hasShownNotifications = localStorage.getItem(NOTIFICATIONS_SHOWN_KEY);
+
+    // إذا تم عرض الإشعارات من قبل، لا تعرضها مرة أخرى
+    if (hasShownNotifications) {
+      return;
+    }
+
+    // إضافة طلب��ت صداقة تجريبية للإشعارات (مرة واحدة فقط)
     const friendRequests = [
       {
         id: "friend_req_1",
