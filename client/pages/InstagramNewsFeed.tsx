@@ -37,6 +37,7 @@ export default function InstagramNewsFeed({
   const [refreshing, setRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [postsFromCache, setPostsFromCache] = useState(false);
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
 
   // Load posts with ultra-fast cache
   const loadPostsUltraFast = useCallback(async () => {
@@ -81,8 +82,8 @@ export default function InstagramNewsFeed({
         console.log(`Real data displayed (${cachedPosts.length} posts)`);
       }
 
-      // Start background sync for fresh data
-      postsCache.startBackgroundSync();
+      // Don't start automatic background sync
+      // Only sync on manual refresh
     } catch (error) {
       console.error("Ultra-fast loading failed:", error);
       setLoading(false);
@@ -235,45 +236,58 @@ export default function InstagramNewsFeed({
     return `منذ ${diffInWeeks} أ`;
   };
 
-  // Load posts on mount and listen for updates
+  // Manual refresh function
+  const manualRefresh = useCallback(async () => {
+    console.log("🔄 Manual refresh triggered");
+    setRefreshing(true);
+    setIsManualRefresh(true);
+
+    try {
+      const postsCache = getPostsCache(user.id);
+
+      // Force sync to get fresh data
+      await postsCache.forceSyncNow();
+
+      // Get updated posts
+      const { posts: updatedPosts } = await postsCache.getPostsInstant();
+
+      setPosts(updatedPosts);
+      setPostsFromCache(true);
+      setLoading(false);
+
+      // Update liked posts state
+      const likedIds = new Set<string>(
+        updatedPosts.filter((p) => p.isLiked).map((p) => p.id),
+      );
+      setLikedPosts(likedIds);
+
+      console.log("✅ Manual refresh completed");
+    } catch (error) {
+      console.error("❌ Manual refresh failed:", error);
+    } finally {
+      setRefreshing(false);
+      setIsManualRefresh(false);
+    }
+  }, [user.id]);
+
+  // Load posts on mount only (no automatic updates)
   useEffect(() => {
     loadPostsUltraFast();
 
-    // Listen for posts updates from background sync
-    const handlePostsUpdate = (event: CustomEvent) => {
-      const { posts: updatedPosts, userId } = event.detail;
-      if (userId === user.id) {
-        console.log("📱 Posts updated from background sync");
-        setPosts(updatedPosts);
-        setPostsFromCache(true);
-        setLoading(false);
-
-        // Update liked posts state
-        const likedIds = new Set<string>(
-          updatedPosts
-            .filter((p: PostType) => p.isLiked)
-            .map((p: PostType) => p.id),
-        );
-        setLikedPosts(likedIds);
-
-        // Show brief refresh indicator
-        setRefreshing(true);
-        setTimeout(() => setRefreshing(false), 1000);
-      }
+    // Listen for manual refresh requests from navigation
+    const handleManualRefresh = () => {
+      manualRefresh();
     };
 
-    window.addEventListener("postsUpdated", handlePostsUpdate as EventListener);
+    window.addEventListener("manualPostsRefresh", handleManualRefresh);
 
     return () => {
-      window.removeEventListener(
-        "postsUpdated",
-        handlePostsUpdate as EventListener,
-      );
-      // Cleanup cache when component unmounts
+      window.removeEventListener("manualPostsRefresh", handleManualRefresh);
+      // Stop any background sync
       const postsCache = getPostsCache(user.id);
       postsCache.stopBackgroundSync();
     };
-  }, [loadPostsUltraFast, user.id]);
+  }, [loadPostsUltraFast, user.id, manualRefresh]);
 
   // Loading skeleton
   if (loading && posts.length === 0) {
