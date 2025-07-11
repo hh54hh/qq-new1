@@ -400,17 +400,133 @@ class BarberCacheManager {
     }
   }
 
+  // =================== SMART MEMORY MANAGEMENT ===================
+
+  private async calculateMemoryUsage(): Promise<number> {
+    try {
+      const barbers = await this.storage.getAllData("barbers");
+      const stats = await this.storage.getAllData("barber_stats");
+
+      const totalSize = new Blob([
+        JSON.stringify(barbers),
+        JSON.stringify(stats),
+      ]).size;
+
+      this.currentMemoryUsage = Math.round(totalSize / (1024 * 1024)); // MB
+      return this.currentMemoryUsage;
+    } catch (error) {
+      console.warn("Failed to calculate memory usage:", error);
+      return 0;
+    }
+  }
+
+  private async smartMemoryCleanup(): Promise<void> {
+    const memoryUsage = await this.calculateMemoryUsage();
+
+    if (memoryUsage > this.config.memoryThresholdMB) {
+      console.log(
+        `🧹 Memory threshold exceeded (${memoryUsage}MB), starting cleanup...`,
+      );
+
+      try {
+        const barbers = await this.storage.getAllData("barbers");
+
+        // Sort by smart score (keeping most valuable data)
+        const sortedBarbers = barbers.sort(
+          (a: CachedBarber, b: CachedBarber) => {
+            return this.calculateSmartScore(b) - this.calculateSmartScore(a);
+          },
+        );
+
+        // Keep only top performers
+        const keepCount = Math.min(
+          this.config.maxRecentBarbers,
+          sortedBarbers.length,
+        );
+        const barbersToKeep = sortedBarbers.slice(0, keepCount);
+
+        // Clear and save optimized data
+        await this.storage.clearStore("barbers");
+        for (const barber of barbersToKeep) {
+          await this.storage.saveData("barbers", barber, barber.id, "barber");
+        }
+
+        const newMemoryUsage = await this.calculateMemoryUsage();
+        console.log(
+          `✅ Smart cleanup completed: ${memoryUsage}MB → ${newMemoryUsage}MB`,
+        );
+
+        // Clean access tracking maps
+        this.cleanupAccessTracking(barbersToKeep.map((b) => b.id));
+      } catch (error) {
+        console.error("Smart memory cleanup failed:", error);
+      }
+    }
+  }
+
+  private cleanupAccessTracking(keepIds: string[]): void {
+    // Keep only tracking data for retained barbers
+    const keepIdsSet = new Set(keepIds);
+
+    for (const [id] of this.lastAccessTimes) {
+      if (!keepIdsSet.has(id)) {
+        this.lastAccessTimes.delete(id);
+        this.accessCounts.delete(id);
+      }
+    }
+  }
+
+  // =================== ADAPTIVE SYNC ===================
+
+  private getAdaptiveSyncInterval(): number {
+    if (!this.config.adaptiveSync) return this.config.backgroundSyncInterval;
+
+    // Reduce sync frequency when user is inactive
+    const lastActivity = Math.max(...Array.from(this.lastAccessTimes.values()));
+    const inactiveTime = Date.now() - lastActivity;
+
+    if (inactiveTime > 5 * 60 * 1000) {
+      // 5 minutes inactive
+      return this.config.backgroundSyncInterval * 3; // Reduce frequency
+    } else if (inactiveTime > 2 * 60 * 1000) {
+      // 2 minutes inactive
+      return this.config.backgroundSyncInterval * 2; // Moderate reduction
+    }
+
+    return this.config.backgroundSyncInterval; // Normal frequency
+  }
+
   // =================== CLEANUP & MANAGEMENT ===================
 
   private startBackgroundSync(): void {
     if (this.syncInterval) return;
 
-    this.syncInterval = setInterval(() => {
-      // Sync only if page is visible to save battery
-      if (document.visibilityState === "visible") {
-        this.syncBarbersInBackground();
+    const startSync = () => {
+      this.syncInterval = setInterval(() => {
+        // Sync only if page is visible and app is active
+        if (document.visibilityState === "visible" && this.isBackgroundActive) {
+          this.syncBarbersInBackground();
+        }
+      }, this.getAdaptiveSyncInterval());
+    };
+
+    startSync();
+
+    // Listen for visibility changes to pause/resume
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        this.isBackgroundActive = false;
+        if (this.syncInterval) {
+          clearInterval(this.syncInterval);
+          this.syncInterval = null;
+        }
+      } else {
+        this.isBackgroundActive = true;
+        if (!this.syncInterval) {
+          startSync();
+        }
       }
-    }, this.config.backgroundSyncInterval);
+    });
   }
 
   private startPeriodicCleanup(): void {
