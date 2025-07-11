@@ -352,8 +352,13 @@ export default function CustomerDashboard({
     };
 
     window.addEventListener("barbersUpdated", handleBarbersUpdate);
+    window.addEventListener("ultraFastBarbersUpdated", handleUltraFastUpdate);
     return () => {
       window.removeEventListener("barbersUpdated", handleBarbersUpdate);
+      window.removeEventListener(
+        "ultraFastBarbersUpdated",
+        handleUltraFastUpdate,
+      );
       clearTimeout(updateTimeoutRef.current);
     };
   }, []);
@@ -372,7 +377,7 @@ export default function CustomerDashboard({
   }, [user?.id]);
 
   const loadFriendRequests = () => {
-    // إضافة طلب��ت صداقة تجريبية للإشعارات
+    // إضافة طلب��ت صداقة تجريبية ��لإشعارات
     const friendRequests = [
       {
         id: "friend_req_1",
@@ -898,7 +903,7 @@ export default function CustomerDashboard({
       case "rejected":
         return "مرفوض";
       case "cancelled":
-        return "ملغ��";
+        return "ملغي";
       default:
         return status;
     }
@@ -1603,7 +1608,7 @@ export default function CustomerDashboard({
                 سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
-                تح��يث الموقع
+                تحديث الموقع
               </Button>
             </CardContent>
           </Card>
