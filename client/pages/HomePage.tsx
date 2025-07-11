@@ -68,6 +68,25 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
     try {
       console.log("Loading news posts from followed users...");
 
+      // Try to load from cache first
+      const cacheKey = `news_posts_${user.id}`;
+      const cachedPosts = localStorage.getItem(cacheKey);
+
+      if (cachedPosts) {
+        try {
+          const parsed = JSON.parse(cachedPosts);
+          // Check if cache is less than 5 minutes old
+          if (Date.now() - parsed.timestamp < 5 * 60 * 1000) {
+            console.log("Loading news posts from cache");
+            setNewsPosts(parsed.data);
+            setNewsLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.warn("Failed to parse cached news posts");
+        }
+      }
+
       // Get user's following list first
       const followingResponse = await apiClient.getFollows("following");
       const followingIds =
@@ -76,6 +95,14 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       if (followingIds.length === 0) {
         console.log("User is not following anyone, showing empty news feed");
         setNewsPosts([]);
+        // Cache empty result
+        localStorage.setItem(
+          cacheKey,
+          JSON.stringify({
+            data: [],
+            timestamp: Date.now(),
+          }),
+        );
         return;
       }
 
@@ -100,9 +127,32 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       console.log(
         `Found ${newsFeeds.length} posts from ${followingIds.length} followed users`,
       );
+
+      // Cache the results
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify({
+          data: newsFeeds,
+          timestamp: Date.now(),
+        }),
+      );
+
       setNewsPosts(newsFeeds);
     } catch (error) {
       console.error("Error loading news posts:", error);
+      // Try to load from cache as fallback
+      const cacheKey = `news_posts_${user.id}`;
+      const cachedPosts = localStorage.getItem(cacheKey);
+      if (cachedPosts) {
+        try {
+          const parsed = JSON.parse(cachedPosts);
+          console.log("Loading news posts from cache as fallback");
+          setNewsPosts(parsed.data);
+          return;
+        } catch (e) {
+          console.warn("Failed to parse cached news posts fallback");
+        }
+      }
       setNewsPosts([]);
     } finally {
       setNewsLoading(false);
