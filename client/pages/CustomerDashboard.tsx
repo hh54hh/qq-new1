@@ -77,8 +77,11 @@ export default function CustomerDashboard({
   const [showFollowedBarbers, setShowFollowedBarbers] = useState(false);
   const [showNearbyBarbers, setShowNearbyBarbers] = useState(false);
 
-  const [allBarbers, setAllBarbers] = useState<any[]>([]);
-  const [filteredBarbers, setFilteredBarbers] = useState<any[]>([]);
+  const [allBarbers, setAllBarbers] = useState<CachedBarber[]>([]);
+  const [filteredBarbers, setFilteredBarbers] = useState<CachedBarber[]>([]);
+  const [barbersLoading, setBarbersLoading] = useState(true);
+  const [barbersFromCache, setBarbersFromCache] = useState(false);
+  const [showSkeletons, setShowSkeletons] = useState(false);
 
   // Explore page state
   const [exploreSearchQuery, setExploreSearchQuery] = useState("");
