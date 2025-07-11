@@ -353,7 +353,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                     variant="ghost"
                     size="sm"
                     className={cn(
-                      "text-muted-foreground hover:text-red-500",
+                      "text-muted-foreground hover:text-red-500 transition-colors",
                       post.isLiked && "text-red-500",
                     )}
                     onClick={() =>
@@ -362,27 +362,38 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                   >
                     <Heart
                       className={cn(
-                        "w-4 h-4 ml-1",
-                        post.isLiked && "fill-current",
+                        "w-4 h-4 ml-1 transition-all",
+                        post.isLiked && "fill-current scale-110",
                       )}
                     />
-                    {post.likes || 0}
+                    <span className="font-medium">{post.likes || 0}</span>
                   </Button>
 
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-muted-foreground"
+                    className="text-muted-foreground hover:text-blue-500 transition-colors"
+                    onClick={() => setSelectedPost(post)}
                   >
                     <MessageCircle className="w-4 h-4 ml-1" />
-                    {post.comments_count || 0}
+                    <span>{post.comments_count || 0}</span>
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-green-500 transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
                   </Button>
                 </div>
 
-                {post.author?.location && (
+                {(post.author?.location || post.location) && (
                   <div className="flex items-center text-xs text-muted-foreground">
                     <MapPin className="w-3 h-3 ml-1" />
-                    {post.author.location}
+                    <span className="truncate max-w-32">
+                      {post.author?.location || post.location}
+                    </span>
                   </div>
                 )}
               </div>
