@@ -41,6 +41,14 @@ export default function InstagramNewsFeed({
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
   const [startY, setStartY] = useState(0);
+  const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
+  const [showComments, setShowComments] = useState(false);
+  const [commentsData, setCommentsData] = useState<{ [key: string]: any[] }>(
+    {},
+  );
+  const [newComment, setNewComment] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [lastTap, setLastTap] = useState(0);
 
   // Load posts with ultra-fast cache
   const loadPostsUltraFast = useCallback(async () => {
@@ -219,6 +227,128 @@ export default function InstagramNewsFeed({
         ),
       );
     }
+  };
+
+  // Handle double tap on image for like
+  const handleImageDoubleTap = (postId: string) => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300; // milliseconds
+
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      // Double tap detected - trigger like
+      console.log("💖 Double tap on image - triggering like");
+      handleLike(postId);
+
+      // Show like animation
+      showLikeAnimation(postId);
+    }
+
+    setLastTap(now);
+  };
+
+  // Show like animation
+  const showLikeAnimation = (postId: string) => {
+    // Create temporary heart animation
+    const heartElement = document.createElement("div");
+    heartElement.innerHTML = "❤️";
+    heartElement.style.cssText = `
+      position: absolute;
+      font-size: 3rem;
+      color: #FFD700;
+      animation: likeHeart 1s ease-out forwards;
+      pointer-events: none;
+      z-index: 1000;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0);
+    `;
+
+    // Add keyframes if not exists
+    if (!document.querySelector("#like-heart-keyframes")) {
+      const style = document.createElement("style");
+      style.id = "like-heart-keyframes";
+      style.textContent = `
+        @keyframes likeHeart {
+          0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+          15% { transform: translate(-50%, -50%) scale(1.2); }
+          30% { transform: translate(-50%, -50%) scale(1); }
+          100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const imageContainer = document.querySelector(`[data-post-id="${postId}"]`);
+    if (imageContainer) {
+      imageContainer.appendChild(heartElement);
+      setTimeout(() => {
+        if (heartElement.parentNode) {
+          heartElement.parentNode.removeChild(heartElement);
+        }
+      }, 1000);
+    }
+  };
+
+  // Load comments for a post
+  const loadComments = async (postId: string) => {
+    try {
+      console.log("💬 Loading comments for post:", postId);
+      const response = await apiClient.getPostComments(postId);
+      setCommentsData((prev) => ({
+        ...prev,
+        [postId]: response.comments || [],
+      }));
+    } catch (error) {
+      console.error("Error loading comments:", error);
+      setCommentsData((prev) => ({
+        ...prev,
+        [postId]: [],
+      }));
+    }
+  };
+
+  // Handle comment submission
+  const handleSubmitComment = async (postId: string) => {
+    if (!newComment.trim() || isSubmittingComment) return;
+
+    try {
+      setIsSubmittingComment(true);
+      console.log("📝 Submitting comment for post:", postId);
+
+      const comment = await apiClient.createPostComment(
+        postId,
+        newComment.trim(),
+      );
+
+      // Add new comment to state
+      setCommentsData((prev) => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), comment],
+      }));
+
+      // Update post comments count
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId
+            ? { ...post, comments_count: post.comments_count + 1 }
+            : post,
+        ),
+      );
+
+      setNewComment("");
+      console.log("✅ Comment submitted successfully");
+    } catch (error) {
+      console.error("Error submitting comment:", error);
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  // Handle comment button click
+  const handleCommentsClick = (post: PostType) => {
+    setSelectedPost(post);
+    setShowComments(true);
+    loadComments(post.id);
   };
 
   // Format time ago
