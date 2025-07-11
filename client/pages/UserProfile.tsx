@@ -80,7 +80,7 @@ export default function UserProfile({
     setIsFollowing(profileUser.isFollowed || false);
   }, [profileUser.isFollowed]);
 
-  // تحديث ح��لة المتابعة من store
+  // تحديث حالة المتابعة من store
   useEffect(() => {
     checkFollowStatus();
   }, [state.follows, profileUser.id]);
@@ -214,11 +214,30 @@ export default function UserProfile({
         await networkAwareAPI.safeRequest(() =>
           apiClient.unfollowUser(profileUser.id),
         );
+
+        // حدف من store
+        const updatedFollows =
+          state.follows?.filter(
+            (follow: any) => follow.followed_id !== profileUser.id,
+          ) || [];
+        store.setFollows(updatedFollows);
+
         onUnfollow?.();
       } else {
         await networkAwareAPI.safeRequest(() =>
           apiClient.followUser(profileUser.id),
         );
+
+        // إضافة لـ store
+        const newFollow = {
+          id: Date.now().toString(),
+          follower_id: currentUser.id,
+          followed_id: profileUser.id,
+          created_at: new Date().toISOString(),
+        };
+        const updatedFollows = [...(state.follows || []), newFollow];
+        store.setFollows(updatedFollows);
+
         onFollow?.();
       }
 
@@ -233,6 +252,10 @@ export default function UserProfile({
         read: false,
         created_at: new Date().toISOString(),
       });
+
+      console.log(
+        `✅ Successfully ${isFollowing ? "unfollowed" : "followed"} ${profileUser.name}`,
+      );
     } catch (error) {
       setIsFollowing(previousState);
       console.error("Error toggling follow:", error);
@@ -584,7 +607,7 @@ export default function UserProfile({
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">تاريخ التسجيل:</span>
+                <span className="text-muted-foreground">تاريخ الت��جيل:</span>
                 <span className="font-medium">
                   {new Date(profileUser.created_at).toLocaleDateString("ar-SA")}
                 </span>
