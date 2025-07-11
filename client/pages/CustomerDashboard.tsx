@@ -773,7 +773,7 @@ export default function CustomerDashboard({
         store.addNotification({
           id: Date.now().toString(),
           type: "friend_request",
-          title: "��طأ في المتابعة",
+          title: "خطأ في المتابعة",
           message:
             "حدث خط�� ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
@@ -864,6 +864,107 @@ export default function CustomerDashboard({
         bookings: state.bookings.length,
         followers: 0,
         following: 0,
+      });
+    }
+  };
+
+  // دالة مساعدة لإثراء بيانات المتابعة بمعلومات المستخدمين
+  const enrichFollowData = async (followData: any[], userIdField: string) => {
+    if (!followData.length) return followData;
+
+    try {
+      // استخراج معرفات المستخدمين
+      const userIds = followData.map((f) => f[userIdField]);
+
+      // تحميل بيانات المستخدمين من مصادر متعددة
+      const [barbersResponse, usersResponse] = await Promise.all([
+        apiClient.getBarbers().catch(() => ({ barbers: [] })),
+        apiClient.getAllUsers().catch(() => ({ users: [] })),
+      ]);
+
+      // دمج جميع المستخدمين
+      const allUsers = [
+        ...(barbersResponse.barbers || []),
+        ...(usersResponse.users || []),
+      ];
+
+      // إنشاء خريطة للمستخدمين
+      const usersMap = new Map();
+      allUsers.forEach((user) => {
+        if (user.id) {
+          usersMap.set(user.id, user);
+        }
+      });
+
+      console.log(
+        `📊 Enriching ${followData.length} follow records with user data`,
+      );
+      console.log(`�� Found ${allUsers.length} users in system`);
+
+      // إثراء بيانات المتابعة
+      const enrichedData = followData.map((follow) => {
+        const userId = follow[userIdField];
+        const userData = usersMap.get(userId);
+
+        if (userData) {
+          return {
+            ...follow,
+            [userIdField === "follower_id" ? "follower" : "followed"]: {
+              id: userData.id,
+              name: userData.name || "مستخدم مجهول",
+              avatar_url: userData.avatar_url || "",
+              role: userData.role || "customer",
+              is_verified: userData.is_verified || false,
+              level: userData.level || 0,
+            },
+          };
+        } else {
+          // بيانات احتياطية إذا لم نجد المستخدم
+          console.warn(`⚠️ User not found: ${userId}`);
+          return {
+            ...follow,
+            [userIdField === "follower_id" ? "follower" : "followed"]: {
+              id: userId,
+              name: `مستخدم ${userId.slice(-4)}`,
+              avatar_url: "",
+              role: "customer",
+              is_verified: false,
+              level: 0,
+            },
+          };
+        }
+      });
+
+      const foundUsers = enrichedData.filter((f) => {
+        const userField =
+          userIdField === "follower_id" ? "follower" : "followed";
+        return (
+          f[userField] &&
+          f[userField].name !== `مستخدم ${f[userIdField].slice(-4)}`
+        );
+      }).length;
+
+      console.log(
+        `✅ Successfully enriched ${foundUsers}/${followData.length} follow records`,
+      );
+
+      return enrichedData;
+    } catch (error) {
+      console.error("Error enriching follow data:", error);
+      // إرجاع البيانات كما هي مع بيانات احتياطية
+      return followData.map((follow) => {
+        const userId = follow[userIdField];
+        return {
+          ...follow,
+          [userIdField === "follower_id" ? "follower" : "followed"]: {
+            id: userId,
+            name: `مستخدم ${userId.slice(-4)}`,
+            avatar_url: "",
+            role: "customer",
+            is_verified: false,
+            level: 0,
+          },
+        };
       });
     }
   };
@@ -2011,7 +2112,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جر�� البحث بكل��ة أخرى من المنشورات ال����يزة"
+              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
