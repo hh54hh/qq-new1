@@ -168,9 +168,9 @@ export default function OptimizedChatPage() {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 10);
 
-    // Send to server in background (don't block UI)
+    // Send to server in background using fast method (don't block UI)
     apiClient
-      .createMessage({
+      .sendMessageFast({
         receiver_id: otherUserId,
         message: messageText,
       })
@@ -190,7 +190,7 @@ export default function OptimizedChatPage() {
         console.log("✅ رسالة أُرسلت بنجاح");
       })
       .catch((error) => {
-        console.error("❌ فشل ��رسال الرسالة:", error);
+        console.error("❌ فشل إرسال الرسالة:", error);
         // Mark message as failed but keep it in UI
         setMessages((prev) =>
           prev.map((msg) =>
