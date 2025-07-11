@@ -550,7 +550,7 @@ export default function InstagramNewsFeed({
               </div>
 
               {/* Post Image */}
-              <div className="w-full h-auto bg-muted animate-pulse"></div>
+              <div className="w-full h-64 bg-muted animate-pulse"></div>
 
               {/* Post Actions */}
               <div className="p-3 sm:p-4 space-y-3">
