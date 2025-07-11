@@ -41,6 +41,14 @@ export default function OptimizedChatPage() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
+  // Background sync integration
+  const {
+    status: syncStatus,
+    queueMessage,
+    forceSync,
+    isReady,
+  } = useBackgroundSync();
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesTopRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
