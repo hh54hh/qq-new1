@@ -20,6 +20,7 @@ import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { getChatCache, CachedMessage } from "@/lib/chat-cache";
 import { useAppStore } from "@/lib/store";
+import apiClient from "@/lib/api";
 import {
   MessagesListSkeleton,
   ChatHeaderSkeleton,
