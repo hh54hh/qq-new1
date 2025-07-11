@@ -512,7 +512,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
 
                           <div className="flex items-center text-xs text-muted-foreground mt-1">
                             {suggestedUser.shop_name && (
-                              <span className="truncate">
+                              <span className="truncate max-w-36">
                                 {suggestedUser.shop_name}
                               </span>
                             )}
@@ -523,11 +523,21 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                                   <span className="mx-1">•</span>
                                 )}
                                 <MapPin className="w-3 h-3 ml-1" />
-                                <span className="truncate">
+                                <span className="truncate max-w-24">
                                   {suggestedUser.location}
                                 </span>
                               </>
                             )}
+
+                            {/* Show rating for barbers */}
+                            {suggestedUser.role === "barber" &&
+                              suggestedUser.rating && (
+                                <>
+                                  <span className="mx-1">•</span>
+                                  <Star className="w-3 h-3 ml-1 fill-yellow-400 text-yellow-400" />
+                                  <span>{suggestedUser.rating.toFixed(1)}</span>
+                                </>
+                              )}
                           </div>
                         </div>
                       </div>
