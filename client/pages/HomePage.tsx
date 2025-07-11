@@ -90,7 +90,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       // Get user's following list first
       const followingResponse = await apiClient.getFollows("following");
       const followingIds =
-        followingResponse.follows?.map((f: any) => f.following_id) || [];
+        followingResponse.follows?.map((f: any) => f.followed_id) || [];
 
       if (followingIds.length === 0) {
         console.log("User is not following anyone, showing empty news feed");
