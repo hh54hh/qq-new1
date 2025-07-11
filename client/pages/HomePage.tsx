@@ -639,9 +639,24 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
         {filteredSuggestions.length === 0 ? (
           <div className="text-center py-8">
             <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-2">
               {searchQuery ? "لا توجد نتائج للبحث" : "لا توجد اقتراحات متاحة"}
             </p>
+            <p className="text-xs text-muted-foreground">
+              {!searchQuery &&
+                "جرب إعادة تحميل الصفحة أو تأكد من اتصال الإنترنت"}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => {
+                setSearchQuery("");
+                loadSuggestedUsers();
+              }}
+            >
+              إعادة تحميل
+            </Button>
           </div>
         ) : (
           <div className="space-y-3">
@@ -923,7 +938,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                   <div className="text-center py-6 text-muted-foreground">
                     <MessageCircle className="w-8 h-8 mx-auto mb-2" />
                     <p>لا توجد تعليقات حتى الآن</p>
-                    <p className="text-xs">كن أول من يعلق على هذا المنشور</p>
+                    <p className="text-xs">كن أول من يعلق ع��ى هذا المنشور</p>
                   </div>
                 </div>
               </div>
