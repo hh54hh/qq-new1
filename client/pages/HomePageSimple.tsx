@@ -332,9 +332,42 @@ export default function HomePageSimple({ user, onUserClick }: HomePageProps) {
             }
           } catch (searchError) {
             console.log(
-              "⚠️ Search endpoint also failed, using barbers only:",
+              "⚠️ Search endpoint also failed, trying customers endpoint:",
               searchError.message,
             );
+
+            // Step 2d: Try customers endpoint as final attempt
+            try {
+              const customersStartTime = performance.now();
+              const customersResponse = await apiClient.getCustomers();
+              const customersLoadTime = performance.now() - customersStartTime;
+
+              console.log("✅ Customers API response:", {
+                responseTime: `${customersLoadTime.toFixed(1)}ms`,
+                customersCount: customersResponse?.customers?.length || 0,
+                hasData: !!customersResponse?.customers,
+              });
+
+              if (
+                customersResponse?.customers &&
+                customersResponse.customers.length > 0
+              ) {
+                // Merge customers with existing users (avoid duplicates)
+                const existingIds = new Set(realUsers.map((u) => u.id));
+                const newCustomers = customersResponse.customers.filter(
+                  (u) => !existingIds.has(u.id),
+                );
+                realUsers = [...realUsers, ...newCustomers];
+                console.log(
+                  "🎉 Added customers from dedicated customers endpoint!",
+                );
+              }
+            } catch (customersError) {
+              console.log(
+                "⚠️ Customers endpoint also failed:",
+                customersError.message,
+              );
+            }
           }
         }
 
