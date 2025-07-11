@@ -60,16 +60,21 @@ class SimpleErrorBoundary extends Component<
     return { hasError: true, error };
   }
 
-    componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: any) {
     console.error("Error Boundary caught an error:", error, errorInfo);
 
     // Special handling for React Context errors
-    if (error.message?.includes('useState') || error.message?.includes('null')) {
-      console.error('React Context error detected. This might be a React version mismatch or import issue.');
-      console.error('Error details:', {
+    if (
+      error.message?.includes("useState") ||
+      error.message?.includes("null")
+    ) {
+      console.error(
+        "React Context error detected. This might be a React version mismatch or import issue.",
+      );
+      console.error("Error details:", {
         message: error.message,
         stack: error.stack,
-        componentStack: errorInfo.componentStack
+        componentStack: errorInfo.componentStack,
       });
     }
   }
@@ -156,7 +161,7 @@ const AppContent = () => {
     // إضافة دالة عالمية ��فتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
-      console.log("🔍 تم فتح صفحة التشخيص الشامل");
+      console.log("🔍 تم فتح صفحة ��لتشخيص الشامل");
     };
 
     console.log("💡 نصائح مفيدة:");
@@ -322,7 +327,7 @@ const IndexRoute = () => {
 const App = () => {
   const [state, store] = useAppStore();
 
-    // Initialize global functions
+  // Initialize global functions
   useEffect(() => {
     // إض��فة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
@@ -348,7 +353,7 @@ const App = () => {
       localStorage.removeItem("user_location");
 
       console.log("✅ تم إعادة تعيين جميع الإشعارات وإعدادات الموقع");
-      console.log("🔄 قم بإعادة تحميل الصفحة لرؤي�� الإشعارات مرة أخرى");
+      console.log("🔄 قم بإعادة تحميل الصفحة لرؤية الإشعارات مرة أخرى");
     };
 
     console.log("💡 نصا��ح مفيدة:");
@@ -357,9 +362,9 @@ const App = () => {
     console.log("  - اكتب resetNotifications() لإعادة تعيين الإشعارات");
   }, []);
 
-    return (
+  return (
     <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
+      <TooltipProvider>
         <BrowserRouter>
           <Toaster />
           <Sonner />
@@ -401,7 +406,7 @@ const App = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-            </SafeTooltipProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
