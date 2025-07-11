@@ -275,7 +275,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
         const newFollow = {
           id: Date.now().toString(), // temporary ID
           follower_id: user.id,
-          following_id: targetUserId,
+          followed_id: targetUserId,
           created_at: new Date().toISOString(),
         };
         const updatedFollows = [...(state.follows || []), newFollow];
@@ -861,7 +861,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
 
                   <Button variant="outline" size="sm">
                     <Share2 className="w-4 h-4 ml-1" />
-                    مشاركة
+                    مشار��ة
                   </Button>
                 </div>
 
