@@ -196,8 +196,24 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
         followingResponse.follows?.map((f: any) => f.followed_id) || [];
 
       // Get all users from admin endpoint to include everyone
-      const usersResponse = await apiClient.getAllUsers();
-      const allUsers = usersResponse.users || [];
+      let allUsers = [];
+      try {
+        const usersResponse = await apiClient.getAllUsers();
+        allUsers = usersResponse.users || [];
+        console.log("Fetched all users from admin endpoint:", allUsers.length);
+      } catch (error) {
+        console.warn(
+          "Failed to get all users from admin endpoint, falling back to barbers endpoint:",
+          error,
+        );
+        // Fallback to barbers endpoint if admin endpoint fails (permission issues)
+        const barbersResponse = await apiClient.getBarbers();
+        allUsers = barbersResponse.barbers || [];
+        console.log(
+          "Fetched users from barbers endpoint (fallback):",
+          allUsers.length,
+        );
+      }
 
       console.log(
         "All users received:",
