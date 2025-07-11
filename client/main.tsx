@@ -2,6 +2,11 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 
+// Ensure React is available globally for debugging
+if (typeof window !== "undefined") {
+  (window as any).React = React;
+}
+
 // Debug IndexedDB on startup
 async function debugIndexedDB() {
   console.log("🔍 [STARTUP] فحص قاعدة البيانات IndexedDB...");
