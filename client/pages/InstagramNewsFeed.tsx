@@ -127,7 +127,7 @@ export default function InstagramNewsFeed({
       },
       image_url:
         "https://images.unsplash.com/photo-1493256338651-d82f7acb2b38?w=600&h=600&fit=crop",
-      caption: "تصفيف رائع وإطلالة جديدة ✨",
+      caption: "تصفيف ر��ئع وإطلالة جديدة ✨",
       likes: 89,
       comments_count: 15,
       created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
@@ -318,10 +318,49 @@ export default function InstagramNewsFeed({
       manualRefresh();
     };
 
+    // Listen for app focus (return to app)
+    const handleAppFocus = () => {
+      // Check if user was away for more than 30 seconds
+      const lastActiveTime = parseInt(
+        localStorage.getItem("lastActiveTime") || "0",
+      );
+      const now = Date.now();
+      const timeAway = now - lastActiveTime;
+
+      if (timeAway > 30000) {
+        // 30 seconds
+        console.log("🔙 App returned after being away - refreshing posts");
+        manualRefresh();
+      }
+
+      // Update last active time
+      localStorage.setItem("lastActiveTime", now.toString());
+    };
+
+    // Listen for app blur (leaving app)
+    const handleAppBlur = () => {
+      localStorage.setItem("lastActiveTime", Date.now().toString());
+    };
+
     window.addEventListener("manualPostsRefresh", handleManualRefresh);
+    window.addEventListener("focus", handleAppFocus);
+    window.addEventListener("blur", handleAppBlur);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        handleAppFocus();
+      } else {
+        handleAppBlur();
+      }
+    });
+
+    // Set initial active time
+    localStorage.setItem("lastActiveTime", Date.now().toString());
 
     return () => {
       window.removeEventListener("manualPostsRefresh", handleManualRefresh);
+      window.removeEventListener("focus", handleAppFocus);
+      window.removeEventListener("blur", handleAppBlur);
+      document.removeEventListener("visibilitychange", handleAppFocus);
       // Stop any background sync
       const postsCache = getPostsCache(user.id);
       postsCache.stopBackgroundSync();
