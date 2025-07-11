@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,8 @@ import { User, UserRole, CreateBookingRequest } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
+import { getBarberCache, CachedBarber } from "@/lib/barber-cache";
+import { BarberSkeletonGrid } from "@/components/BarberSkeleton";
 import BookingPage from "./BookingPage";
 
 import UserProfile from "./UserProfile";
@@ -1244,7 +1246,6 @@ export default function CustomerDashboard({
             </p>
           </div>
         </div>
-
 
         {/* Followed Barbers Section */}
         {followedBarbers.length > 0 && (
