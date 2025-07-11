@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
 import { getBarberCache, CachedBarber } from "@/lib/barber-cache";
+import { getUltraFastBarberCache } from "@/lib/ultra-fast-barber-cache";
 import { BarberSkeletonGrid } from "@/components/BarberSkeleton";
 import BookingPage from "./BookingPage";
 
@@ -1596,7 +1597,7 @@ export default function CustomerDashboard({
         <Input
           value={exploreSearchQuery}
           onChange={(e) => setExploreSearchQuery(e.target.value)}
-          placeholder="ابحث عن حلاق..."
+          placeholder="ابحث ��ن حلاق..."
           className="pr-10 text-right"
         />
       </div>
@@ -1796,7 +1797,7 @@ export default function CustomerDashboard({
             <CardContent className="p-8 text-center">
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                لا توجد حجوزات
+                لا ��وجد حجوزات
               </h3>
               <p className="text-muted-foreground mb-4">
                 احجز موعدك الأ��ل مع أحد الحل��قين
