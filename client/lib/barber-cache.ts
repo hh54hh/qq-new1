@@ -39,11 +39,15 @@ export interface CachedBarberStats {
 
 export interface BarberCacheConfig {
   maxBarbers: number;
+  maxRecentBarbers: number; // Keep most recent/frequently accessed
   backgroundSyncInterval: number;
   cleanupInterval: number;
   dataRetention: number; // days
   preloadOnLogin: boolean;
   skeletonCount: number;
+  memoryThresholdMB: number; // Memory usage threshold
+  adaptiveSync: boolean; // Adjust sync frequency based on activity
+  compressionEnabled: boolean; // Compress cached data
 }
 
 class BarberCacheManager {
@@ -54,13 +58,23 @@ class BarberCacheManager {
   private currentUserId: string | null = null;
 
   private readonly config: BarberCacheConfig = {
-    maxBarbers: 200,
-    backgroundSyncInterval: 10000, // 10 seconds
-    cleanupInterval: 1800000, // 30 minutes
-    dataRetention: 7, // 7 days
+    maxBarbers: 150, // Reduced for better memory management
+    maxRecentBarbers: 50, // Keep only most accessed
+    backgroundSyncInterval: 15000, // Increased to 15 seconds for efficiency
+    cleanupInterval: 900000, // Reduced to 15 minutes for aggressive cleanup
+    dataRetention: 3, // Reduced to 3 days for memory efficiency
     preloadOnLogin: true,
     skeletonCount: 6,
+    memoryThresholdMB: 10, // 10MB threshold
+    adaptiveSync: true, // Smart sync frequency
+    compressionEnabled: true, // Enable compression
   };
+
+  // Performance tracking
+  private lastAccessTimes: Map<string, number> = new Map();
+  private accessCounts: Map<string, number> = new Map();
+  private currentMemoryUsage = 0;
+  private isBackgroundActive = true;
 
   async initialize(userId: string): Promise<void> {
     if (this.isInitialized && this.currentUserId === userId) return;
@@ -86,17 +100,44 @@ class BarberCacheManager {
   async getCachedBarbers(): Promise<CachedBarber[]> {
     try {
       const barbers = await this.storage.getAllData("barbers");
-      return barbers
-        .filter((barber: CachedBarber) => barber.id && barber.name)
-        .sort(
-          (a: CachedBarber, b: CachedBarber) =>
-            b._quality_score - a._quality_score,
-        )
-        .slice(0, this.config.maxBarbers);
+      const validBarbers = barbers.filter(
+        (barber: CachedBarber) => barber.id && barber.name,
+      );
+
+      // Update access times for performance tracking
+      const now = Date.now();
+      validBarbers.forEach((barber) => {
+        this.lastAccessTimes.set(barber.id, now);
+        this.accessCounts.set(
+          barber.id,
+          (this.accessCounts.get(barber.id) || 0) + 1,
+        );
+      });
+
+      // Smart sorting: combine quality score with access frequency and recency
+      return validBarbers
+        .sort((a: CachedBarber, b: CachedBarber) => {
+          const aScore = this.calculateSmartScore(a);
+          const bScore = this.calculateSmartScore(b);
+          return bScore - aScore;
+        })
+        .slice(0, this.config.maxRecentBarbers); // Use maxRecentBarbers for better memory
     } catch (error) {
       console.warn("Failed to get cached barbers:", error);
       return [];
     }
+  }
+
+  private calculateSmartScore(barber: CachedBarber): number {
+    const baseScore = barber._quality_score || 0;
+    const accessCount = this.accessCounts.get(barber.id) || 0;
+    const lastAccess = this.lastAccessTimes.get(barber.id) || 0;
+    const recencyBonus = Math.max(
+      0,
+      10 - (Date.now() - lastAccess) / (1000 * 60 * 60),
+    ); // Decrease over hours
+
+    return baseScore + accessCount * 2 + recencyBonus;
   }
 
   async getBarbersWithInstantLoad(): Promise<{
