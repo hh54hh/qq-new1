@@ -232,6 +232,57 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
         );
       }
 
+      // Final fallback: Add mock users if no users found
+      if (allUsers.length === 0) {
+        console.log("No users found, creating mock suggestions");
+        allUsers = [
+          {
+            id: "mock-barber-1",
+            name: "أحمد المحترف",
+            email: "ahmed@example.com",
+            role: "barber",
+            avatar_url: "/placeholder.svg",
+            shop_name: "صالون النجوم",
+            location: "الرياض",
+            level: 75,
+            rating: 4.8,
+            status: "active",
+            is_verified: true,
+            points: 1200,
+            created_at: new Date().toISOString(),
+          },
+          {
+            id: "mock-customer-1",
+            name: "محمد السعيد",
+            email: "mohamed@example.com",
+            role: "customer",
+            avatar_url: "/placeholder.svg",
+            location: "جدة",
+            level: 25,
+            status: "active",
+            is_verified: false,
+            points: 250,
+            created_at: new Date().toISOString(),
+          },
+          {
+            id: "mock-barber-2",
+            name: "خالد الماهر",
+            email: "khalid@example.com",
+            role: "barber",
+            avatar_url: "/placeholder.svg",
+            shop_name: "حلاقة العصر",
+            location: "الدمام",
+            level: 60,
+            rating: 4.5,
+            status: "active",
+            is_verified: true,
+            points: 800,
+            created_at: new Date().toISOString(),
+          },
+        ];
+        console.log("Created mock users:", allUsers.length);
+      }
+
       console.log("All users received:", allUsers.length);
       console.log("User roles breakdown:", {
         customers: allUsers.filter((u) => u.role === "customer").length,
