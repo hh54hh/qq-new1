@@ -261,7 +261,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
         // Update the store to remove from follows
         const updatedFollows =
           state.follows?.filter(
-            (follow: any) => follow.following_id !== targetUserId,
+            (follow: any) => follow.followed_id !== targetUserId,
           ) || [];
         store.setFollows(updatedFollows);
       } else {
