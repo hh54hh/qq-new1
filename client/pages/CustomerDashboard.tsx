@@ -78,6 +78,7 @@ export default function CustomerDashboard({
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showFollowedBarbers, setShowFollowedBarbers] = useState(false);
   const [showNearbyBarbers, setShowNearbyBarbers] = useState(false);
+  const [showAllBookings, setShowAllBookings] = useState(false);
 
   const [allBarbers, setAllBarbers] = useState<CachedBarber[]>([]);
   const [filteredBarbers, setFilteredBarbers] = useState<CachedBarber[]>([]);
@@ -1063,7 +1064,7 @@ export default function CustomerDashboard({
               <CardContent className="p-8 text-center">
                 <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  لا تت��بع أي حلاق
+                  لا تت��بع ��ي حلاق
                 </h3>
                 <p className="text-muted-foreground">
                   ا��دأ بمتابعة الحلاقين لرؤ��ت��م ه��ا
@@ -1370,18 +1371,7 @@ export default function CustomerDashboard({
                 variant="ghost"
                 size="sm"
                 className="text-xs sm:text-sm text-primary"
-                onClick={() => {
-                  // Show all bookings by setting active tab to a custom bookings view
-                  const bookingsSection = document.querySelector(
-                    '[data-section="all-bookings"]',
-                  );
-                  if (bookingsSection) {
-                    bookingsSection.scrollIntoView({ behavior: "smooth" });
-                  } else {
-                    // If section doesn't exist, create a temporary overlay or navigate
-                    alert("عرض جميع الحجوزات - سيتم تطوير هذه الميزة قريباً");
-                  }
-                }}
+                onClick={() => setShowAllBookings(true)}
               >
                 عرض الكل
               </Button>
@@ -1449,21 +1439,7 @@ export default function CustomerDashboard({
                         variant="ghost"
                         size="sm"
                         className="text-sm text-primary w-full"
-                        onClick={() => {
-                          // Create a temporary view to show all bookings
-                          const allBookingsView = document.createElement("div");
-                          allBookingsView.setAttribute(
-                            "data-section",
-                            "all-bookings",
-                          );
-                          allBookingsView.style.display = "none";
-                          document.body.appendChild(allBookingsView);
-
-                          // For now, just show alert - can be enhanced later
-                          alert(
-                            `لديك ${state.bookings.length} حجز. سيتم تطوير عرض جميع الحجوزات قريباً.`,
-                          );
-                        }}
+                        onClick={() => setShowAllBookings(true)}
                       >
                         عرض جميع الحجوزات ({state.bookings.length})
                       </Button>
