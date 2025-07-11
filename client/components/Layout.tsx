@@ -95,8 +95,26 @@ export default function Layout({
   onShowNotifications,
 }: LayoutProps) {
   const [state] = useAppStore();
+  const [lastTap, setLastTap] = useState(0);
 
   const unreadNotifications = state.notifications.filter((n) => !n.read).length;
+
+  // Handle double tap on homepage icon
+  const handleHomepageIconTap = () => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300; // milliseconds
+
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      // Double tap detected
+      console.log("💆 Double tap on homepage icon - triggering refresh");
+      window.dispatchEvent(new Event("manualPostsRefresh"));
+    }
+
+    setLastTap(now);
+
+    // Also handle normal tab change
+    onTabChange("homepage");
+  };
 
   const userNavItems = navItems.filter((item) =>
     item.roles.includes(user.role),
