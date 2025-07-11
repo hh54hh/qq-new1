@@ -33,6 +33,7 @@ import NetworkDiagnosticTest from "./pages/NetworkDiagnosticTest";
 import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
 import ChatPage from "./pages/ChatPage";
+import OptimizedChatPage from "./pages/OptimizedChatPage";
 
 import IndexedDBStatus from "./components/debug/IndexedDBStatus";
 
@@ -298,7 +299,7 @@ const App = () => {
     // إض��فة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
-      console.log("🔧 تم فتح صفحة التشخيص");
+      console.log("🔧 تم فتح صفحة الت��خيص");
     };
 
     // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
@@ -339,6 +340,7 @@ const App = () => {
             />
             <Route path="/offline" element={<OfflinePage />} />
             <Route path="/chat" element={<ChatPage />} />
+            <Route path="/chat-optimized" element={<OptimizedChatPage />} />
 
             {/* Authenticated routes */}
             <Route

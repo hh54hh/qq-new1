@@ -89,24 +89,56 @@ export default function ChatPage() {
   const sendMessage = async () => {
     if (!newMessage.trim() || !otherUserId || !user) return;
 
+    const messageText = newMessage.trim();
+
+    // Create optimistic message immediately
+    const optimisticMessage = {
+      id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      sender_id: user.id,
+      receiver_id: otherUserId,
+      message: messageText,
+      message_type: "text" as const,
+      is_read: false,
+      created_at: new Date().toISOString(),
+      sender: {
+        id: user.id,
+        name: user.name,
+        avatar_url: user.avatar_url,
+      },
+    };
+
+    // Add to UI immediately
+    setMessages((prev) => [...prev, optimisticMessage]);
+
+    // Clear input immediately
+    setNewMessage("");
+
+    // Scroll to bottom immediately
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 10);
+
+    // Send to server in background using fast method
     try {
-      const message = await apiClient.createMessage({
+      const sentMessage = await apiClient.sendMessageFast({
         receiver_id: otherUserId,
-        message: newMessage.trim(),
+        message: messageText,
       });
 
-      // Add to messages immediately
-      setMessages((prev) => [...prev, message]);
-
-      // Clear input immediately
-      setNewMessage("");
-
-      // Scroll to bottom
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 50);
+      // Replace optimistic message with real one
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === optimisticMessage.id ? sentMessage : msg,
+        ),
+      );
     } catch (error) {
       console.error("Error sending message:", error);
+      // Mark message as failed but keep it visible
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === optimisticMessage.id ? { ...msg, failed: true } : msg,
+        ),
+      );
     }
   };
 

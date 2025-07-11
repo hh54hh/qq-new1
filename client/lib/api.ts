@@ -308,7 +308,7 @@ class ApiClient {
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
-              errorMessage = "البيانات موجودة بالفعل في النظام";
+              errorMessage = "ا��بيانات موجودة بالفعل في النظام";
               errorType = "CONFLICT_ERROR";
               break;
             case 429:
@@ -375,7 +375,7 @@ class ApiClient {
 
       // Handle AbortError (timeout or cancellation)
       if (error instanceof Error && error.name === "AbortError") {
-        console.warn(`⏰ تم إلغاء الطلب أو انتهت المهلة: ${endpoint}`);
+        console.warn(`⏰ تم إ��غاء الطلب أو انتهت المهلة: ${endpoint}`);
 
         const timeoutError = new Error(
           "انتهت مهلة الاتصال (30 ثانية)، يرجى المحاولة مرة أخرى",
@@ -505,7 +505,7 @@ class ApiClient {
         return {} as unknown as T;
       }
 
-      // إذا كان يمكن إعادة المحاولة، جرب مرة واحدة أخرى
+      // إذا كان يمكن إعادة ال��حاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
           console.log(`�� إعادة المحاولة لـ ${endpoint}`);
@@ -1114,6 +1114,35 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify(messageData),
     });
+  }
+
+  // Fast message sending without complex error handling
+  async sendMessageFast(messageData: {
+    receiver_id: string;
+    message: string;
+  }): Promise<any> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+    try {
+      const response = await fetch(`${this.baseUrl}/messages`, {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify({ ...messageData, message_type: "text" }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
   }
 
   async markMessageAsRead(messageId: string): Promise<void> {
