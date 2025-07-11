@@ -272,8 +272,13 @@ export default function HomePageSimple({ user, onUserClick }: HomePageProps) {
         const realUsers = barbersResponse.barbers || [];
         console.log("✅ Got real users:", realUsers.length);
 
-        // Add real users to the mix
-        allUsers = [...allUsers, ...realUsers];
+        // Add real users to the mix (normalize their structure)
+        const normalizedRealUsers = realUsers.map((user: any) => ({
+          ...user,
+          shop_name: user.shop_name || "", // Add missing fields for compatibility
+          rating: user.rating || 0,
+        }));
+        allUsers = [...allUsers, ...normalizedRealUsers];
       } catch (error) {
         console.warn("Could not get real users:", error.message);
       }
