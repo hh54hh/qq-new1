@@ -48,7 +48,7 @@ import SettingsPage from "./SettingsPage";
 import EditProfilePage from "./EditProfilePage";
 import MessagesPage from "./MessagesPage";
 import AdvancedSearchPage from "./AdvancedSearchPage";
-import HomePage from "./HomePage";
+import HomePageSimple from "./HomePageSimple";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -735,7 +735,7 @@ export default function CustomerDashboard({
       if (
         error instanceof Error &&
         (error.message.includes("البيانات موجودة بالفعل") ||
-          error.message.includes("تتابع هذا المستخدم بالفع���") ||
+          error.message.includes("تتابع هذا المستخدم بالفع��") ||
           error.message.includes("Already following") ||
           error.message.includes("409"))
       ) {
@@ -1458,7 +1458,7 @@ export default function CustomerDashboard({
               ) : (
                 <div className="text-center">
                   <span className="text-sm text-muted-foreground">
-                    ل�� يتم تحديد الموقع
+                    لم يتم تحديد الموقع
                   </span>
                   <Button
                     variant="ghost"
