@@ -135,7 +135,7 @@ export default function OptimizedChatPage() {
     }
   }, [messages]);
 
-  // Send message with optimistic UI
+  // Send message with optimistic UI and offline support
   const sendMessage = useCallback(async () => {
     if (!newMessage.trim() || !otherUserId || !user || isSending) return;
 
@@ -156,6 +156,19 @@ export default function OptimizedChatPage() {
       // Update UI immediately
       setMessages((prev) => [...prev, optimisticMessage]);
 
+      // If offline and background sync is ready, queue the message
+      if (!isOnline && isReady) {
+        try {
+          await queueMessage({
+            receiver_id: otherUserId,
+            message: messageText,
+          });
+          console.log("📱 رسالة أضيفت للطابور - سيتم الإرسال عند الاتصال");
+        } catch (error) {
+          console.warn("Failed to queue message:", error);
+        }
+      }
+
       // Scroll to bottom
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -167,7 +180,15 @@ export default function OptimizedChatPage() {
     } finally {
       setIsSending(false);
     }
-  }, [newMessage, otherUserId, user, isSending]);
+  }, [
+    newMessage,
+    otherUserId,
+    user,
+    isSending,
+    isOnline,
+    isReady,
+    queueMessage,
+  ]);
 
   // Load older messages (lazy loading)
   const loadOlderMessages = useCallback(async () => {
@@ -464,7 +485,7 @@ export default function OptimizedChatPage() {
         {/* Offline indicator */}
         {!isOnline && (
           <div className="mt-2 text-xs text-orange-600 text-center">
-            وضع أوفلاين - سيتم إرسال الرسائل عند الاتصال
+            وضع أوفلاين - سي��م إرسال الرسائل عند الاتصال
           </div>
         )}
       </div>
