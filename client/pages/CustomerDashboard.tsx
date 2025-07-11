@@ -85,6 +85,53 @@ export default function CustomerDashboard({
   const [showSkeletons, setShowSkeletons] = useState(false);
   const updateTimeoutRef = useRef<NodeJS.Timeout>();
 
+  // Ultra-fast barber loading (<50ms response time)
+  const loadBarbersUltraFast = async () => {
+    const startTime = performance.now();
+    console.log("ULTRA-FAST barber loading initiated for user:", user?.id);
+
+    if (!user?.id) {
+      console.log("No user ID, skipping barbers load");
+      return;
+    }
+
+    try {
+      // Get ultra-fast cache manager
+      const ultraCache = await getUltraFastBarberCache(user.id);
+
+      // Get instant data (memory/indexeddb/skeletons)
+      const { barbers, source, loadTime } =
+        await ultraCache.getInstantBarbers();
+
+      console.log(`ULTRA-FAST load: ${loadTime.toFixed(1)}ms from ${source}`);
+
+      // Show data immediately regardless of source
+      setAllBarbers(barbers);
+      setFilteredBarbers(barbers);
+      setBarbersFromCache(source !== "skeleton");
+      setShowSkeletons(source === "skeleton");
+      setBarbersLoading(source === "skeleton");
+
+      const totalTime = performance.now() - startTime;
+      console.log(`TOTAL UI update time: ${totalTime.toFixed(1)}ms`);
+
+      // If showing skeletons, expect real data soon
+      if (source === "skeleton") {
+        console.log("Skeletons shown, awaiting real data...");
+      } else {
+        console.log(`Real data displayed (${barbers.length} barbers)`);
+      }
+    } catch (error) {
+      console.error("Ultra-fast loading failed:", error);
+
+      // Immediate fallback - no delays
+      setBarbersLoading(false);
+      setShowSkeletons(false);
+      setAllBarbers([]);
+      setFilteredBarbers([]);
+    }
+  };
+
   // Explore page state
   const [exploreSearchQuery, setExploreSearchQuery] = useState("");
   const [exploreSortBy, setExploreSortBy] = useState("newest");
@@ -851,7 +898,7 @@ export default function CustomerDashboard({
       case "rejected":
         return "مرفوض";
       case "cancelled":
-        return "ملغي";
+        return "ملغ��";
       default:
         return status;
     }
@@ -1556,7 +1603,7 @@ export default function CustomerDashboard({
                 سنعرض لك الحلاقين ا��متاحين في منطقت�� قريباً
               </p>
               <Button className="bg-primary hover:bg-primary/90">
-                تحديث الموقع
+                تح��يث الموقع
               </Button>
             </CardContent>
           </Card>
