@@ -1339,24 +1339,9 @@ export default function CustomerDashboard({
             </Button>
           </div>
 
-          {/* Loading State */}
-          {state.isLoading && (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <Card key={i} className="border-border/50 bg-card/50">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 bg-muted rounded-full animate-pulse" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-muted rounded animate-pulse" />
-                        <div className="h-3 bg-muted rounded w-3/4 animate-pulse" />
-                      </div>
-                      <div className="h-8 w-16 bg-muted rounded animate-pulse" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          {/* Smart Loading State */}
+          {(showSkeletons || (barbersLoading && allBarbers.length === 0)) && (
+            <BarberSkeletonGrid count={6} variant="default" />
           )}
 
           {/* No Barbers Message */}
