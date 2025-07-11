@@ -787,7 +787,14 @@ export default function InstagramNewsFeed({
 
                 {/* Likes Count */}
                 <p className="font-semibold text-xs sm:text-sm mb-1">
-                  {post.likes} إعجاب
+                  <span
+                    className={cn(
+                      "transition-colors duration-200",
+                      post.isLiked ? "text-yellow-600" : "text-foreground",
+                    )}
+                  >
+                    {post.likes} إعجاب
+                  </span>
                 </p>
 
                 {/* Caption */}
@@ -801,13 +808,21 @@ export default function InstagramNewsFeed({
                 )}
 
                 {/* Comments */}
-                {post.comments_count > 0 && (
+                {post.comments_count > 0 ? (
                   <Button
                     variant="ghost"
-                    className="p-0 h-auto text-muted-foreground text-xs sm:text-sm mt-1"
+                    className="p-0 h-auto text-muted-foreground text-xs sm:text-sm mt-1 hover:text-foreground"
                     onClick={() => handleCommentsClick(post)}
                   >
                     عرض جميع التعليقات ({post.comments_count})
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="p-0 h-auto text-muted-foreground text-xs sm:text-sm mt-1 hover:text-foreground"
+                    onClick={() => handleCommentsClick(post)}
+                  >
+                    أضف تعليقاً
                   </Button>
                 )}
               </div>
@@ -821,7 +836,7 @@ export default function InstagramNewsFeed({
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium shadow-lg z-50 animate-fade-in">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 border-2 border-primary-foreground rounded-full animate-spin border-t-transparent"></div>
-            {isManualRefresh ? "جاري ا��تحديث..." : "تحديث تلقائي..."}
+            {isManualRefresh ? "جاري التحديث..." : "تحديث تلقائي..."}
           </div>
         </div>
       )}
