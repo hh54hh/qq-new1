@@ -109,7 +109,7 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
 const AppContent = () => {
   const [state, store] = useAppStore();
   const routerLocation = useRouterLocation();
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("homepage");
 
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
