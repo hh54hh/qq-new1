@@ -58,6 +58,9 @@ export default function LocationPermissionDialog({
   };
 
   const handleSkip = () => {
+    // حفظ أن المستخدم رفض أو تخطى طلب الموقع
+    localStorage.setItem("location_permission_requested", "true");
+    localStorage.setItem("location_permission_denied", "true");
     onOpenChange(false);
     onComplete?.(false);
   };
