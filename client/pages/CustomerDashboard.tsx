@@ -38,6 +38,7 @@ import apiClient from "@/lib/api";
 import { getBarberCache, CachedBarber } from "@/lib/barber-cache";
 import { getUltraFastBarberCache } from "@/lib/ultra-fast-barber-cache";
 import { BarberSkeletonGrid } from "@/components/BarberSkeleton";
+import { UltraFastSkeletonGrid } from "@/components/UltraFastSkeleton";
 import BookingPage from "./BookingPage";
 
 import UserProfile from "./UserProfile";
@@ -1552,7 +1553,7 @@ export default function CustomerDashboard({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-semibold text-foreground">
-                اقتراحات مميز��
+                اقتراحات مميزة
               </h3>
               <Badge variant="outline" className="text-xs">
                 جديد
@@ -1743,8 +1744,8 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
-              : "لا تو��د منشورات مميزة متا��ة حالياً"}
+              ? "جر�� البحث بكلمة أخرى من المنشورات ��ل����يزة"
+              : "لا توجد منشورات مميزة متا��ة حالياً"}
           </p>
         </div>
       )}
@@ -1880,7 +1881,7 @@ export default function CustomerDashboard({
             <CardContent className="p-8 text-center">
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                لا ��وجد حجوزات
+                لا ��وجد حجوز��ت
               </h3>
               <p className="text-muted-foreground mb-4">
                 احجز موعدك الأ��ل مع أحد الحل��قين
