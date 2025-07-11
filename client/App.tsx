@@ -159,7 +159,8 @@ const AppContent = () => {
     if (
       state.user &&
       state.user.role === "customer" &&
-      !isPermissionRequested()
+      !isPermissionRequested() &&
+      !localStorage.getItem("location_permission_denied")
     ) {
       setShowLocationDialog(true);
     }
