@@ -113,9 +113,27 @@ class PostsCacheManager {
       const postsResponse = await apiClient.getPosts();
       const allPosts = postsResponse.posts || [];
 
-      // Get users for author info
-      const usersResponse = await apiClient.getBarbers();
-      const users = usersResponse.barbers || [];
+      // Get users for author info from multiple sources
+      const [barbersResponse, allUsersResponse] = await Promise.all([
+        apiClient.getBarbers().catch(() => ({ barbers: [] })),
+        apiClient.getAllUsers().catch(() => ({ users: [] })),
+      ]);
+
+      // Combine all users
+      const allUsers = [
+        ...(barbersResponse.barbers || []),
+        ...(allUsersResponse.users || []),
+      ];
+
+      // Remove duplicates
+      const users = allUsers.filter(
+        (user, index, self) =>
+          index === self.findIndex((u) => u.id === user.id),
+      );
+
+      console.log(
+        `📊 Found ${users.length} total users (${barbersResponse.barbers?.length || 0} barbers + ${allUsersResponse.users?.length || 0} other users)`,
+      );
 
       // Create user lookup
       const userMap = new Map();
