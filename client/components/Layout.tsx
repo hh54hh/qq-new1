@@ -222,7 +222,13 @@ export default function Layout({
             return (
               <button
                 key={item.id}
-                onClick={() => onTabChange(item.id)}
+                onClick={() => {
+                  if (item.id === "homepage") {
+                    handleHomepageIconTap();
+                  } else {
+                    onTabChange(item.id);
+                  }
+                }}
                 className={cn(
                   "relative flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-all duration-200 min-w-[50px] sm:min-w-[60px]",
                   isActive
