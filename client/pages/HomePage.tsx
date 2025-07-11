@@ -195,9 +195,15 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
       const followingIds =
         followingResponse.follows?.map((f: any) => f.following_id) || [];
 
-      // Get all users from barbers endpoint (includes customers too)
+      // Get all users from barbers endpoint (includes customers too, despite the name)
       const barbersResponse = await apiClient.getBarbers();
       const allUsers = barbersResponse.barbers || [];
+
+      console.log(
+        "All users received:",
+        allUsers.length,
+        allUsers.map((u) => ({ id: u.id, name: u.name, role: u.role })),
+      );
 
       // Filter suggestions: exclude self and already followed users
       const suggestions = allUsers.filter(
@@ -206,9 +212,19 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
           !followingIds.includes(suggestedUser.id),
       );
 
-      // Prioritize barbers and high-level users
+      console.log(
+        "Filtered suggestions:",
+        suggestions.length,
+        suggestions.map((u) => ({ id: u.id, name: u.name, role: u.role })),
+      );
+
+      // Prioritize by activity and level (include all roles)
       suggestions.sort((a: any, b: any) => {
-        // Barbers first
+        // Verified users first
+        if (a.is_verified && !b.is_verified) return -1;
+        if (b.is_verified && !a.is_verified) return 1;
+
+        // Barbers second (but don't exclude others)
         if (a.role === "barber" && b.role !== "barber") return -1;
         if (b.role === "barber" && a.role !== "barber") return 1;
 
@@ -801,7 +817,7 @@ export default function HomePage({ user, onUserClick }: HomePageProps) {
                   <div className="text-center py-6 text-muted-foreground">
                     <MessageCircle className="w-8 h-8 mx-auto mb-2" />
                     <p>لا توجد تعليقات حتى الآن</p>
-                    <p className="text-xs">ك�� أول من يعلق على هذا المنشور</p>
+                    <p className="text-xs">كن أول من يعلق على هذا المنشور</p>
                   </div>
                 </div>
               </div>
