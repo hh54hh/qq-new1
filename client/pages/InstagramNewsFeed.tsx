@@ -12,7 +12,16 @@ import {
   Camera,
   Plus,
   Search,
+  X,
+  ArrowLeft,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { User } from "@shared/api";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
@@ -819,6 +828,131 @@ export default function InstagramNewsFeed({
 
       {/* Safe area bottom for mobile */}
       <div className="safe-area-bottom"></div>
+
+      {/* Comments Modal */}
+      <Dialog open={showComments} onOpenChange={setShowComments}>
+        <DialogContent className="max-w-md mx-auto h-[80vh] p-0">
+          <DialogHeader className="p-4 border-b">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowComments(false)}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <DialogTitle>التعليقات</DialogTitle>
+              <div className="w-10" /> {/* Spacer */}
+            </div>
+          </DialogHeader>
+
+          {selectedPost && (
+            <div className="flex flex-col h-full">
+              {/* Post Header in Modal */}
+              <div className="p-4 border-b">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage
+                      src={selectedPost.author.avatar_url || "/placeholder.svg"}
+                    />
+                    <AvatarFallback>
+                      {selectedPost.author.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-sm">
+                      {selectedPost.author.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatTimeAgo(selectedPost.created_at)}
+                    </p>
+                  </div>
+                </div>
+                {selectedPost.caption && (
+                  <p className="text-sm mt-2">{selectedPost.caption}</p>
+                )}
+              </div>
+
+              {/* Comments List */}
+              <ScrollArea className="flex-1 p-4">
+                <div className="space-y-4">
+                  {commentsData[selectedPost.id]?.length ? (
+                    commentsData[selectedPost.id].map((comment: any) => (
+                      <div key={comment.id} className="flex gap-3">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage
+                            src={comment.user?.avatar_url || "/placeholder.svg"}
+                          />
+                          <AvatarFallback>
+                            {comment.user?.name?.charAt(0) || "؟"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-start gap-2">
+                            <span className="font-semibold text-sm">
+                              {comment.user?.name || "مجهول"}
+                            </span>
+                            <span className="text-sm">{comment.comment}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {formatTimeAgo(comment.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <MessageCircle className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                      <p className="text-muted-foreground">
+                        لا توجد تعليقات بعد
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        كن أول من يعلق!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+
+              {/* Comment Input */}
+              <div className="p-4 border-t">
+                <div className="flex gap-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={user.avatar_url} />
+                    <AvatarFallback>{user.name?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 flex gap-2">
+                    <Input
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="أضف تعليقاً..."
+                      className="flex-1"
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSubmitComment(selectedPost.id);
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={() => handleSubmitComment(selectedPost.id)}
+                      disabled={!newComment.trim() || isSubmittingComment}
+                      size="sm"
+                      className="px-3"
+                    >
+                      {isSubmittingComment ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
