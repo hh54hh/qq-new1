@@ -129,7 +129,7 @@ export default function Auth({ onAuth }: AuthProps) {
             break;
           case "INVALID_PASSWORD":
             errorMessage = "كلمة المرور غير صحيحة";
-            errorDetails = "تأكد من كتابة كلمة المرور الصحيحة";
+            errorDetails = "تأكد من كتابة كلمة ال��رور الصحيحة";
             break;
           case "ACCOUNT_BLOCKED":
             errorMessage = "تم حظر الحساب";
@@ -522,27 +522,70 @@ export default function Auth({ onAuth }: AuthProps) {
 
                     {registerData.role === "barber" && (
                       <div className="space-y-2">
-                        <Label htmlFor="activation-key">مفتاح التفعيل</Label>
-                        <Input
-                          id="activation-key"
-                          type="text"
-                          value={registerData.activation_key}
-                          onChange={(e) =>
+                        <Label htmlFor="service-category">فئة الخدمة</Label>
+                        <Select
+                          value={registerData.service_category || ""}
+                          onValueChange={(value: ServiceCategory) =>
                             setRegisterData((prev) => ({
                               ...prev,
-                              activation_key: e.target.value,
+                              service_category: value,
                             }))
                           }
-                          placeholder="أدخل مفتاح التفعيل المقدم من الإدارة"
-                          required
-                          className="text-right"
-                        />
+                        >
+                          <SelectTrigger className="text-right">
+                            <SelectValue placeholder="اختر فئة الخدمة" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getAllServiceCategories().map((category) => {
+                              const config = getServiceCategoryConfig(
+                                category.id,
+                              );
+                              return (
+                                <SelectItem
+                                  key={category.id}
+                                  value={category.id}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">
+                                      {config.icon}
+                                    </span>
+                                    <span>{config.nameAr}</span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
                         <p className="text-xs text-muted-foreground">
-                          للحصول على مفتاح التفعيل، تواصل مع الإدارة على
-                          WhatsApp: 07800657822
+                          اختر نوع الخدمة التي تقدمها
                         </p>
                       </div>
                     )}
+
+                    {registerData.role === "barber" &&
+                      registerData.service_category === "barber" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="activation-key">مفتاح التفعيل</Label>
+                          <Input
+                            id="activation-key"
+                            type="text"
+                            value={registerData.activation_key}
+                            onChange={(e) =>
+                              setRegisterData((prev) => ({
+                                ...prev,
+                                activation_key: e.target.value,
+                              }))
+                            }
+                            placeholder="أدخل مفتاح التفعيل المقدم من الإدارة"
+                            required
+                            className="text-right"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            للحصول على مفتاح التفعيل، تواصل مع الإدارة على
+                            WhatsApp: 07800657822
+                          </p>
+                        </div>
+                      )}
 
                     {error && (
                       <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md border border-destructive/20">
