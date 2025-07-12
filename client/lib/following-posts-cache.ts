@@ -102,6 +102,20 @@ class FollowingPostsCacheManager {
         }),
       );
 
+      // Ensure posts are sorted by created_at descending (newest first)
+      postsWithCache.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+
+      console.log(
+        "✅ Posts sorted by date, first 3:",
+        postsWithCache.slice(0, 3).map((p) => ({
+          user: p.user?.name,
+          date: p.created_at.substring(0, 19),
+        })),
+      );
+
       // Save to cache
       this.savePosts(postsWithCache);
 
