@@ -237,6 +237,7 @@ const AppContent = () => {
 
   // Show loading while checking authentication
   if (isAuthLoading) {
+    console.log("🔄 Auth loading...");
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -249,8 +250,16 @@ const AppContent = () => {
 
   // Redirect to login if not authenticated
   if (!state.user) {
+    console.log("❌ No user found, redirecting to auth");
     return <Navigate to="/auth" replace />;
   }
+
+  console.log(
+    "✅ User authenticated:",
+    state.user.name,
+    "Role:",
+    state.user.role,
+  );
 
   return (
     <>
