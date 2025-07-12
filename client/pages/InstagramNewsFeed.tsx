@@ -256,9 +256,12 @@ export default function InstagramNewsFeed({
     >
       {/* Debug Info in Dev Mode */}
       {import.meta.env.DEV && (
-        <div className="p-2 bg-blue-100 text-blue-800 text-xs border-b">
+        <div
+          className="p-2 bg-blue-100 text-blue-800 text-xs border-b"
+          style={{ backgroundColor: "#dbeafe", color: "#1e40af" }}
+        >
           🔍 Debug: Posts={posts.length}, Loading={loading ? "YES" : "NO"},
-          User={user?.name}
+          User={user?.name}, Error={error || "none"}
         </div>
       )}
 
