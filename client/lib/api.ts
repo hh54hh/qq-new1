@@ -302,7 +302,7 @@ class ApiClient {
               break;
             case 404:
               errorMessage =
-                "خ��مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
+                "خ��مة API ��ير متوف����ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
@@ -396,7 +396,7 @@ class ApiClient {
           timestamp: new Date().toISOString(),
         });
 
-        let networkErrorMessage = "خطأ في الاتصال بالخادم";
+        let networkErrorMessage = "خطأ في ��لاتصال بالخادم";
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
 
         if (error.message.includes("Failed to fetch")) {
@@ -987,10 +987,8 @@ class ApiClient {
     return this.request<{ users: User[] }>("/admin/users");
   }
 
-      async getUserLikes(): Promise<{ liked_posts: string[] }> {
+  async getUserLikes(): Promise<{ liked_posts: string[] }> {
     return this.request<{ liked_posts: string[] }>("/posts/likes/user");
-  }
-    }
   }
 
   // Ratings
