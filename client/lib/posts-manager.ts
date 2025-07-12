@@ -54,16 +54,19 @@ class PostsManager {
       // Always load from cache first for instant display
       const cachedPosts = await this.cache.getPostsPage(page, this.pageSize);
 
+      // Remove any potential duplicates from cache
+      const uniquePosts = this.removeDuplicatePosts(cachedPosts);
+
       const result: PostsResult = {
-        posts: cachedPosts,
-        hasMore: cachedPosts.length === this.pageSize,
+        posts: uniquePosts,
+        hasMore: uniquePosts.length === this.pageSize,
         newPostsCount: 0,
         isFromCache: true,
       };
 
       const loadTime = Date.now() - startTime;
       console.log(
-        `⚡ Cache loaded in ${loadTime}ms: ${cachedPosts.length} posts`,
+        `⚡ Cache loaded in ${loadTime}ms: ${uniquePosts.length} posts`,
       );
 
       // If online and (force refresh or first page), fetch updates in background
@@ -82,6 +85,28 @@ class PostsManager {
         isFromCache: false,
       };
     }
+  }
+
+  // Remove duplicate posts
+  private removeDuplicatePosts(posts: CachedPost[]): CachedPost[] {
+    const seenIds = new Set<string>();
+    const uniquePosts = posts.filter((post) => {
+      const key = `${post.id}-${post.created_at}`;
+      if (seenIds.has(key)) {
+        console.warn("🚨 Duplicate post detected in manager:", post.id);
+        return false;
+      }
+      seenIds.add(key);
+      return true;
+    });
+
+    if (uniquePosts.length !== posts.length) {
+      console.log(
+        `🧹 Manager removed ${posts.length - uniquePosts.length} duplicate posts`,
+      );
+    }
+
+    return uniquePosts;
   }
 
   // Fetch updates from API in background
