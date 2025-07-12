@@ -293,7 +293,7 @@ export default function InstagramNewsFeed({
           className="p-2 bg-blue-100 text-blue-800 text-xs border-b"
           style={{ backgroundColor: "#dbeafe", color: "#1e40af" }}
         >
-          🔍 Debug: Posts={posts.length}, Loading={loading ? "YES" : "NO"},
+          ��� Debug: Posts={posts.length}, Loading={loading ? "YES" : "NO"},
           User={user?.name}, Error={error || "none"}
         </div>
       )}
@@ -373,18 +373,32 @@ export default function InstagramNewsFeed({
             <p className="text-muted-foreground mb-4">
               لا يوجد منشورات من الأشخاص الذين تتابعهم، أو لم تتابع أحداً بعد
             </p>
-            <Button
-              onClick={() => {
-                // Navigate to explore tab
-                const event = new CustomEvent("tabChange", {
-                  detail: "search",
-                });
-                window.dispatchEvent(event);
-              }}
-              className="bg-primary text-primary-foreground"
-            >
-              استكشف الحلاقين
-            </Button>
+            <div className="mb-4 p-3 bg-muted/20 rounded-lg text-sm text-muted-foreground">
+              <p className="mb-2">🔄 للتحديث:</p>
+              <p>• انقر مرتين على أيقونة الرئيسية</p>
+              <p>• اسحب للأسفل من أعلى الصفحة</p>
+              <p>• اخرج من التطبيق لـ 30 ثانية</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleRefresh}
+                className="bg-primary text-primary-foreground"
+              >
+                تحديث الآن
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // Navigate to explore tab
+                  const event = new CustomEvent("tabChange", {
+                    detail: "search",
+                  });
+                  window.dispatchEvent(event);
+                }}
+              >
+                استكشف الحلاقين
+              </Button>
+            </div>
           </div>
         ) : (
           posts.map((post) => (
