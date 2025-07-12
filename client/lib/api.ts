@@ -86,7 +86,7 @@ class ApiClient {
       return;
     }
 
-    // للبيئات الأخرى، اختبر ال����سارات المختلفة
+    // للبيئات الأخرى، اختبر ا������سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -370,7 +370,7 @@ class ApiClient {
       });
       return data;
     } catch (error) {
-      // تنظيف timeout ��ي حالة الخطأ
+      // تنظ��ف timeout ��ي حالة الخطأ
       if (timeoutId) clearTimeout(timeoutId);
 
       // Handle AbortError (timeout or cancellation)
@@ -987,38 +987,9 @@ class ApiClient {
     return this.request<{ users: User[] }>("/admin/users");
   }
 
-  // Post Likes
-  async likePost(postId: string): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(`/posts/${postId}/like`, {
-      method: "POST",
-    });
-  }
-
-  async unlikePost(postId: string): Promise<void> {
-    return this.request<void>(`/posts/${postId}/like`, {
-      method: "DELETE",
-    });
-  }
-
-  async getUserLikes(): Promise<{ liked_posts: string[] }> {
+    async getUserLikes(): Promise<{ liked_posts: string[] }> {
     return this.request<{ liked_posts: string[] }>("/posts/likes/user");
   }
-
-  // Post Comments
-  async getPostComments(
-    postId: string,
-  ): Promise<{ comments: any[]; total: number }> {
-    try {
-      return await this.request<{ comments: any[]; total: number }>(
-        `/posts/${postId}/comments`,
-      );
-    } catch (error) {
-      console.warn("Comments endpoint not available, returning empty array");
-      return { comments: [], total: 0 };
-    }
-  }
-
-  async createPostComment(postId: string, comment: string): Promise<any> {
     try {
       return await this.request<any>(`/posts/${postId}/comments`, {
         method: "POST",
