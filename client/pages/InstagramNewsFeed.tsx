@@ -598,8 +598,8 @@ export default function InstagramNewsFeed({
                   عرض جميع ا��تعليقات
                 </button>
               </div>
-            </article>
-                    ))
+                        </article>
+          ))
         ) : (
           // Only show empty state if user truly doesn't follow anyone AND we're initialized
           isFollowingAnyone === false && hasInitialized ? (
@@ -609,7 +609,7 @@ export default function InstagramNewsFeed({
                   <span className="text-3xl">👥</span>
                 </div>
                 <h3 className="text-xl font-medium text-foreground mb-2">
-                  ابدأ متابعة الحلاقين
+                  ابد�� متابعة الحلاقين
                 </h3>
                 <p className="text-muted-foreground">
                   اكتشف حلاقين جدد وتابع أعمالهم لترى منشوراتهم هنا
