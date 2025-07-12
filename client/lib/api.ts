@@ -92,12 +92,14 @@ class ApiClient {
     for (const path of possiblePaths) {
       try {
         const testUrl = window.location.origin + path + "/ping";
-        console.log(`⏳ ��ختبار: ${testUrl}`);
+        console.log(`⏳ ��خت��ار: ${testUrl}`);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
           console.log(`⏰ انتهت مهلة الاخت��ار لـ ${path} (5 ثواني)`);
-          controller.abort();
+          if (!controller.signal.aborted) {
+            controller.abort("API verification timeout");
+          }
         }, 5000);
 
         const response = await fetch(testUrl, {
@@ -283,7 +285,8 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكت��وني ��و ��لمة المرور ��ير صحيحة";
+                errorMessage =
+                  "البريد الإلكت��وني ���و ��لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -307,7 +310,7 @@ class ApiClient {
                 "����مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
-                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
+                "يبدو أن هناك مشكلة في إعدادا�� الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
               errorMessage = "ا��بي��نات موجودة بالفعل ف�� النظام";
@@ -474,7 +477,7 @@ class ApiClient {
       });
 
       const unexpectedError = new Error(
-        "حدث خطأ غير متوقع، يرجى المحا��لة مرة أخرى",
+        "حدث خطأ غير متوق��، يرجى المحا��لة مرة أخرى",
       ) as any;
       unexpectedError.errorType = "UNEXPECTED_ERROR";
       unexpectedError.originalError =
