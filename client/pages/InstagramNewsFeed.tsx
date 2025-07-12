@@ -124,11 +124,18 @@ export default function InstagramNewsFeed({
       console.log("⚡ Cached posts loaded:", cachedPosts.length);
       setPosts(cachedPosts);
 
-      // If no cached posts, still show empty state (no automatic API call)
+      // If no cached posts, check if user follows anyone (for better UX)
       if (cachedPosts.length === 0) {
-        console.log(
-          "💭 No cached posts found, showing empty state (manual refresh required)",
-        );
+        console.log("💭 No cached posts found, checking following status...");
+        try {
+          const { default: apiClient } = await import("../lib/api");
+          const followingResponse = await apiClient.getFollows("following");
+          setIsFollowingAnyone(followingResponse.total > 0);
+          console.log(`👥 User follows ${followingResponse.total} people`);
+        } catch (error) {
+          console.error("❌ Error checking following status:", error);
+          setIsFollowingAnyone(null);
+        }
       }
     } catch (error) {
       console.error("❌ Error loading cached posts:", error);
@@ -555,7 +562,7 @@ export default function InstagramNewsFeed({
 
                 {/* Comments */}
                 <button className="text-sm text-muted-foreground mt-2">
-                  عرض جميع التع��يقات
+                  عرض جميع التعليقات
                 </button>
               </div>
             </article>
