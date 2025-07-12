@@ -32,7 +32,7 @@ class FollowingPostsCacheManager {
   // Get cached posts ultra-fast (<50ms)
   async getPostsUltraFast(): Promise<CachedFollowingPost[]> {
     const startTime = performance.now();
-    console.log("🚀 Getting posts ultra-fast for user:", this.userId);
+    console.log("�� Getting posts ultra-fast for user:", this.userId);
 
     try {
       const cached = this.getCachedPosts();
@@ -178,36 +178,151 @@ class FollowingPostsCacheManager {
     }
   }
 
-  // Save posts to cache with smart trimming
+  // Save posts to cache with smart trimming and quota management
   private savePosts(posts: CachedFollowingPost[]): void {
     try {
-      // Smart caching: Keep only the most recent posts
+      // Smart caching: Keep only the most recent posts and minimize data
       let postsToSave = [...posts];
 
-      // If we have too many posts, trim to keep newest ones
-      if (postsToSave.length > this.maxPostsToStore) {
-        // Sort by created_at to ensure newest are first
-        postsToSave.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        );
-        // Keep only the most recent posts
-        postsToSave = postsToSave.slice(0, this.minPostsToKeep);
-        console.log(
-          `🗂️ Trimmed cache from ${posts.length} to ${postsToSave.length} posts (keeping newest)`,
-        );
-      }
+      // Always trim to reasonable size (reduce from 50 to 8 posts max)
+      postsToSave.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+      postsToSave = postsToSave.slice(0, 8); // Keep only 8 most recent
+
+      // Minimize data size by removing unnecessary fields
+      const optimizedPosts = postsToSave.map((post) => ({
+        id: post.id,
+        user_id: post.user_id,
+        image_url: post.image_url,
+        caption: post.caption?.substring(0, 200) || "", // Limit caption length
+        likes: post.likes,
+        created_at: post.created_at,
+        cached_at: post.cached_at,
+        is_liked: post.is_liked,
+        user: post.user
+          ? {
+              id: post.user.id,
+              name: post.user.name,
+              avatar_url: post.user.avatar_url,
+              role: post.user.role,
+            }
+          : undefined,
+      }));
 
       const cacheData: FollowingPostsCache = {
-        posts: postsToSave,
+        posts: optimizedPosts as CachedFollowingPost[],
         lastUpdated: new Date().toISOString(),
         userId: this.userId,
       };
 
-      localStorage.setItem(this.cacheKey, JSON.stringify(cacheData));
-      console.log("💾 Following posts cached:", postsToSave.length, "posts");
+      const dataToStore = JSON.stringify(cacheData);
+
+      // Check data size before storing
+      const dataSize = new Blob([dataToStore]).size;
+      console.log(`📊 Cache data size: ${Math.round(dataSize / 1024)}KB`);
+
+      localStorage.setItem(this.cacheKey, dataToStore);
+      console.log("💾 Following posts cached:", optimizedPosts.length, "posts");
     } catch (error) {
-      console.error("❌ Cache save error:", error);
+      if (error.name === "QuotaExceededError") {
+        console.warn("🚨 localStorage quota exceeded, cleaning up...");
+        this.handleQuotaExceeded(posts);
+      } else {
+        console.error("❌ Cache save error:", error);
+      }
+    }
+  }
+
+  // Handle quota exceeded by aggressive cleanup
+  private handleQuotaExceeded(posts: CachedFollowingPost[]): void {
+    try {
+      // Clear all old cache data first
+      this.clearAllOldCaches();
+
+      // Try to save only the most essential data (just 3 posts)
+      const essentialPosts = posts
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        )
+        .slice(0, 3)
+        .map((post) => ({
+          id: post.id,
+          user_id: post.user_id,
+          image_url: post.image_url,
+          caption: post.caption?.substring(0, 100) || "",
+          likes: post.likes,
+          created_at: post.created_at,
+          cached_at: new Date().toISOString(),
+          is_liked: false,
+          user: post.user
+            ? {
+                id: post.user.id,
+                name: post.user.name,
+                avatar_url: post.user.avatar_url,
+                role: post.user.role,
+              }
+            : undefined,
+        }));
+
+      const minimalCache = {
+        posts: essentialPosts,
+        lastUpdated: new Date().toISOString(),
+        userId: this.userId,
+      };
+
+      localStorage.setItem(this.cacheKey, JSON.stringify(minimalCache));
+      console.log(
+        "🧹 Emergency cache saved with",
+        essentialPosts.length,
+        "posts",
+      );
+    } catch (secondError) {
+      console.error("❌ Emergency cache save failed:", secondError);
+      // Last resort: clear everything
+      this.clearCache();
+    }
+  }
+
+  // Clear all old cache data from other users or expired data
+  private clearAllOldCaches(): void {
+    try {
+      const keysToRemove: string[] = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          // Remove old cache from other users or expired data
+          if (
+            key.startsWith("following_posts_cache_") &&
+            key !== this.cacheKey
+          ) {
+            keysToRemove.push(key);
+          }
+          // Remove old barber cache
+          if (
+            key.startsWith("barber_cache_") ||
+            key.startsWith("chat_cache_")
+          ) {
+            keysToRemove.push(key);
+          }
+          // Remove old temporary data
+          if (key.includes("temp_") || key.includes("debug_")) {
+            keysToRemove.push(key);
+          }
+        }
+      }
+
+      keysToRemove.forEach((key) => {
+        localStorage.removeItem(key);
+        console.log("🗑️ Removed old cache:", key);
+      });
+
+      console.log(`🧹 Cleaned up ${keysToRemove.length} old cache entries`);
+    } catch (error) {
+      console.error("❌ Cache cleanup error:", error);
     }
   }
 
