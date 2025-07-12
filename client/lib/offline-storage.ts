@@ -30,6 +30,7 @@ class OfflineStorageManager {
         "messages",
         "users",
         "barbershops",
+        "barbers", // Added missing barbers store
         "services",
         "notifications",
         "posts",
@@ -209,7 +210,7 @@ class OfflineStorageManager {
       // استخدام 0 للبحث عن البيانات غير المتزامنة (synced = false)
       const keyValue = 0;
       if (!this.isValidIndexDBKey(keyValue)) {
-        console.warn("⚠️ Invalid key for IndexedDB:", keyValue);
+        console.warn("��️ Invalid key for IndexedDB:", keyValue);
         resolve([]);
         return;
       }
