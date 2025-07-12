@@ -309,5 +309,4 @@ export function useAppStore(): [AppState, typeof appStore] {
   return [state, appStore];
 }
 
-// Initialize auth on app start
-appStore.initializeAuth();
+// Note: Auth initialization is now handled in App component to avoid React hook issues
