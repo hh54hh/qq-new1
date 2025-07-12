@@ -115,7 +115,7 @@ export default function InstagramNewsFeed({
       setLoading(true);
     }
 
-    console.log("📥 Initial posts load (cache only)...");
+    console.log("��� Initial posts load (cache only)...");
     try {
       const cachedPosts = await cache.current.getPostsUltraFast();
       console.log("⚡ Cached posts loaded:", cachedPosts.length);
@@ -276,7 +276,7 @@ export default function InstagramNewsFeed({
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-white text-lg">جاري تحميل المنشورات...</p>
+            <p className="text-white text-lg">جاري تحميل المنش��رات...</p>
             <p className="text-gray-400 text-sm mt-2">يرجى الانتظار</p>
           </div>
         </div>
@@ -370,38 +370,30 @@ export default function InstagramNewsFeed({
           </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
-            <h3 className="text-lg font-medium text-foreground mb-2">
-              لا توجد منشورات
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              لا يوجد منشورات من الأشخاص الذين تتابعهم، أو لم تتابع أحداً بعد
-            </p>
-            <div className="mb-4 p-3 bg-muted/20 rounded-lg text-sm text-muted-foreground">
-              <p className="mb-2">🔄 للتحديث:</p>
-              <p>• انقر مرتين على أيقونة الرئيسية</p>
-              <p>• اسحب للأسفل من أعلى الصفحة</p>
-              <p>• اخرج من التطبيق لـ 30 ثانية</p>
+            <div className="mb-6">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
+                <span className="text-3xl">👥</span>
+              </div>
+              <h3 className="text-xl font-medium text-foreground mb-2">
+                ابدأ متابعة الحلاقين
+              </h3>
+              <p className="text-muted-foreground">
+                اكتشف حلاق��ن جدد وتابع أعمالهم لترى منشوراتهم هنا
+              </p>
             </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={handleRefresh}
-                className="bg-primary text-primary-foreground"
-              >
-                تحديث الآن
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // Navigate to explore tab
-                  const event = new CustomEvent("tabChange", {
-                    detail: "search",
-                  });
-                  window.dispatchEvent(event);
-                }}
-              >
-                استكشف الحلاقين
-              </Button>
-            </div>
+
+            <Button
+              onClick={() => {
+                // Navigate to explore tab
+                const event = new CustomEvent("tabChange", {
+                  detail: "search",
+                });
+                window.dispatchEvent(event);
+              }}
+              className="bg-primary text-primary-foreground px-8 py-3 text-lg"
+            >
+              🔍 اكتشف الحلاقين
+            </Button>
           </div>
         ) : (
           posts.map((post) => (
