@@ -303,6 +303,12 @@ export const db = {
       const column = type === "followers" ? "followed_id" : "follower_id";
       const selectColumn = type === "followers" ? "follower_id" : "followed_id";
 
+      console.log(`🔍 Getting ${type} for user ${userId}`, {
+        column,
+        selectColumn,
+        type,
+      });
+
       const { data, error } = await supabase
         .from("follows")
         .select(
@@ -314,7 +320,21 @@ export const db = {
         .eq(column, userId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error(`❌ Error getting ${type} for user ${userId}:`, error);
+        throw error;
+      }
+
+      console.log(`✅ Found ${data?.length || 0} ${type} for user ${userId}`, {
+        userIds: data?.map((f) => f[selectColumn]) || [],
+        relationships:
+          data?.map((f) => ({
+            followerId: f.follower_id,
+            followedId: f.followed_id,
+            createdAt: f.created_at,
+          })) || [],
+      });
+
       return data;
     },
 
