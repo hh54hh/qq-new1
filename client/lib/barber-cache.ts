@@ -205,6 +205,13 @@ class BarberCacheManager {
         return;
       }
 
+      // Check database health before sync
+      const isHealthy = await this.storage.isDatabaseHealthy();
+      if (!isHealthy) {
+        console.warn("⚠️ Database unhealthy, skipping background sync");
+        return;
+      }
+
       console.log("🔄 Syncing barbers in background...");
 
       // Get fresh data from API with timeout
