@@ -566,6 +566,53 @@ export default function AdvancedPostsFeed({
           </div>
         )}
 
+                ) : (
+          /* No posts state */
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="mb-6">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
+                <span className="text-3xl">📝</span>
+              </div>
+              <h3 className="text-xl font-medium text-foreground mb-2">
+                لا توجد منشورات بعد
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                تابع بعض الحلاقين لترى منشوراتهم هنا
+              </p>
+            </div>
+
+            <Button
+              onClick={() => {
+                // Navigate to search/explore
+                const event = new CustomEvent("tabChange", { detail: "search" });
+                window.dispatchEvent(event);
+              }}
+              className="bg-primary text-primary-foreground px-8 py-3"
+            >
+              🔍 اكتشف الحلاقين
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleRefresh()}
+              className="mt-3"
+              disabled={refreshing}
+            >
+              {refreshing ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  جاري التحديث...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  تحديث
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
         {/* End of feed */}
         {!hasMore && posts.length > 0 && (
           <div className="text-center py-6 text-muted-foreground text-sm">
