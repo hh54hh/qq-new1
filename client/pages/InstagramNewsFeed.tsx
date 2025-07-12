@@ -294,17 +294,6 @@ export default function InstagramNewsFeed({
       }}
       onTouchStart={handlePullToRefresh}
     >
-      {/* Debug Info in Dev Mode */}
-      {import.meta.env.DEV && (
-        <div
-          className="p-2 bg-blue-100 text-blue-800 text-xs border-b"
-          style={{ backgroundColor: "#dbeafe", color: "#1e40af" }}
-        >
-          🔍 Debug: Posts={posts.length}, Loading={loading ? "YES" : "NO"},
-          User={user?.name}, Error={error || "none"}
-        </div>
-      )}
-
       {/* Stories Section */}
       <div className="sticky top-0 z-10 border-b border-border/20 bg-background/95 backdrop-blur-sm">
         <div className="flex gap-4 p-4 overflow-x-auto scrollbar-hide">
@@ -384,7 +373,7 @@ export default function InstagramNewsFeed({
               <p className="mb-2">🔄 للتحديث:</p>
               <p>• انقر مرتين على أيقونة الرئيسية</p>
               <p>• اسحب للأسفل من أعلى الصفحة</p>
-              <p>• اخرج من التطبيق لـ 30 ثان��ة</p>
+              <p>• اخرج من التطبيق لـ 30 ثانية</p>
             </div>
             <div className="flex gap-2">
               <Button
