@@ -361,7 +361,7 @@ export default function AdvancedPostsFeed({
     <div className="min-h-screen bg-background text-foreground relative">
       {/* New Posts Bar */}
       {showNewPostsBar && (
-        <div className="fixed top-12 left-4 right-4 z-40">
+        <div className="fixed top-4 left-4 right-4 z-40">
           <Button
             onClick={showNewPosts}
             className="w-full bg-primary text-primary-foreground shadow-lg"
