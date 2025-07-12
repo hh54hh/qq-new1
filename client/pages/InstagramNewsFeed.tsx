@@ -34,6 +34,7 @@ export default function InstagramNewsFeed({
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [error, setError] = useState<string | null>(null);
   const cache = useRef(getFollowingPostsCache(user.id));
   const scrollRef = useRef<HTMLDivElement>(null);
 
