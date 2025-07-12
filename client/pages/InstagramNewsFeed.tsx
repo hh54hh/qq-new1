@@ -110,6 +110,11 @@ export default function InstagramNewsFeed({
 
   // Initial load - only loads cached posts, no API calls
   const loadPostsInitial = async () => {
+    // Only show loading if this is the very first time
+    if (!hasInitialized) {
+      setLoading(true);
+    }
+
     console.log("📥 Initial posts load (cache only)...");
     try {
       const cachedPosts = await cache.current.getPostsUltraFast();
@@ -127,6 +132,7 @@ export default function InstagramNewsFeed({
       setPosts([]);
     } finally {
       setLoading(false);
+      setHasInitialized(true);
     }
   };
 
