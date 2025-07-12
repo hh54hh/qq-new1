@@ -289,19 +289,36 @@ class OfflineStorageManager {
       throw new Error("Database not initialized");
     }
 
+    // Check if the object store exists
+    if (!this.db.objectStoreNames.contains(storeName)) {
+      console.warn(
+        `⚠️ Object store '${storeName}' does not exist, skipping clear operation`,
+      );
+      return;
+    }
+
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([storeName], "readwrite");
-      const store = transaction.objectStore(storeName);
-      const request = store.clear();
+      try {
+        const transaction = this.db!.transaction([storeName], "readwrite");
+        const store = transaction.objectStore(storeName);
+        const request = store.clear();
 
-      request.onsuccess = () => {
-        console.log(`🧹 Cleared store: ${storeName}`);
-        resolve();
-      };
+        request.onsuccess = () => {
+          console.log(`🧹 Cleared store: ${storeName}`);
+          resolve();
+        };
 
-      request.onerror = () => {
-        reject(new Error(`Failed to clear store: ${storeName}`));
-      };
+        request.onerror = () => {
+          reject(new Error(`Failed to clear store: ${storeName}`));
+        };
+
+        transaction.onerror = () => {
+          reject(new Error(`Transaction failed for store: ${storeName}`));
+        };
+      } catch (error) {
+        console.error(`❌ Error accessing store '${storeName}':`, error);
+        reject(error);
+      }
     });
   }
 
