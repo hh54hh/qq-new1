@@ -195,8 +195,16 @@ const AppContent = () => {
         const ultraCache = await getUltraFastBarberCache(authenticatedUser.id);
         await ultraCache.preloadOnLogin();
         console.log("✅ Barbers preloaded successfully");
+
+        // Also preload following posts
+        const { getFollowingPostsCache } = await import(
+          "./lib/following-posts-cache"
+        );
+        const postsCache = getFollowingPostsCache(authenticatedUser.id);
+        await postsCache.preloadOnLogin();
+        console.log("✅ Following posts preloaded successfully");
       } catch (error) {
-        console.warn("⚠️ Barber preloading failed:", error);
+        console.warn("⚠️ Preloading failed:", error);
       }
     }
   };
