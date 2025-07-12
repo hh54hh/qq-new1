@@ -56,7 +56,11 @@ export default function ServiceProvidersPage({
   const [showSkeletons, setShowSkeletons] = useState(false);
   const updateTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const { userLocation, isLoadingLocation, requestLocation } = useLocation();
+  const {
+    location: userLocation,
+    isLoading: isLoadingLocation,
+    requestLocation,
+  } = useLocation();
   const categoryConfig = getServiceCategoryConfig(category);
 
   // Ultra-fast provider loading (reusing barber loading logic for now)
@@ -428,7 +432,7 @@ export default function ServiceProvidersPage({
               <p className="text-muted-foreground text-sm">
                 {searchQuery
                   ? `لم نجد أي ${categoryConfig.nameAr} يطابق "${searchQuery}"`
-                  : `سنقوم بإضافة ${categoryConfig.nameAr}ين في هذه المنطقة قريباً`}
+                  : `سنقوم بإضا��ة ${categoryConfig.nameAr}ين في هذه المنطقة قريباً`}
               </p>
               {searchQuery && (
                 <Button
