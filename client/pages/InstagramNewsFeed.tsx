@@ -26,6 +26,8 @@ export default function InstagramNewsFeed({
   user,
   onUserClick,
 }: InstagramNewsFeedProps) {
+  console.log("📱 InstagramNewsFeed mounted for user:", user?.id);
+
   const [posts, setPosts] = useState<CachedFollowingPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -276,7 +278,7 @@ export default function InstagramNewsFeed({
         {posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <h3 className="text-lg font-medium text-foreground mb-2">
-              لا توجد منشورات حتى ��لآن
+              لا توجد منشورات حتى الآن
             </h3>
             <p className="text-muted-foreground mb-4">
               ابدأ بمتابعة الحلاقين لرؤية منشوراتهم هنا
