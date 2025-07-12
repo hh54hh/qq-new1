@@ -42,7 +42,7 @@ const navItems: NavItem[] = [
   },
   {
     id: "home",
-    label: "حلاقتي",
+    label: "الخدمات",
     icon: Home,
     roles: ["customer"],
   },
