@@ -220,7 +220,6 @@ class PostsManager {
         const { default: apiClient } = await import("./api");
 
         const response = await apiClient.createPost({
-          user_id: offlinePost.user_id,
           image_url: offlinePost.image_url,
           caption: offlinePost.caption,
           frame_style: offlinePost.frame_style,
