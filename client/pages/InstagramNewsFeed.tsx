@@ -66,11 +66,18 @@ export default function InstagramNewsFeed({
 
       if (cachedPosts.length === 0) {
         setLoading(true);
-        const freshPosts = await cache.current.refreshFromAPI();
-        setPosts(freshPosts);
+        try {
+          const freshPosts = await cache.current.refreshFromAPI();
+          setPosts(freshPosts);
+        } catch (error) {
+          console.error("Error refreshing from API:", error);
+          // If API fails, keep empty posts array
+          setPosts([]);
+        }
       }
     } catch (error) {
       console.error("Error loading posts:", error);
+      setPosts([]);
     } finally {
       setLoading(false);
     }
