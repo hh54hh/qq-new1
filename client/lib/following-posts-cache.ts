@@ -17,7 +17,9 @@ interface FollowingPostsCache {
 class FollowingPostsCacheManager {
   private userId: string;
   private cacheKey: string;
-  private maxCacheAge = 30 * 60 * 1000; // 30 minutes cache - longer to prevent auto refresh
+  private maxCacheAge = 24 * 60 * 60 * 1000; // 24 hours cache - keep for long time
+  private minPostsToKeep = 10; // Always keep at least 10 posts
+  private maxPostsToStore = 50; // Store up to 50 posts, then trim to 10
   private refreshCallbacks: Array<() => void> = [];
 
   constructor(userId: string) {
