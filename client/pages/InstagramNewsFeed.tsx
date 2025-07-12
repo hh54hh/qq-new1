@@ -281,23 +281,7 @@ export default function InstagramNewsFeed({
     );
   }
 
-  if (loading && posts.length === 0) {
-    return (
-      <div
-        className="min-h-screen"
-        style={{ backgroundColor: "#0a0a0a", color: "#ffffff" }}
-      >
-        {/* Loading indicator */}
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-white text-lg">جاري تحميل المنشورات...</p>
-            <p className="text-gray-400 text-sm mt-2">يرجى الانتظار</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // NEVER show loading screen - always show content or cached posts
 
   console.log("🎨 Rendering InstagramNewsFeed with:", {
     postsCount: posts.length,
@@ -466,7 +450,7 @@ export default function InstagramNewsFeed({
                 <span className="text-2xl">📭</span>
               </div>
               <p className="text-muted-foreground">
-                لا توجد منشورات جديدة حالياً
+                لا توجد منشورات جد��دة حالياً
               </p>
             </div>
           )
@@ -562,7 +546,7 @@ export default function InstagramNewsFeed({
 
                 {/* Comments */}
                 <button className="text-sm text-muted-foreground mt-2">
-                  عرض جميع التعليقات
+                  عرض جميع ا��تعليقات
                 </button>
               </div>
             </article>
