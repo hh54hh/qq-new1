@@ -33,12 +33,21 @@ export default defineConfig(({ mode }) => ({
     minify: mode === "production" ? "esbuild" : false,
     target: "esnext",
   },
-  plugins: [react(), expressPlugin()],
+  plugins: [
+    react({
+      jsxImportSource: "react",
+      include: ["**/*.tsx", "**/*.ts"],
+    }),
+    expressPlugin(),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
       "@shared": path.resolve(__dirname, "./shared"),
     },
+  },
+  optimizeDeps: {
+    include: ["react", "react-dom", "react/jsx-runtime"],
   },
 }));
 
