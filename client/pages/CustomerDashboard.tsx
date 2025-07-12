@@ -50,6 +50,7 @@ import MessagesPage from "./MessagesPage";
 import AdvancedSearchPage from "./AdvancedSearchPage";
 import HomePageSimple from "./HomePageSimple";
 import InstagramNewsFeed from "./InstagramNewsFeed";
+import AdvancedPostsFeed from "./AdvancedPostsFeed";
 import ExplorePageWithTabs from "./ExplorePageWithTabs";
 
 import LocationBar from "@/components/LocationBar";
@@ -182,7 +183,7 @@ export default function CustomerDashboard({
         const followingResponse = await apiClient.getFollows("following");
         const follows = followingResponse.follows || [];
 
-        // تحديث store بب��انات المتابعة
+        // تحديث store بب���انات المتابعة
         store.setFollows(follows);
 
         console.log(`✅ Initialized ${follows.length} follows in store`);
@@ -464,7 +465,7 @@ export default function CustomerDashboard({
         id: "friend_req_2",
         type: "friend_request" as const,
         title: "طلب ص��اقة جديد",
-        message: "محمد العلي ي��يد متابعتك",
+        message: "محمد العلي ي����يد متابعتك",
         data: {
           senderId: "barber_2",
           senderName: "محمد العلي",
@@ -868,7 +869,7 @@ export default function CustomerDashboard({
       const followersData = followersResponse.follows || [];
       const followingData = followingResponse.follows || [];
 
-      // تحم��ل بيانات المستخدمين الكاملة للمتابعين والمتابعين
+      // تحميل بيانات المستخدمين الكاملة للمتابعين والمتابعين
       const [enrichedFollowers, enrichedFollowing] = await Promise.all([
         enrichFollowData(followersData, "follower_id"),
         enrichFollowData(followingData, "followed_id"),
@@ -1587,7 +1588,7 @@ export default function CustomerDashboard({
                 <div className="flex items-center gap-2">
                   <div className="animate-spin h-3 w-3 border border-primary border-t-transparent rounded-full"></div>
                   <span className="text-sm text-primary">
-                    جاري ��حديد الموقع...
+                    جاري ��حدي�� الموقع...
                   </span>
                 </div>
               ) : userLocation ? (
@@ -1861,7 +1862,7 @@ export default function CustomerDashboard({
                 </p>
                 {barbersFromCache && (
                   <div className="text-xs text-muted-foreground">
-                    📱 البيانات المحفوظة متا��ة
+                    📱 البيانات المحفوظة متاحة
                   </div>
                 )}
               </CardContent>
@@ -1947,7 +1948,7 @@ export default function CustomerDashboard({
                 اقتراحات مميزة
               </h3>
               <Badge variant="outline" className="text-xs">
-                ج��يد
+                جديد
               </Badge>
             </div>
 
