@@ -183,7 +183,7 @@ export default function CustomerDashboard({
         const followingResponse = await apiClient.getFollows("following");
         const follows = followingResponse.follows || [];
 
-        // تحديث store بب���انات المتابعة
+        // تحديث store بب��انات المتابعة
         store.setFollows(follows);
 
         console.log(`✅ Initialized ${follows.length} follows in store`);
@@ -465,7 +465,7 @@ export default function CustomerDashboard({
         id: "friend_req_2",
         type: "friend_request" as const,
         title: "طلب ص��اقة جديد",
-        message: "محمد العلي ي����يد متابعتك",
+        message: "محمد العلي ي��يد متابعتك",
         data: {
           senderId: "barber_2",
           senderName: "محمد العلي",
@@ -1588,7 +1588,7 @@ export default function CustomerDashboard({
                 <div className="flex items-center gap-2">
                   <div className="animate-spin h-3 w-3 border border-primary border-t-transparent rounded-full"></div>
                   <span className="text-sm text-primary">
-                    جاري ��حدي�� الموقع...
+                    جاري ��حديد الموقع...
                   </span>
                 </div>
               ) : userLocation ? (
@@ -2136,13 +2136,13 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
+              ? "جر�� البحث بكلمة أخر�� من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حاليا��"}
           </p>
         </div>
       )}
 
-      {/* Modal تفاصيل المنشور */}
+      {/* Modal ت��اصيل المنشور */}
       <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
         <DialogContent className="max-w-md mx-auto">
           {selectedPost && (
@@ -2513,7 +2513,7 @@ export default function CustomerDashboard({
       console.log("📰 Rendering homepage tab with InstagramNewsFeed");
       return (
         <div>
-          <InstagramNewsFeed
+          <AdvancedPostsFeed
             user={user}
             onUserClick={(selectedUser) => {
               setSelectedProfile(selectedUser);
