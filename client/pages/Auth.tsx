@@ -20,6 +20,11 @@ import {
 } from "@/components/ui/select";
 import { Scissors, Sparkles, Crown } from "lucide-react";
 import { UserRole, LoginRequest, RegisterRequest } from "@shared/api";
+import {
+  ServiceCategory,
+  getAllServiceCategories,
+  getServiceCategoryConfig,
+} from "@shared/service-categories";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import LocationPermissionDialog from "@/components/LocationPermissionDialog";
@@ -50,7 +55,8 @@ export default function Auth({ onAuth }: AuthProps) {
     email: "",
     password: "",
     role: "customer",
-    activation_key: "",
+    service_category: undefined,
+    activation_key: "", // Keep for legacy barber support
   });
 
   const validateEmail = (email: string): boolean => {
@@ -226,7 +232,7 @@ export default function Auth({ onAuth }: AuthProps) {
             }
             break;
           case "NAME_TOO_SHORT":
-            errorMessage = "الاسم قصير جداً";
+            errorMessage = "ا��اسم قصير جداً";
             errorDetails = "يجب أن يحتوي الاسم على حرفين على الأقل";
             break;
           case "NAME_TOO_LONG":
@@ -416,7 +422,7 @@ export default function Auth({ onAuth }: AuthProps) {
                   <CardHeader className="pb-4">
                     <CardTitle className="text-xl">إنشاء حساب جديد</CardTitle>
                     <CardDescription>
-                      أنشئ حسابك وابدأ رحلتك معنا
+                      أنشئ ��سابك وابدأ رحلتك معنا
                     </CardDescription>
                   </CardHeader>
 
