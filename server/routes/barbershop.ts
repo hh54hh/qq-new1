@@ -153,7 +153,7 @@ export const createBooking: RequestHandler = async (req, res) => {
       customer_id: userId,
       barber_id: bookingData.barber_id,
       datetime: bookingData.datetime,
-      service_type: "قص شعر", // Default service
+      service_type: "��ص شعر", // Default service
       price: 50, // Default price
       duration_minutes: 30,
       status: "pending",
@@ -316,6 +316,116 @@ export const getPosts: RequestHandler = async (req, res) => {
     res.json({ posts: apiPosts, total: dbPosts.length });
   } catch (error) {
     console.error("Get posts error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// DEBUG: Get detailed follows info
+export const debugFollows: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    console.log("🔍 DEBUG: Getting detailed follows data for user:", userId);
+
+    // Get following
+    const following = await db.follows.getByUser(userId, "following");
+
+    // Get followers
+    const followers = await db.follows.getByUser(userId, "followers");
+
+    // Get raw data from database
+    const { data: rawFollows, error } = await supabase
+      .from("follows")
+      .select("*")
+      .or(`follower_id.eq.${userId},followed_id.eq.${userId}`)
+      .order("created_at", { ascending: false });
+
+    // Get all barbers with posts to suggest following
+    const { data: barbersWithPosts } = await supabase
+      .from("users")
+      .select(
+        `
+        id, name, email, role,
+        posts:posts(count)
+      `,
+      )
+      .eq("role", "barber")
+      .not("id", "eq", userId)
+      .limit(10);
+
+    // Check for users with posts that current user is not following
+    const currentlyFollowing = following?.map((f) => f.followed_id) || [];
+    const suggestedFollows =
+      barbersWithPosts?.filter(
+        (barber) =>
+          !currentlyFollowing.includes(barber.id) &&
+          barber.posts &&
+          barber.posts.length > 0,
+      ) || [];
+
+    const result = {
+      userId,
+      following: {
+        count: following?.length || 0,
+        users:
+          following?.map((f) => ({
+            id: f.followed_id,
+            name: f.user?.name,
+            email: f.user?.email,
+            createdAt: f.created_at,
+          })) || [],
+      },
+      followers: {
+        count: followers?.length || 0,
+        users:
+          followers?.map((f) => ({
+            id: f.follower_id,
+            name: f.user?.name,
+            email: f.user?.email,
+            createdAt: f.created_at,
+          })) || [],
+      },
+      rawFollows: rawFollows || [],
+      suggestedFollows: suggestedFollows.slice(0, 5),
+      error: error?.message || null,
+    };
+
+    console.log("🔍 DEBUG follows result:", JSON.stringify(result, null, 2));
+
+    // If action=fix is provided, automatically follow some barbers for testing
+    if (req.query.action === "fix" && following?.length < 3) {
+      console.log("🔧 Auto-fixing follows for testing...");
+
+      for (const barber of suggestedFollows.slice(0, 3)) {
+        try {
+          await db.follows.create(userId, barber.id);
+          console.log(`✅ Auto-followed ${barber.name} (${barber.id})`);
+        } catch (error) {
+          console.warn(`⚠️ Failed to auto-follow ${barber.name}:`, error);
+        }
+      }
+
+      // Re-fetch the updated data
+      const updatedFollowing = await db.follows.getByUser(userId, "following");
+      result.following = {
+        count: updatedFollowing?.length || 0,
+        users:
+          updatedFollowing?.map((f) => ({
+            id: f.followed_id,
+            name: f.user?.name,
+            email: f.user?.email,
+            createdAt: f.created_at,
+          })) || [],
+      };
+      result.autoFixed = true;
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error("Debug follows error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };

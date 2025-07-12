@@ -92,12 +92,14 @@ class ApiClient {
     for (const path of possiblePaths) {
       try {
         const testUrl = window.location.origin + path + "/ping";
-        console.log(`⏳ ��ختبار: ${testUrl}`);
+        console.log(`⏳ ��خت��ار: ${testUrl}`);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
           console.log(`⏰ انتهت مهلة الاخت��ار لـ ${path} (5 ثواني)`);
-          controller.abort();
+          if (!controller.signal.aborted) {
+            controller.abort("API verification timeout");
+          }
         }, 5000);
 
         const response = await fetch(testUrl, {
@@ -223,7 +225,7 @@ class ApiClient {
     let timeoutId: NodeJS.Timeout | null = null;
 
     try {
-      // استخدام signal المُمرر أو إنشاء جديد مع timeout
+      // استخدام signal المُمرر أو إنشا�� جديد مع timeout
       if (!options.signal) {
         controller = new AbortController();
         timeoutId = setTimeout(() => {
@@ -283,7 +285,8 @@ class ApiClient {
               break;
             case 401:
               if (endpoint.includes("/auth/login")) {
-                errorMessage = "البريد الإلكت��وني ��و ��لمة المرور ��ير صحيحة";
+                errorMessage =
+                  "البريد الإلكت��وني ���و ��لمة المرور ��ير صحيحة";
                 errorType = "LOGIN_FAILED";
                 suggestion =
                   "تأكد من ص��ة البريد وكل��ة المرور، أو أنشئ حساب جديد إذا لم يكن لديك حساب";
@@ -307,7 +310,7 @@ class ApiClient {
                 "����مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
-                "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
+                "يبدو أن هناك مشكلة في إعدادا�� الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
               errorMessage = "ا��بي��نات موجودة بالفعل ف�� النظام";
@@ -448,13 +451,24 @@ class ApiClient {
       }
 
       // Handle unexpected errors
+      console.error("❌ Unexpected API error:", {
+        error: error instanceof Error ? error.message : String(error),
+        type: typeof error,
+        name: error instanceof Error ? error.name : "unknown",
+        stack: error instanceof Error ? error.stack : undefined,
+        endpoint,
+        url,
+      });
+
       const errorMessage =
         error instanceof Error
           ? error.message
           : typeof error === "object"
             ? JSON.stringify(error)
             : String(error);
-      console.error("❌ Unexpected API error:", {
+      console.error("❌ Processed error message:", errorMessage);
+
+      console.error("❌ Additional error details:", {
         message: errorMessage,
         errorDetails: error?.message || error?.toString() || "Unknown error",
         errorType: error?.name || "Unknown",
@@ -463,7 +477,7 @@ class ApiClient {
       });
 
       const unexpectedError = new Error(
-        "حدث خطأ غير متوقع، يرجى المحا��لة مرة أخرى",
+        "حدث خطأ غير متوق��، يرجى المحا��لة مرة أخرى",
       ) as any;
       unexpectedError.errorType = "UNEXPECTED_ERROR";
       unexpectedError.originalError =
@@ -537,7 +551,7 @@ class ApiClient {
           console.error(`❌ فشلت إعادة المحاولة لـ ${endpoint}`);
           if (fallbackData !== undefined) {
             console.log(
-              `🔄 استخدام البيانات الاحتياطية بعد فشل إعادة المحاول��`,
+              `🔄 استخدام البيانات الاحتياط��ة بعد فشل إعادة المحاول��`,
             );
             return fallbackData;
           }
@@ -1292,7 +1306,7 @@ export { ApiClient };
 // Example: import apiClient from './api';
 // Only import { ApiClient } if you need the class itself
 
-// دالة تشخيص س��يعة ��اختبار API
+// دالة تشخيص س����يعة ��اختبار API
 export const diagnoseAPI = async () => {
   console.log("🔧 تشخيص API:", {
     baseUrl: apiClient["baseUrl"],
