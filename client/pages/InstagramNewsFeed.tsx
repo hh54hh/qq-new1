@@ -78,14 +78,21 @@ export default function InstagramNewsFeed({
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         const now = Date.now();
-        if (now - lastAppFocus > 30000) {
+        const awayTime = now - lastAppFocus;
+        console.log(
+          `👁️ App became visible, was away for ${Math.round(awayTime / 1000)} seconds`,
+        );
+
+        if (awayTime > 30000) {
           // 30 seconds
           console.log("🔄 App returned after 30+ seconds, refreshing posts...");
           handleRefresh();
         }
         setLastAppFocus(now);
       } else {
-        setLastAppFocus(Date.now());
+        const now = Date.now();
+        console.log("👁️ App became hidden");
+        setLastAppFocus(now);
       }
     };
 
@@ -293,7 +300,7 @@ export default function InstagramNewsFeed({
           className="p-2 bg-blue-100 text-blue-800 text-xs border-b"
           style={{ backgroundColor: "#dbeafe", color: "#1e40af" }}
         >
-          ��� Debug: Posts={posts.length}, Loading={loading ? "YES" : "NO"},
+          🔍 Debug: Posts={posts.length}, Loading={loading ? "YES" : "NO"},
           User={user?.name}, Error={error || "none"}
         </div>
       )}
@@ -377,7 +384,7 @@ export default function InstagramNewsFeed({
               <p className="mb-2">🔄 للتحديث:</p>
               <p>• انقر مرتين على أيقونة الرئيسية</p>
               <p>• اسحب للأسفل من أعلى الصفحة</p>
-              <p>• اخرج من التطبيق لـ 30 ثانية</p>
+              <p>• اخرج من التطبيق لـ 30 ثان��ة</p>
             </div>
             <div className="flex gap-2">
               <Button
