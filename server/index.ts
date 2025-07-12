@@ -29,6 +29,7 @@ import {
   updateBooking,
   deleteBooking,
   getPosts,
+  getFollowingPosts,
   createPost,
   getFollows,
   createFollow,
