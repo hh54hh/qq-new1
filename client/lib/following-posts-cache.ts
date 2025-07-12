@@ -41,19 +41,16 @@ class FollowingPostsCacheManager {
         cached ? `${cached.posts.length} posts` : "no cache",
       );
 
-      if (cached && this.isCacheValid(cached)) {
+      // ALWAYS return cached posts if they exist, regardless of age
+      if (cached && cached.posts.length > 0) {
         const loadTime = performance.now() - startTime;
         console.log(
-          `⚡ Ultra-fast following posts loaded in ${loadTime.toFixed(1)}ms`,
+          `⚡ Ultra-fast following posts loaded in ${loadTime.toFixed(1)}ms (${cached.posts.length} posts)`,
         );
         return cached.posts;
       }
 
-      console.log(
-        "🔄 No valid cache, but NOT auto-refreshing (manual refresh only)",
-      );
-      // Return empty array but don't trigger automatic refresh
-      // User needs to manually refresh
+      console.log("📭 No cached posts found");
       return [];
     } catch (error) {
       console.error("❌ Ultra-fast cache error:", error);
@@ -149,7 +146,7 @@ class FollowingPostsCacheManager {
       try {
         await this.refreshFromAPI();
       } catch (error) {
-        console.warn("⚠️ Background refresh failed:", error);
+        console.warn("��️ Background refresh failed:", error);
       }
     }, 100); // Small delay to not block UI
   }
