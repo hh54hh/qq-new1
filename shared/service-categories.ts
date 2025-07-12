@@ -31,7 +31,7 @@ export const SERVICE_CATEGORIES: Record<
     icon: "✂️",
     color: "from-amber-500 to-orange-600",
     gradient: "bg-gradient-to-br from-amber-500 to-orange-600",
-    description: "خدمات الحلاقة و��لعناية بالشعر",
+    description: "خدمات الحلاقة والعناية بالشعر",
     fields: {
       profession: "حلاق",
       specialization: "حلاقة كلاسيكية، حلاقة عصرية، تشذيب اللحية",
@@ -45,7 +45,7 @@ export const SERVICE_CATEGORIES: Record<
     icon: "🩺",
     color: "from-blue-500 to-cyan-600",
     gradient: "bg-gradient-to-br from-blue-500 to-cyan-600",
-    description: "الخدمات الطبية والرعاية الصحية",
+    description: "��لخدمات الطبية والرعاية الصحية",
     fields: {
       profession: "طبيب",
       specialization: "طب عام، أسنان، جلدية، أطفال",
@@ -82,7 +82,7 @@ export const SERVICE_CATEGORIES: Record<
   },
   chef: {
     id: "chef",
-    nameAr: "طباخ",
+    nameAr: "ط��اخ",
     nameEn: "Chef",
     icon: "👨‍🍳",
     color: "from-red-500 to-pink-600",
@@ -130,7 +130,7 @@ export const mapUserRoleToServiceCategory = (role: string): ServiceCategory => {
 
 // Get user's display role based on service category
 export const getUserDisplayRole = (
-  user: User,
+  user: any, // User type will be imported where needed
   serviceCategory?: ServiceCategory,
 ): string => {
   // If user has service_category field, use it
