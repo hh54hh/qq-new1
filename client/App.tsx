@@ -1,5 +1,4 @@
 import "./global.css";
-
 import React, { useState, useEffect, Component } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -369,7 +368,7 @@ const App = () => {
 
     // إضافة دالة عالمية لإعادة تعيين الإشعارات
     (window as any).resetNotifications = () => {
-      // إعادة تعيين إشعارات طلبات الصداقة
+      // إعادة تعيين إشعارا�� طلبات الصداقة
       const userId = localStorage.getItem("barbershop_user_id") || "user";
       localStorage.removeItem(`friend_requests_shown_${userId}`);
 
