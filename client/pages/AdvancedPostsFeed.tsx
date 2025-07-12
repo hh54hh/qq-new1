@@ -430,7 +430,7 @@ export default function AdvancedPostsFeed({
         {posts.length > 0 ? (
           posts.map((post, index) => (
             <article
-              key={post.id || `post-${index}`}
+              key={`${post.id}-${index}-${post.created_at}`}
               className="border-b border-border/10 bg-background relative"
             >
               {/* Sync Status Indicator */}
