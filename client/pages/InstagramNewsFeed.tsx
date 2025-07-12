@@ -278,10 +278,10 @@ export default function InstagramNewsFeed({
           </Button>
         </div>
       </div>
-    );
+        );
   }
 
-    // NEVER show loading screen - always show content or cached posts
+  // NEVER show loading screen - always show content or cached posts
 
   console.log("🎨 Rendering InstagramNewsFeed with:", {
     postsCount: posts.length,
