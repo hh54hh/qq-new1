@@ -321,15 +321,16 @@ export const handleRegister: RequestHandler = async (req, res) => {
         email: email.toLowerCase().trim(),
         password_hash,
         role,
+        service_category: role === "barber" ? service_category : undefined,
         status: "active",
         level: 1,
         points: 0,
-        is_verified: role === "customer", // Barbers might need manual verification
+        is_verified: role === "customer", // Service providers might need manual verification
       });
     } catch (createError) {
       console.error("User creation error:", createError);
       return res.status(500).json({
-        error: "خطأ في إنشاء الحساب، يرجى المحاولة مرة أخرى",
+        error: "خطأ في إنشاء الحساب، يرجى المحا��لة مرة أخرى",
         errorType: "USER_CREATION_ERROR",
       });
     }
@@ -404,7 +405,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
         dbError.message?.includes("network")
       ) {
         return res.status(500).json({
-          error: "خطأ في الاتصال بقاعدة البيانات، يرجى المحاولة مرة أخرى",
+          error: "خطأ في الاتصال بقاعدة البيانات، ير��ى المحاولة مرة أخرى",
           errorType: "DATABASE_CONNECTION_ERROR",
         });
       }
