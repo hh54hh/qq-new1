@@ -359,31 +359,6 @@ export default function AdvancedPostsFeed({
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
-      {/* Network Status Bar */}
-      <div
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 p-2 text-center text-sm transition-all duration-300",
-          isOnline
-            ? "bg-green-500/20 text-green-700 translate-y-0"
-            : "bg-red-500/20 text-red-700 translate-y-0",
-          "backdrop-blur-sm",
-        )}
-      >
-        <div className="flex items-center justify-center gap-2">
-          {isOnline ? (
-            <>
-              <Wifi className="h-4 w-4" />
-              <span>متصل</span>
-            </>
-          ) : (
-            <>
-              <WifiOff className="h-4 w-4" />
-              <span>غير متصل - تعمل من الذاكرة المحلية</span>
-            </>
-          )}
-        </div>
-      </div>
-
       {/* New Posts Bar */}
       {showNewPostsBar && (
         <div className="fixed top-12 left-4 right-4 z-40">
