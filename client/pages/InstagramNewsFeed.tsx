@@ -301,15 +301,29 @@ export default function InstagramNewsFeed({
 
       {/* Posts Feed */}
       <div className="pb-20">
-        {posts.length === 0 ? (
+        {loading && posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+            <p className="text-foreground">جاري تحميل المنشورات...</p>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
             <h3 className="text-lg font-medium text-foreground mb-2">
-              لا توجد منش��رات حتى الآن
+              لا توجد منشورات
             </h3>
             <p className="text-muted-foreground mb-4">
-              ابدأ بمتابعة الحلاقين لرؤية منشوراتهم هنا
+              لا يوجد منشورات من الأشخاص الذين تتابعهم، أو لم تتابع أحداً بعد
             </p>
-            <Button onClick={() => (window.location.hash = "#search")}>
+            <Button
+              onClick={() => {
+                // Navigate to explore tab
+                const event = new CustomEvent("tabChange", {
+                  detail: "search",
+                });
+                window.dispatchEvent(event);
+              }}
+              className="bg-primary text-primary-foreground"
+            >
               استكشف الحلاقين
             </Button>
           </div>
