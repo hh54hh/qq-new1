@@ -152,6 +152,22 @@ const AppContent = () => {
 
     initAuth();
 
+    // Refresh posts when user returns to app
+    const handleVisibilityChange = async () => {
+      if (!document.hidden && state.user && state.user.role === "customer") {
+        console.log("📱 App became visible - refreshing posts");
+        setTimeout(() => {
+          window.dispatchEvent(new Event("manualPostsRefresh"));
+        }, 500); // Small delay to ensure smooth transition
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    const cleanup = () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
