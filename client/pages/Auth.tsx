@@ -105,7 +105,7 @@ export default function Auth({ onAuth }: AuthProps) {
         // استخدام الرسالة المخصصة من الخادم
         errorMessage = error.message;
 
-        // إضافة تفاصيل إضا��ية إذا كانت متوفرة
+        // إ��افة تفاصيل إضا��ية إذا كانت متوفرة
         const customError = error as any;
         if (customError.suggestion) {
           errorDetails = customError.suggestion;
@@ -188,11 +188,19 @@ export default function Auth({ onAuth }: AuthProps) {
       return;
     }
 
+    // Validate service category for service providers
+    if (registerData.role === "barber" && !registerData.service_category) {
+      setError("يرجى اختيار فئة الخدمة");
+      return;
+    }
+
+    // Legacy activation key validation for barbers only
     if (
       registerData.role === "barber" &&
+      registerData.service_category === "barber" &&
       !registerData.activation_key?.trim()
     ) {
-      setError("مفتاح التفعيل مطلوب لحسابات الحلاقين");
+      setError("مفتاح التفعيل مطلوب للحلاقين");
       return;
     }
 
@@ -232,7 +240,7 @@ export default function Auth({ onAuth }: AuthProps) {
             }
             break;
           case "NAME_TOO_SHORT":
-            errorMessage = "ا��اسم قصير جداً";
+            errorMessage = "الاسم قصير جداً";
             errorDetails = "يجب أن يحتوي الاسم على حرفين على الأقل";
             break;
           case "NAME_TOO_LONG":
@@ -252,7 +260,7 @@ export default function Auth({ onAuth }: AuthProps) {
             errorDetails = "يجب أن تحتوي على 6 أحرف على الأقل";
             break;
           case "MISSING_ACTIVATION_KEY":
-            errorMessage = "مفتاح التفعيل مطلوب للحلاقين";
+            errorMessage = "مفتاح التفعيل مطلوب للحلاقي��";
             errorDetails = "للحصول على مفتاح التفعيل اتصل: 07800657822";
             break;
           case "INVALID_ACTIVATION_KEY":
@@ -422,7 +430,7 @@ export default function Auth({ onAuth }: AuthProps) {
                   <CardHeader className="pb-4">
                     <CardTitle className="text-xl">إنشاء حساب جديد</CardTitle>
                     <CardDescription>
-                      أنشئ ��سابك وابدأ رحلتك معنا
+                      أنشئ حسابك وابدأ رحلتك معنا
                     </CardDescription>
                   </CardHeader>
 
