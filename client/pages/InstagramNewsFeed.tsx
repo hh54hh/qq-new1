@@ -58,7 +58,7 @@ export default function InstagramNewsFeed({
     return unsubscribe;
   }, [user.id]);
 
-  // Listen for manual refresh events and tab clicks
+  // Listen for manual refresh events, tab clicks, and network changes
   useEffect(() => {
     const handleManualRefresh = () => {
       handleRefresh();
@@ -99,14 +99,31 @@ export default function InstagramNewsFeed({
       }
     };
 
+    // Listen for network status changes
+    const handleOnline = () => {
+      console.log("🌐 Network came back online, refreshing posts...");
+      // Small delay to ensure network is stable
+      setTimeout(() => {
+        handleRefresh();
+      }, 2000);
+    };
+
+    const handleOffline = () => {
+      console.log("📵 Network went offline, using cached posts");
+    };
+
     window.addEventListener("manualPostsRefresh", handleManualRefresh);
     window.addEventListener("tabChange", handleTabChange as EventListener);
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
       window.removeEventListener("manualPostsRefresh", handleManualRefresh);
       window.removeEventListener("tabChange", handleTabChange as EventListener);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, [lastTabClickTime, lastAppFocus]);
 
@@ -393,7 +410,7 @@ export default function InstagramNewsFeed({
                 <div className="relative bg-black">
                   <img
                     src={post.image_url}
-                    alt={post.caption || "منش��ر"}
+                    alt={post.caption || "منشور"}
                     className="w-full h-auto max-h-[70vh] object-contain"
                     style={{ aspectRatio: "auto" }}
                     loading="lazy"
