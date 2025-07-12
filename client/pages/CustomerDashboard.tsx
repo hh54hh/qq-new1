@@ -1006,7 +1006,7 @@ export default function CustomerDashboard({
         store.removeFollow(followToRemove.id);
       }
 
-      // تحديث القائمة المحلية
+      // ��حديث القائمة المحلية
       setProfileFollowing((prev) =>
         prev.filter((f) => f.followed_id !== userId),
       );
@@ -2446,7 +2446,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">ح������وز��ت</p>
+                <p className="text-sm text-muted-foreground">ح����وز��ت</p>
               </div>
               <div
                 className="cursor-pointer"
@@ -2513,7 +2513,7 @@ export default function CustomerDashboard({
     case "homepage":
       console.log("📰 Rendering homepage tab with InstagramNewsFeed");
       return (
-        <div>
+        <div className="relative">
           <AdvancedPostsFeed
             user={user}
             onUserClick={(selectedUser) => {
@@ -2521,6 +2521,26 @@ export default function CustomerDashboard({
               setShowProfile(true);
             }}
           />
+
+          {/* Floating Create Post Button (for barbers) */}
+          {user.role === "barber" && (
+            <div className="fixed bottom-20 right-4 z-50">
+              <CreatePostDialog
+                user={user}
+                onPostCreated={(postId, synced) => {
+                  console.log(`✅ Post created: ${postId}, synced: ${synced}`);
+                  // Could show toast notification here
+                }}
+              >
+                <Button
+                  size="lg"
+                  className="w-14 h-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+                >
+                  <Plus className="h-6 w-6" />
+                </Button>
+              </CreatePostDialog>
+            </div>
+          )}
         </div>
       );
     case "home":
