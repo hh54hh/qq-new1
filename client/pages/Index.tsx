@@ -6,22 +6,28 @@ const Index = () => {
   const [state] = useAppStore();
   const navigate = useNavigate();
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users to dashboard, others to auth
   useEffect(() => {
     if (state.user) {
+      console.log(
+        "✅ User is logged in, redirecting to dashboard:",
+        state.user.name,
+      );
       navigate("/dashboard");
+    } else {
+      console.log("❌ No user found, redirecting to auth");
+      navigate("/auth");
     }
   }, [state.user, navigate]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="text-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-          قيد التطوير
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <h1 className="text-2xl font-bold text-foreground mb-2">
+          جاري التحميل...
         </h1>
-        <p className="text-xl text-muted-foreground">
-          نحن نعمل على تحسين التطبيق لتوفير أفضل تجربة ممكنة
-        </p>
+        <p className="text-muted-foreground">يرجى الانتظار</p>
       </div>
     </div>
   );
