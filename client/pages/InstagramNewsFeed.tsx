@@ -62,25 +62,30 @@ export default function InstagramNewsFeed({
   }, []);
 
   const loadPosts = async () => {
+    console.log("📥 Loading posts...");
     try {
       const cachedPosts = await cache.current.getPostsUltraFast();
+      console.log("⚡ Cached posts loaded:", cachedPosts.length);
       setPosts(cachedPosts);
 
       if (cachedPosts.length === 0) {
+        console.log("🔄 No cached posts, fetching from API...");
         setLoading(true);
         try {
           const freshPosts = await cache.current.refreshFromAPI();
+          console.log("✅ Fresh posts loaded:", freshPosts.length);
           setPosts(freshPosts);
         } catch (error) {
-          console.error("Error refreshing from API:", error);
+          console.error("❌ Error refreshing from API:", error);
           // If API fails, keep empty posts array
           setPosts([]);
         }
       }
     } catch (error) {
-      console.error("Error loading posts:", error);
+      console.error("❌ Error loading posts:", error);
       setPosts([]);
     } finally {
+      console.log("🏁 Loading complete, posts count:", posts.length);
       setLoading(false);
     }
   };
