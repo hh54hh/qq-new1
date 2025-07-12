@@ -24,7 +24,7 @@ class OfflineStorageManager {
   constructor(options?: Partial<StorageOptions>) {
     this.options = {
       dbName: "BarberAppOfflineDB",
-      version: 2,
+      version: 3,
       stores: [
         "bookings",
         "messages",
@@ -210,7 +210,7 @@ class OfflineStorageManager {
       // استخدام 0 للبحث عن البيانات غير المتزامنة (synced = false)
       const keyValue = 0;
       if (!this.isValidIndexDBKey(keyValue)) {
-        console.warn("��️ Invalid key for IndexedDB:", keyValue);
+        console.warn("⚠️ Invalid key for IndexedDB:", keyValue);
         resolve([]);
         return;
       }
