@@ -62,7 +62,7 @@ class ApiClient {
         return window.location.origin + "/.netlify/functions/api";
       }
 
-      // لجميع البيئات ال��خ��ى (fly.dev وغيرها) استخدم /api العادي
+      // لجم��ع البيئات ال��خ��ى (fly.dev وغيرها) استخدم /api العادي
       return window.location.origin + "/api";
     }
     // للخادم أو SSR
@@ -388,13 +388,15 @@ class ApiClient {
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
         console.error("���� Network error details:", {
-          message: error.message,
+                    message: error.message,
           url: url,
           endpoint: endpoint,
           errorType: error.name,
           isOnline: navigator.onLine,
           timestamp: new Date().toISOString(),
-        });
+        };
+
+        console.error("🌐 Network error details (fixed):", JSON.stringify(errorDetails, null, 2));
 
         let networkErrorMessage = "خطأ في الاتصال بالخادم";
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
@@ -505,7 +507,7 @@ class ApiClient {
         return {} as unknown as T;
       }
 
-      // إذا كان يم��ن إعادة ال��حاولة، جرب مرة واحدة أخرى
+      // إذا كان يم��ن إعادة ال����حاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
           console.log(`�� إعادة المحاولة لـ ${endpoint}`);
