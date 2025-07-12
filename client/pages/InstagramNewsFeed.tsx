@@ -26,7 +26,9 @@ export default function InstagramNewsFeed({
   user,
   onUserClick,
 }: InstagramNewsFeedProps) {
+  console.log("🚀🚀🚀 INSTAGRAM NEWS FEED LOADING 🚀🚀🚀");
   console.log("📱 InstagramNewsFeed mounted for user:", user?.id);
+  console.log("👤 User data:", user);
 
   const [posts, setPosts] = useState<CachedFollowingPost[]>([]);
   const [loading, setLoading] = useState(true);
