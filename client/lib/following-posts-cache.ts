@@ -301,54 +301,97 @@ class FollowingPostsCacheManager {
     }
   }
 
-  // Handle quota exceeded by aggressive cleanup
+  // Handle quota exceeded by ultra-aggressive cleanup
   private handleQuotaExceeded(posts: CachedFollowingPost[]): void {
     try {
-      // Clear all old cache data first
-      this.clearAllOldCaches();
+      console.warn("🚨 QUOTA EXCEEDED - Starting emergency cleanup...");
 
-      // Try to save only the most essential data (just 3 posts)
-      const essentialPosts = posts
-        .sort(
+      // NUCLEAR OPTION: Clear almost everything except auth
+      this.nuclearCleanup();
+
+      // Try to save ultra-minimal data (just 1 post with bare minimum fields)
+      if (posts.length > 0) {
+        const ultraMinimalPost = posts.sort(
           (a, b) =>
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        )
-        .slice(0, 3)
-        .map((post) => ({
-          id: post.id,
-          user_id: post.user_id,
-          image_url: post.image_url,
-          caption: post.caption?.substring(0, 100) || "",
-          likes: post.likes,
-          created_at: post.created_at,
-          cached_at: new Date().toISOString(),
-          is_liked: false,
-          user: post.user
-            ? {
-                id: post.user.id,
-                name: post.user.name,
-                avatar_url: post.user.avatar_url,
-                role: post.user.role,
-              }
-            : undefined,
-        }));
+        )[0];
 
-      const minimalCache = {
-        posts: essentialPosts,
-        lastUpdated: new Date().toISOString(),
-        userId: this.userId,
-      };
+        const essentialData = {
+          posts: [
+            {
+              id: ultraMinimalPost.id,
+              user_id: ultraMinimalPost.user_id,
+              image_url: ultraMinimalPost.image_url,
+              caption: ultraMinimalPost.caption?.substring(0, 50) || "",
+              likes: ultraMinimalPost.likes || 0,
+              created_at: ultraMinimalPost.created_at,
+              cached_at: new Date().toISOString(),
+              is_liked: false,
+              user: ultraMinimalPost.user
+                ? {
+                    id: ultraMinimalPost.user.id,
+                    name: ultraMinimalPost.user.name?.substring(0, 20) || "",
+                    avatar_url: ultraMinimalPost.user.avatar_url,
+                    role: ultraMinimalPost.user.role,
+                  }
+                : null,
+            },
+          ],
+          lastUpdated: new Date().toISOString(),
+          userId: this.userId,
+        };
 
-      localStorage.setItem(this.cacheKey, JSON.stringify(minimalCache));
-      console.log(
-        "🧹 Emergency cache saved with",
-        essentialPosts.length,
-        "posts",
+        const dataString = JSON.stringify(essentialData);
+        console.log(
+          `💾 Trying to save ultra-minimal cache: ${Math.round(new Blob([dataString]).size / 1024)}KB`,
+        );
+
+        localStorage.setItem(this.cacheKey, dataString);
+        console.log("✅ Ultra-minimal emergency cache saved with 1 post");
+      }
+    } catch (thirdError) {
+      console.error("❌ Ultra-minimal emergency cache failed:", thirdError);
+      // Absolute last resort: operate without cache
+      console.warn(
+        "⚠��� Operating without cache - localStorage completely full",
       );
-    } catch (secondError) {
-      console.error("❌ Emergency cache save failed:", secondError);
-      // Last resort: clear everything
-      this.clearCache();
+      this.operateWithoutCache();
+    }
+  }
+
+  // Nuclear cleanup - remove everything except essential auth data
+  private nuclearCleanup(): void {
+    try {
+      console.log("☢️ NUCLEAR CLEANUP - Removing all non-essential data...");
+
+      // Save essential auth data first
+      const authToken = localStorage.getItem("barbershop_token");
+      const authUser = localStorage.getItem("barbershop_user");
+
+      // Clear EVERYTHING
+      localStorage.clear();
+
+      // Restore only essential auth data
+      if (authToken) localStorage.setItem("barbershop_token", authToken);
+      if (authUser) localStorage.setItem("barbershop_user", authUser);
+
+      console.log(
+        "☢️ Nuclear cleanup complete - localStorage cleared except auth",
+      );
+    } catch (error) {
+      console.error("❌ Nuclear cleanup failed:", error);
+    }
+  }
+
+  // Fallback to operate without cache
+  private operateWithoutCache(): void {
+    console.warn("🔥 OPERATING WITHOUT CACHE");
+    // Clear the cache key so we don't keep trying
+    try {
+      localStorage.removeItem(this.cacheKey);
+    } catch (e) {
+      // Even removal fails, localStorage is completely broken
+      console.error("❌ Cannot even remove cache key:", e);
     }
   }
 
