@@ -214,8 +214,7 @@ export default function AdvancedPostsFeed({
     setShowNewPostsBar(false);
 
     try {
-      await postsManager.forceRefresh();
-      const result = await postsManager.getPosts(1);
+      const result = await postsManager.getPosts(1, true); // Force refresh
       setPosts(removeDuplicatePosts(result.posts));
       setPage(1);
       setHasMore(true);
