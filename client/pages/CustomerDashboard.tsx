@@ -440,7 +440,7 @@ export default function CustomerDashboard({
     const NOTIFICATIONS_SHOWN_KEY = `friend_requests_shown_${user.id}`;
     const hasShownNotifications = localStorage.getItem(NOTIFICATIONS_SHOWN_KEY);
 
-    // إذا ��م عرض الإشعارات من قبل، لا تعرضها مرة أخرى
+    // إذا ��م عرض ا��إشعارات من قبل، لا تعرضها مرة أخرى
     if (hasShownNotifications) {
       return;
     }
@@ -798,7 +798,7 @@ export default function CustomerDashboard({
           type: "friend_request",
           title: "خطأ في المتابعة",
           message:
-            "حدث خط�� ��ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
+            "حدث خط�� ���ثناء تحديث حالة المتابعة، يرجى ا��محاولة مرة أخرى",
           data: { barberId },
           read: false,
           created_at: new Date().toISOString(),
@@ -2508,13 +2508,26 @@ export default function CustomerDashboard({
   switch (activeTab) {
     case "homepage":
       return (
-        <InstagramNewsFeed
-          user={user}
-          onUserClick={(selectedUser) => {
-            setSelectedProfile(selectedUser);
-            setShowProfile(true);
-          }}
-        />
+        <div>
+          {/* Debug button in development */}
+          {import.meta.env.DEV && (
+            <div className="p-2 bg-yellow-100 border-b">
+              <button
+                onClick={() => (window.location.href = "/test-newsfeed")}
+                className="text-xs bg-yellow-500 text-white px-2 py-1 rounded"
+              >
+                🧪 اختبار InstagramNewsFeed
+              </button>
+            </div>
+          )}
+          <InstagramNewsFeed
+            user={user}
+            onUserClick={(selectedUser) => {
+              setSelectedProfile(selectedUser);
+              setShowProfile(true);
+            }}
+          />
+        </div>
       );
     case "home":
       return renderHome();
