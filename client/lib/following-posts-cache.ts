@@ -30,9 +30,14 @@ class FollowingPostsCacheManager {
   // Get cached posts ultra-fast (<50ms)
   async getPostsUltraFast(): Promise<CachedFollowingPost[]> {
     const startTime = performance.now();
+    console.log("🚀 Getting posts ultra-fast for user:", this.userId);
 
     try {
       const cached = this.getCachedPosts();
+      console.log(
+        "📦 Cached data:",
+        cached ? `${cached.posts.length} posts` : "no cache",
+      );
 
       if (cached && this.isCacheValid(cached)) {
         const loadTime = performance.now() - startTime;
@@ -42,6 +47,7 @@ class FollowingPostsCacheManager {
         return cached.posts;
       }
 
+      console.log("🔄 No valid cache, triggering background refresh");
       // Return empty array for ultra-fast response, trigger background refresh
       this.refreshInBackground();
       return [];
