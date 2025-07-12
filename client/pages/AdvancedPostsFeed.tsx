@@ -176,7 +176,7 @@ export default function AdvancedPostsFeed({
       const result = await postsManager.getPosts(nextPage);
 
       if (result.posts.length > 0) {
-        setPosts((prev) => [...prev, ...result.posts]);
+        setPosts((prev) => removeDuplicatePosts([...prev, ...result.posts]));
         setPage(nextPage);
         setHasMore(result.hasMore);
       } else {
