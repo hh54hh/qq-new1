@@ -71,11 +71,16 @@ class FollowingPostsCacheManager {
 
   // Refresh posts from API
   async refreshFromAPI(): Promise<CachedFollowingPost[]> {
-    console.log("🔄 Refreshing following posts from API...");
+    console.log(
+      "🔄 Refreshing following posts from API for user:",
+      this.userId,
+    );
 
     try {
       const { default: apiClient } = await import("./api");
+      console.log("📡 Calling API getFollowingPosts...");
       const response = await apiClient.getFollowingPosts();
+      console.log("📡 API response received:", response);
 
       const postsWithCache: CachedFollowingPost[] = response.posts.map(
         (post) => ({
