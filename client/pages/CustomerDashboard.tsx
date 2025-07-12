@@ -182,7 +182,7 @@ export default function CustomerDashboard({
         const followingResponse = await apiClient.getFollows("following");
         const follows = followingResponse.follows || [];
 
-        // تحديث store ببيانات المتابعة
+        // تحديث store بب��انات المتابعة
         store.setFollows(follows);
 
         console.log(`✅ Initialized ${follows.length} follows in store`);
@@ -464,7 +464,7 @@ export default function CustomerDashboard({
         id: "friend_req_2",
         type: "friend_request" as const,
         title: "طلب ص��اقة جديد",
-        message: "محمد العلي يريد متابعتك",
+        message: "محمد العلي ي��يد متابعتك",
         data: {
           senderId: "barber_2",
           senderName: "محمد العلي",
@@ -2136,7 +2136,7 @@ export default function CustomerDashboard({
           <p className="text-muted-foreground">
             {exploreSearchQuery
               ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
-              : "لا توجد منشورات مميزة متا��ة حالياً"}
+              : "لا توجد منشورات مميزة متا��ة حاليا��"}
           </p>
         </div>
       )}
@@ -2275,7 +2275,7 @@ export default function CustomerDashboard({
                 لا ��وجد حجوزات
               </h3>
               <p className="text-muted-foreground mb-4">
-                احجز موعدك الأ��ل مع أحد الحل��قين
+                احج�� موعدك الأ��ل مع أحد الحل��قين
               </p>
               <Button className="bg-primary hover:bg-primary/90">
                 احجز الآن
@@ -2505,16 +2505,32 @@ export default function CustomerDashboard({
     );
   };
 
+  console.log("🏠 CustomerDashboard switch statement, activeTab:", activeTab);
+
   switch (activeTab) {
     case "homepage":
+      console.log("📰 Rendering homepage tab with InstagramNewsFeed");
       return (
-        <InstagramNewsFeed
-          user={user}
-          onUserClick={(selectedUser) => {
-            setSelectedProfile(selectedUser);
-            setShowProfile(true);
-          }}
-        />
+        <div>
+          {/* Debug button in development */}
+          {import.meta.env.DEV && (
+            <div className="p-2 bg-yellow-100 border-b">
+              <button
+                onClick={() => (window.location.href = "/test-newsfeed")}
+                className="text-xs bg-yellow-500 text-white px-2 py-1 rounded"
+              >
+                🧪 اختبار InstagramNewsFeed
+              </button>
+            </div>
+          )}
+          <InstagramNewsFeed
+            user={user}
+            onUserClick={(selectedUser) => {
+              setSelectedProfile(selectedUser);
+              setShowProfile(true);
+            }}
+          />
+        </div>
       );
     case "home":
       return renderHome();

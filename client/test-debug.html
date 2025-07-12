@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <title>تشخيص سريع</title>
+  </head>
+  <body>
+    <h1>تشخيص InstagramNewsFeed</h1>
+    <div id="logs"></div>
+
+    <script>
+      const logs = document.getElementById("logs");
+
+      function log(message) {
+        logs.innerHTML += "<p>" + message + "</p>";
+        console.log(message);
+      }
+
+      log("🔍 بدء التشخيص...");
+
+      // Check localStorage
+      const user = localStorage.getItem("barbershop_user");
+      const token = localStorage.getItem("barbershop_token");
+
+      log("👤 User in localStorage: " + (user ? "YES" : "NO"));
+      log("🔑 Token in localStorage: " + (token ? "YES" : "NO"));
+
+      if (user) {
+        try {
+          const userData = JSON.parse(user);
+          log("📧 User email: " + userData.email);
+          log("🎭 User role: " + userData.role);
+          log("🆔 User ID: " + userData.id);
+        } catch (e) {
+          log("❌ Error parsing user data");
+        }
+      }
+
+      // Test API call
+      if (token) {
+        log("🔗 Testing API call...");
+        fetch("/api/posts/following", {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            log(
+              "✅ API Response: " +
+                JSON.stringify(data).substring(0, 100) +
+                "...",
+            );
+            log("📊 Posts count: " + (data.posts ? data.posts.length : 0));
+          })
+          .catch((error) => {
+            log("❌ API Error: " + error.message);
+          });
+      }
+
+      log("✅ تشخيص مكتمل");
+    </script>
+  </body>
+</html>

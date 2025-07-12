@@ -86,7 +86,7 @@ class ApiClient {
       return;
     }
 
-    // للبيئات الأخرى، اختبر ال����سارات المختلفة
+    // للبيئات الأخرى، اختبر ا������سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -276,7 +276,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م�� جميع الحقول";
+                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م��� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -302,13 +302,13 @@ class ApiClient {
               break;
             case 404:
               errorMessage =
-                "خ��مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
+                "����مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
-              errorMessage = "ا��بي��نات موجودة بالفعل في النظام";
+              errorMessage = "ا��بي��نات موجودة بالفعل ف�� النظام";
               errorType = "CONFLICT_ERROR";
               break;
             case 429:
@@ -370,7 +370,7 @@ class ApiClient {
       });
       return data;
     } catch (error) {
-      // تنظيف timeout ��ي حالة الخطأ
+      // تنظ��ف timeout ��ي حالة الخطأ
       if (timeoutId) clearTimeout(timeoutId);
 
       // Handle AbortError (timeout or cancellation)
@@ -403,7 +403,7 @@ class ApiClient {
           networkErrorMessage = "فشل في الاتصال بالخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
-          networkErrorMessage = "خطأ في ا����شبكة";
+          networkErrorMessage = "خطأ في ا������شبكة";
           suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
         } else if (error.message.includes("timeout")) {
           networkErrorMessage = "ا��تهت مهلة ��لاتصال";
@@ -505,7 +505,7 @@ class ApiClient {
         return {} as unknown as T;
       }
 
-      // إذا كان يمكن إعادة ال��حاولة، جرب مرة واحدة أخرى
+      // إذا كان يم��ن إعادة ال��حاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
           console.log(`�� إعادة المحاولة لـ ${endpoint}`);
@@ -745,6 +745,13 @@ class ApiClient {
     return this.request<GetPostsResponse>(`/posts${params}`);
   }
 
+  async getFollowingPosts(): Promise<GetPostsResponse> {
+    console.log("🔗 Calling getFollowingPosts API...");
+    const result = await this.request<GetPostsResponse>("/posts/following");
+    console.log("🔗 getFollowingPosts result:", result);
+    return result;
+  }
+
   async createPost(postData: {
     image_url: string;
     caption?: string;
@@ -753,6 +760,32 @@ class ApiClient {
     return this.request<Post>("/posts", {
       method: "POST",
       body: JSON.stringify(postData),
+    });
+  }
+
+  async likePost(postId: string): Promise<void> {
+    return this.request<void>(`/posts/${postId}/like`, {
+      method: "POST",
+    });
+  }
+
+  async unlikePost(postId: string): Promise<void> {
+    return this.request<void>(`/posts/${postId}/like`, {
+      method: "DELETE",
+    });
+  }
+
+  async getPostComments(postId: string): Promise<{ comments: any[] }> {
+    return this.request<{ comments: any[] }>(`/posts/${postId}/comments`);
+  }
+
+  async createPostComment(
+    postId: string,
+    comment: string,
+  ): Promise<{ comment: any }> {
+    return this.request<{ comment: any }>(`/posts/${postId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ comment }),
     });
   }
 
@@ -957,57 +990,8 @@ class ApiClient {
     return this.request<{ users: User[] }>("/admin/users");
   }
 
-  // Post Likes
-  async likePost(postId: string): Promise<{ success: boolean }> {
-    return this.request<{ success: boolean }>(`/posts/${postId}/like`, {
-      method: "POST",
-    });
-  }
-
-  async unlikePost(postId: string): Promise<void> {
-    return this.request<void>(`/posts/${postId}/like`, {
-      method: "DELETE",
-    });
-  }
-
   async getUserLikes(): Promise<{ liked_posts: string[] }> {
     return this.request<{ liked_posts: string[] }>("/posts/likes/user");
-  }
-
-  // Post Comments
-  async getPostComments(
-    postId: string,
-  ): Promise<{ comments: any[]; total: number }> {
-    try {
-      return await this.request<{ comments: any[]; total: number }>(
-        `/posts/${postId}/comments`,
-      );
-    } catch (error) {
-      console.warn("Comments endpoint not available, returning empty array");
-      return { comments: [], total: 0 };
-    }
-  }
-
-  async createPostComment(postId: string, comment: string): Promise<any> {
-    try {
-      return await this.request<any>(`/posts/${postId}/comments`, {
-        method: "POST",
-        body: JSON.stringify({ comment }),
-      });
-    } catch (error) {
-      console.warn("Comment creation failed:", error);
-      // إنشاء تعليق مؤقت للعرض
-      return {
-        id: Date.now().toString(),
-        user: {
-          id: "current",
-          name: "أنت",
-          avatar_url: null,
-        },
-        comment,
-        created_at: new Date().toISOString(),
-      };
-    }
   }
 
   // Ratings

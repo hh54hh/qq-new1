@@ -101,7 +101,7 @@ export default function PostViewPage({
       );
 
       // إضافة التعليق الجديد للقائمة
-      setComments((prev) => [...prev, comment]);
+      setComments((prev) => [...prev, comment.comment]);
       setNewComment("");
     } catch (error) {
       console.error("Error submitting comment:", error);

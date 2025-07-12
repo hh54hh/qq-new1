@@ -1,5 +1,4 @@
 import "./global.css";
-
 import React, { useState, useEffect, Component } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -34,6 +33,7 @@ import NetworkDiagnosticSimple from "./pages/NetworkDiagnosticSimple";
 import OfflinePage from "./pages/OfflinePage";
 import ChatPage from "./pages/ChatPage";
 import OptimizedChatPage from "./pages/OptimizedChatPage";
+import TestNewsFeed from "./pages/TestNewsFeed";
 
 import IndexedDBStatus from "./components/debug/IndexedDBStatus";
 
@@ -102,7 +102,7 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">حدث خطأ</h2>
+        <h2 className="text-2xl font-bold text-red-600 mb-4">ح��ث خطأ</h2>
         <p className="text-gray-600 mb-6">
           عذراً، حدث خطأ غير متوقع في التطبيق
         </p>
@@ -152,6 +152,22 @@ const AppContent = () => {
 
     initAuth();
 
+    // Refresh posts when user returns to app
+    const handleVisibilityChange = async () => {
+      if (!document.hidden && state.user && state.user.role === "customer") {
+        console.log("📱 App became visible - refreshing posts");
+        setTimeout(() => {
+          window.dispatchEvent(new Event("manualPostsRefresh"));
+        }, 500); // Small delay to ensure smooth transition
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    const cleanup = () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+
     // إضافة دالة عالمية لفتح صفحة التشخيص
     (window as any).openDebug = () => {
       window.location.href = "/debug";
@@ -164,10 +180,12 @@ const AppContent = () => {
       console.log("🔍 تم فتح صفحة ��لتشخيص الشامل");
     };
 
-    console.log("💡 نصائح مفيدة:");
+    console.log("��� نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفت�� صفحة ��لتشخيص");
     console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
-  }, []);
+
+    return cleanup;
+  }, [state.user]);
 
   // Check if we need to show location dialog for existing customers
   useEffect(() => {
@@ -195,8 +213,16 @@ const AppContent = () => {
         const ultraCache = await getUltraFastBarberCache(authenticatedUser.id);
         await ultraCache.preloadOnLogin();
         console.log("✅ Barbers preloaded successfully");
+
+        // Also preload following posts
+        const { getFollowingPostsCache } = await import(
+          "./lib/following-posts-cache"
+        );
+        const postsCache = getFollowingPostsCache(authenticatedUser.id);
+        await postsCache.preloadOnLogin();
+        console.log("✅ Following posts preloaded successfully");
       } catch (error) {
-        console.warn("⚠️ Barber preloading failed:", error);
+        console.warn("⚠️ Preloading failed:", error);
       }
     }
   };
@@ -212,6 +238,7 @@ const AppContent = () => {
 
   // Show loading while checking authentication
   if (isAuthLoading) {
+    console.log("🔄 Auth loading...");
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -224,8 +251,16 @@ const AppContent = () => {
 
   // Redirect to login if not authenticated
   if (!state.user) {
+    console.log("❌ No user found, redirecting to auth");
     return <Navigate to="/auth" replace />;
   }
+
+  console.log(
+    "✅ User authenticated:",
+    state.user.name,
+    "Role:",
+    state.user.role,
+  );
 
   return (
     <>
@@ -241,17 +276,26 @@ const AppContent = () => {
         user={state.user}
         activeTab={activeTab}
         onTabChange={(tab) => {
+          console.log("📱 Tab changed to:", tab);
           setActiveTab(tab);
         }}
         onLogout={handleLogout}
         onShowNotifications={() => (window.location.href = "/notifications")}
       >
         {state.user.role === "customer" ? (
-          <CustomerDashboard
-            user={state.user}
-            activeTab={activeTab}
-            onLogout={handleLogout}
-          />
+          (() => {
+            console.log(
+              "🎯 Rendering CustomerDashboard with activeTab:",
+              activeTab,
+            );
+            return (
+              <CustomerDashboard
+                user={state.user}
+                activeTab={activeTab}
+                onLogout={handleLogout}
+              />
+            );
+          })()
         ) : state.user.role === "barber" ? (
           <BarberDashboard
             user={state.user}
@@ -343,7 +387,7 @@ const App = () => {
 
     // إضافة دالة عالمية لإعادة تعيين الإشعارات
     (window as any).resetNotifications = () => {
-      // إعادة تعيين إشعارات طلبات الصداقة
+      // إعادة تعيين إشعارا�� طلبات الصداقة
       const userId = localStorage.getItem("barbershop_user_id") || "user";
       localStorage.removeItem(`friend_requests_shown_${userId}`);
 
@@ -390,6 +434,16 @@ const App = () => {
             <Route path="/offline" element={<OfflinePage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/chat-optimized" element={<OptimizedChatPage />} />
+            <Route
+              path="/test-newsfeed"
+              element={
+                state.user ? (
+                  <TestNewsFeed user={state.user} />
+                ) : (
+                  <Navigate to="/auth" replace />
+                )
+              }
+            />
 
             {/* Authenticated routes */}
             <Route

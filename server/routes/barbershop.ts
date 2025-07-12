@@ -8,7 +8,7 @@ import {
   SearchBarbersRequest,
   CreateBookingRequest,
 } from "../../shared/api";
-import { db, getCurrentUserId } from "../../shared/supabase";
+import { db, getCurrentUserId, supabase } from "../../shared/supabase";
 
 // Barbers endpoints
 export const getBarbers: RequestHandler = async (req, res) => {
@@ -320,6 +320,83 @@ export const getPosts: RequestHandler = async (req, res) => {
   }
 };
 
+// Get posts from followed users only (for news feed)
+export const getFollowingPosts: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    console.log("Getting following posts for user:", userId);
+
+    console.log("Getting real following posts for user:", userId);
+
+    // Get user's following list
+    const following = await db.follows.getByUser(userId, "following");
+    console.log("User is following:", following.length, "people");
+
+    if (following.length === 0) {
+      // If not following anyone, return empty posts
+      return res.json({ posts: [], total: 0 });
+    }
+
+    // Get all posts from followed users
+    const followedUserIds = following.map((f) => f.followed_id);
+
+    // Use raw Supabase query for better performance
+    const { data: dbPosts, error } = await supabase
+      .from("posts")
+      .select(
+        `
+        *,
+        user:users(*)
+      `,
+      )
+      .in("user_id", followedUserIds)
+      .order("created_at", { ascending: false })
+      .limit(50); // Limit to recent 50 posts
+
+    if (error) {
+      console.error("Error fetching following posts:", error);
+      throw error;
+    }
+
+    console.log("Retrieved following posts count:", dbPosts?.length || 0);
+
+    // Convert to API format
+    const apiPosts: Post[] = (dbPosts || []).map((post) => ({
+      id: post.id,
+      user_id: post.user_id,
+      image_url: post.image_url,
+      caption: post.caption || "",
+      frame_style: post.frame_style,
+      likes: post.likes_count || 0,
+      created_at: post.created_at,
+      user: post.user
+        ? {
+            id: post.user.id,
+            name: post.user.name,
+            email: post.user.email,
+            avatar_url: post.user.avatar_url,
+            role: post.user.role as any,
+            status: post.user.status as any,
+            level: post.user.level,
+            points: post.user.points,
+            is_verified: post.user.is_verified,
+            created_at: post.user.created_at,
+          }
+        : undefined,
+    }));
+
+    res.json({ posts: apiPosts, total: apiPosts.length });
+  } catch (error) {
+    console.error("Get following posts error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 export const createPost: RequestHandler = async (req, res) => {
   try {
     const userId = getCurrentUserId(req.headers.authorization);
@@ -466,7 +543,7 @@ export const createFollow: RequestHandler = async (req, res) => {
       };
       return res.status(200).json(apiFollow);
     }
-    res.status(500).json({ error: "حدث خطأ في ا��خادم" });
+    res.status(500).json({ error: "حدث خطأ في ا���خادم" });
   }
 };
 
