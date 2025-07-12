@@ -97,16 +97,24 @@ export default function AdvancedPostsFeed({
 
   // Initialize posts
   const initializePosts = async () => {
-    console.log("📥 Initializing posts...");
+    console.log("📥 Initializing posts for user:", user.id);
+    console.log("📥 PostsManager:", postsManager);
     try {
       const result = await postsManager.getPosts(1);
-      setPosts(removeDuplicatePosts(result.posts));
+      console.log("📥 PostsManager.getPosts(1) result:", result);
+      console.log("📥 Raw posts from manager:", result.posts);
+
+      const uniquePosts = removeDuplicatePosts(result.posts);
+      console.log("📥 Unique posts after deduplication:", uniquePosts);
+
+      setPosts(uniquePosts);
       setHasMore(result.hasMore);
       setNewPostsCount(result.newPostsCount);
 
       console.log(
         `✅ Initialized with ${result.posts.length} posts (cache: ${result.isFromCache})`,
       );
+      console.log("✅ Posts state should now be:", uniquePosts);
     } catch (error) {
       console.error("❌ Error initializing posts:", error);
     }
