@@ -18,8 +18,8 @@ class FollowingPostsCacheManager {
   private userId: string;
   private cacheKey: string;
   private maxCacheAge = 24 * 60 * 60 * 1000; // 24 hours cache - keep for long time
-  private minPostsToKeep = 10; // Always keep at least 10 posts
-  private maxPostsToStore = 50; // Store up to 50 posts, then trim to 10
+  private minPostsToKeep = 5; // Always keep at least 5 posts (reduced)
+  private maxPostsToStore = 8; // Store max 8 posts to save space
   private refreshCallbacks: Array<() => void> = [];
 
   constructor(userId: string) {
@@ -32,7 +32,7 @@ class FollowingPostsCacheManager {
   // Get cached posts ultra-fast (<50ms)
   async getPostsUltraFast(): Promise<CachedFollowingPost[]> {
     const startTime = performance.now();
-    console.log("�� Getting posts ultra-fast for user:", this.userId);
+    console.log("🚀 Getting posts ultra-fast for user:", this.userId);
 
     try {
       const cached = this.getCachedPosts();
