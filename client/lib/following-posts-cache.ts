@@ -59,6 +59,36 @@ class FollowingPostsCacheManager {
     }
   }
 
+  // Check if there's enough space for new data
+  private hasEnoughSpace(newDataSize: number): boolean {
+    try {
+      // Estimate current usage
+      let currentSize = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          const value = localStorage.getItem(key);
+          if (value) {
+            currentSize += new Blob([value]).size;
+          }
+        }
+      }
+
+      // localStorage limit is typically 5-10MB, we'll use 4MB as safe limit
+      const maxSafeSize = 4 * 1024 * 1024; // 4MB
+      const projectedSize = currentSize + newDataSize;
+
+      console.log(
+        `💾 Current: ${Math.round(currentSize / 1024)}KB, New: ${Math.round(newDataSize / 1024)}KB, Projected: ${Math.round(projectedSize / 1024)}KB`,
+      );
+
+      return projectedSize < maxSafeSize;
+    } catch (error) {
+      console.error("❌ Space check error:", error);
+      return false; // Assume no space if we can't check
+    }
+  }
+
   // Get cached posts ultra-fast (<50ms)
   async getPostsUltraFast(): Promise<CachedFollowingPost[]> {
     const startTime = performance.now();
