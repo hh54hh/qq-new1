@@ -250,7 +250,7 @@ export default function AdvancedPostsFeed({
     setRefreshing(true);
     try {
       const result = await postsManager.refreshPosts();
-      setPosts(result.posts);
+      setPosts(removeDuplicatePosts(result.posts));
       setHasMore(result.hasMore);
       setPage(1);
       setNewPostsCount(0);
