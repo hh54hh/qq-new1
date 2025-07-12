@@ -250,12 +250,12 @@ class FollowingPostsCacheManager {
       // Smart caching: Keep only the most recent posts and minimize data
       let postsToSave = [...posts];
 
-      // Ultra-conservative: Only 3 posts maximum to avoid quota issues
+      // Balanced: Keep 8 posts but with smart data optimization
       postsToSave.sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
-      postsToSave = postsToSave.slice(0, 3); // Keep only 3 most recent
+      postsToSave = postsToSave.slice(0, 8); // Keep 8 most recent posts
 
       // Ultra-minimize data size
       const optimizedPosts = postsToSave.map((post) => ({
