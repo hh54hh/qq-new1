@@ -31,7 +31,6 @@ export default function InstagramNewsFeed({
   console.log("👤 User data:", user);
 
   const [posts, setPosts] = useState<CachedFollowingPost[]>([]);
-  const [loading, setLoading] = useState(false); // Don't show loading by default
   const [refreshing, setRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -113,11 +112,6 @@ export default function InstagramNewsFeed({
 
   // Initial load - only loads cached posts, no API calls
   const loadPostsInitial = async () => {
-    // Only show loading if this is the very first time
-    if (!hasInitialized) {
-      setLoading(true);
-    }
-
     console.log("📥 Initial posts load (cache only)...");
     try {
       const cachedPosts = await cache.current.getPostsUltraFast();
@@ -141,7 +135,6 @@ export default function InstagramNewsFeed({
       console.error("❌ Error loading cached posts:", error);
       setPosts([]);
     } finally {
-      setLoading(false);
       setHasInitialized(true);
     }
   };
@@ -278,14 +271,11 @@ export default function InstagramNewsFeed({
           </Button>
         </div>
       </div>
-        );
+    );
   }
-
-  // NEVER show loading screen - always show content or cached posts
 
   console.log("🎨 Rendering InstagramNewsFeed with:", {
     postsCount: posts.length,
-    loading,
     refreshing,
     userId: user?.id,
   });
@@ -360,112 +350,109 @@ export default function InstagramNewsFeed({
         </div>
       )}
 
-            {/* Posts Feed */}
+      {/* Posts Feed */}
       <div className="pb-20">
-        {posts.length > 0 ? (
-          // ALWAYS show posts if we have them - render the actual posts
-          posts.map((post) => (
-            <article
-              key={post.id}
-              className="border-b border-border/10 bg-background"
-            >
-              {/* Post Header */}
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  <Avatar
-                    className="w-10 h-10 cursor-pointer"
-                    onClick={() => post.user && onUserClick?.(post.user)}
-                  >
-                    <AvatarImage src={post.user?.avatar_url} />
-                    <AvatarFallback>
-                      {post.user?.name?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p
-                      className="font-medium text-sm text-foreground cursor-pointer"
+        {
+          posts.length > 0 ? (
+            // ALWAYS show posts if we have them - render the actual posts
+            posts.map((post) => (
+              <article
+                key={post.id}
+                className="border-b border-border/10 bg-background"
+              >
+                {/* Post Header */}
+                <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      className="w-10 h-10 cursor-pointer"
                       onClick={() => post.user && onUserClick?.(post.user)}
                     >
-                      {post.user?.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatTime(post.created_at)}
-                    </p>
+                      <AvatarImage src={post.user?.avatar_url} />
+                      <AvatarFallback>
+                        {post.user?.name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p
+                        className="font-medium text-sm text-foreground cursor-pointer"
+                        onClick={() => post.user && onUserClick?.(post.user)}
+                      >
+                        {post.user?.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatTime(post.created_at)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-5 h-5" />
-                </Button>
-              </div>
-
-              {/* Post Image */}
-              <div className="relative bg-black">
-                <img
-                  src={post.image_url}
-                  alt={post.caption || "منشور"}
-                  className="w-full h-auto max-h-[70vh] object-contain"
-                  style={{ aspectRatio: "auto" }}
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Post Actions */}
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="p-0 h-auto"
-                      onClick={() => handleLike(post.id)}
-                    >
-                      <Heart
-                        className={cn(
-                          "w-6 h-6 transition-colors",
-                          likedPosts.has(post.id) || post.is_liked
-                            ? "fill-red-500 text-red-500"
-                            : "text-foreground",
-                        )}
-                      />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="p-0 h-auto">
-                      <MessageCircle className="w-6 h-6" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="p-0 h-auto">
-                      <Send className="w-6 h-6" />
-                    </Button>
-                  </div>
-                  <Button variant="ghost" size="sm" className="p-0 h-auto">
-                    <Bookmark className="w-6 h-6" />
+                  <Button variant="ghost" size="sm">
+                    <MoreHorizontal className="w-5 h-5" />
                   </Button>
                 </div>
 
-                {/* Likes Count */}
-                <p className="text-sm font-medium text-foreground mb-2">
-                  {post.likes + (likedPosts.has(post.id) ? 1 : 0)} إعجاب
-                </p>
+                {/* Post Image */}
+                <div className="relative bg-black">
+                  <img
+                    src={post.image_url}
+                    alt={post.caption || "منش��ر"}
+                    className="w-full h-auto max-h-[70vh] object-contain"
+                    style={{ aspectRatio: "auto" }}
+                    loading="lazy"
+                  />
+                </div>
 
-                {/* Caption */}
-                {post.caption && (
-                  <div className="text-sm text-foreground">
-                    <span className="font-medium">{post.user?.name}</span>{" "}
-                    <span>{post.caption}</span>
+                {/* Post Actions */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-0 h-auto"
+                        onClick={() => handleLike(post.id)}
+                      >
+                        <Heart
+                          className={cn(
+                            "w-6 h-6 transition-colors",
+                            likedPosts.has(post.id) || post.is_liked
+                              ? "fill-red-500 text-red-500"
+                              : "text-foreground",
+                          )}
+                        />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="p-0 h-auto">
+                        <MessageCircle className="w-6 h-6" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="p-0 h-auto">
+                        <Send className="w-6 h-6" />
+                      </Button>
+                    </div>
+                    <Button variant="ghost" size="sm" className="p-0 h-auto">
+                      <Bookmark className="w-6 h-6" />
+                    </Button>
                   </div>
-                )}
 
-                {/* Comments */}
-                <button className="text-sm text-muted-foreground mt-2">
-                  عرض جميع التعليقات
-                </button>
-              </div>
-            </article>
-          ))
-        ) : (
-          // Only show empty state if user truly doesn't follow anyone AND we're initialized
+                  {/* Likes Count */}
+                  <p className="text-sm font-medium text-foreground mb-2">
+                    {post.likes + (likedPosts.has(post.id) ? 1 : 0)} إعجاب
+                  </p>
+
+                  {/* Caption */}
+                  {post.caption && (
+                    <div className="text-sm text-foreground">
+                      <span className="font-medium">{post.user?.name}</span>{" "}
+                      <span>{post.caption}</span>
+                    </div>
+                  )}
+
+                  {/* Comments */}
+                  <button className="text-sm text-muted-foreground mt-2">
+                    عرض جميع التعليقات
+                  </button>
+                </div>
+              </article>
+            ))
+          ) : // NEVER show empty state unless user doesn't follow anyone
           isFollowingAnyone === false && hasInitialized ? (
-          // Show different messages based on following status
-          isFollowingAnyone === false ? (
-            // User doesn't follow anyone
             <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
               <div className="mb-6">
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
@@ -481,7 +468,6 @@ export default function InstagramNewsFeed({
 
               <Button
                 onClick={() => {
-                  // Navigate to explore tab
                   const event = new CustomEvent("tabChange", {
                     detail: "search",
                   });
@@ -492,176 +478,8 @@ export default function InstagramNewsFeed({
                 🔍 اكتشف الحلاقين
               </Button>
             </div>
-          ) : (
-            // User follows people but no posts available - show minimal empty state
-            <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/20 flex items-center justify-center">
-                <span className="text-2xl">📭</span>
-              </div>
-              <p className="text-muted-foreground">
-                لا توجد منشورات جد��دة حالياً
-              </p>
-            </div>
-          )
-        ) : (
-          posts.map((post) => (
-            <article
-              key={post.id}
-              className="border-b border-border/10 bg-background"
-            >
-              {/* Post Header */}
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  <Avatar
-                    className="w-10 h-10 cursor-pointer"
-                    onClick={() => post.user && onUserClick?.(post.user)}
-                  >
-                    <AvatarImage src={post.user?.avatar_url} />
-                    <AvatarFallback>
-                      {post.user?.name?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p
-                      className="font-medium text-sm text-foreground cursor-pointer"
-                      onClick={() => post.user && onUserClick?.(post.user)}
-                    >
-                      {post.user?.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatTime(post.created_at)}
-                    </p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-5 h-5" />
-                </Button>
-              </div>
-
-              {/* Post Image - الصورة بحرية العرض */}
-              <div className="relative bg-black">
-                <img
-                  src={post.image_url}
-                  alt={post.caption || "منشور"}
-                  className="w-full h-auto max-h-[70vh] object-contain"
-                  style={{ aspectRatio: "auto" }}
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Post Actions */}
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="p-0 h-auto"
-                      onClick={() => handleLike(post.id)}
-                    >
-                      <Heart
-                        className={cn(
-                          "w-6 h-6 transition-colors",
-                          likedPosts.has(post.id) || post.is_liked
-                            ? "fill-red-500 text-red-500"
-                            : "text-foreground",
-                        )}
-                      />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="p-0 h-auto">
-                      <MessageCircle className="w-6 h-6" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="p-0 h-auto">
-                      <Send className="w-6 h-6" />
-                    </Button>
-                  </div>
-                  <Button variant="ghost" size="sm" className="p-0 h-auto">
-                    <Bookmark className="w-6 h-6" />
-                  </Button>
-                </div>
-
-                {/* Likes Count */}
-                <p className="text-sm font-medium text-foreground mb-2">
-                  {post.likes + (likedPosts.has(post.id) ? 1 : 0)} إعجاب
-                </p>
-
-                {/* Caption */}
-                {post.caption && (
-                  <div className="text-sm text-foreground">
-                    <span className="font-medium">{post.user?.name}</span>{" "}
-                    <span>{post.caption}</span>
-                  </div>
-                )}
-
-                {/* Comments */}
-                <button className="text-sm text-muted-foreground mt-2">
-                  عرض جميع ا��تعليقات
-                </button>
-                            </div>
-            </article>
-          ))
-        ) : (
-          // Only show empty state if user truly doesn't follow anyone AND we're initialized
-          isFollowingAnyone === false && hasInitialized ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
-              <div className="mb-6">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
-                  <span className="text-3xl">👥</span>
-                </div>
-                <h3 className="text-xl font-medium text-foreground mb-2">
-                  اب���� متابعة الحلاقين
-                </h3>
-                <p className="text-muted-foreground">
-                  اكتشف حلاقين جدد وتابع أعمالهم لترى منشوراتهم هنا
-                </p>
-              </div>
-
-              <Button
-                onClick={() => {
-                  // Navigate to explore tab
-                  const event = new CustomEvent("tabChange", {
-                    detail: "search",
-                  });
-                  window.dispatchEvent(event);
-                }}
-                className="bg-primary text-primary-foreground px-8 py-3 text-lg"
-              >
-                🔍 اكتشف الحلاقين
-              </Button>
-            </div>
-          ) : (
-            // Show skeleton while loading initial content (only on very first load)
-            !hasInitialized && (
-              <div className="space-y-4">
-                {/* Skeleton Posts - only on first load */}
-                {[...Array(3)].map((_, i) => (
-                  <article key={i} className="border-b border-border/10 bg-background animate-pulse">
-                    <div className="flex items-center gap-3 p-4">
-                      <div className="w-10 h-10 rounded-full bg-muted/30"></div>
-                      <div className="flex-1">
-                        <div className="w-24 h-4 bg-muted/30 rounded mb-1"></div>
-                        <div className="w-16 h-3 bg-muted/20 rounded"></div>
-                      </div>
-                      <div className="w-6 h-6 bg-muted/20 rounded"></div>
-                    </div>
-                    <div className="w-full h-80 bg-muted/20"></div>
-                    <div className="p-4">
-                      <div className="flex items-center gap-4 mb-3">
-                        <div className="w-6 h-6 bg-muted/20 rounded"></div>
-                        <div className="w-6 h-6 bg-muted/20 rounded"></div>
-                        <div className="w-6 h-6 bg-muted/20 rounded"></div>
-                        <div className="ml-auto w-6 h-6 bg-muted/20 rounded"></div>
-                      </div>
-                      <div className="w-20 h-4 bg-muted/30 rounded mb-2"></div>
-                      <div className="w-full h-4 bg-muted/20 rounded mb-1"></div>
-                      <div className="w-3/4 h-4 bg-muted/20 rounded"></div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )
-          )
-        )}
+          ) : null // Don't show anything else - just wait for posts to load in background
+        }
       </div>
     </div>
   );
