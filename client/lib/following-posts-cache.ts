@@ -253,6 +253,12 @@ class FollowingPostsCacheManager {
       const dataSize = new Blob([dataToStore]).size;
       console.log(`📊 Cache data size: ${Math.round(dataSize / 1024)}KB`);
 
+      // Check if we have enough space
+      if (!this.hasEnoughSpace(dataSize)) {
+        console.log("⚠️ Not enough space, cleaning up first...");
+        this.clearAllOldCaches();
+      }
+
       localStorage.setItem(this.cacheKey, dataToStore);
       console.log("💾 Following posts cached:", optimizedPosts.length, "posts");
     } catch (error) {
