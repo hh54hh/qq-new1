@@ -115,7 +115,7 @@ export default function InstagramNewsFeed({
       setLoading(true);
     }
 
-    console.log("��� Initial posts load (cache only)...");
+    console.log("📥 Initial posts load (cache only)...");
     try {
       const cachedPosts = await cache.current.getPostsUltraFast();
       console.log("⚡ Cached posts loaded:", cachedPosts.length);
@@ -207,7 +207,7 @@ export default function InstagramNewsFeed({
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return "الآن";
+    if (diffInSeconds < 60) return "الآ��";
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} د`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} س`;
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} ي`;
@@ -276,7 +276,7 @@ export default function InstagramNewsFeed({
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-white text-lg">جاري تحميل المنش��رات...</p>
+            <p className="text-white text-lg">جاري تحميل المنشورات...</p>
             <p className="text-gray-400 text-sm mt-2">يرجى الانتظار</p>
           </div>
         </div>
@@ -364,9 +364,55 @@ export default function InstagramNewsFeed({
       {/* Posts Feed */}
       <div className="pb-20">
         {loading && posts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-            <p className="text-foreground">جاري تحميل المنشورات...</p>
+          <div className="space-y-4">
+            {/* Skeleton Stories */}
+            <div className="border-b border-border/20 bg-background/95 backdrop-blur-sm">
+              <div className="flex gap-4 p-4 overflow-x-auto scrollbar-hide">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-col items-center gap-1 min-w-[70px]"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-muted/30 animate-pulse"></div>
+                    <div className="w-12 h-3 bg-muted/30 rounded animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Skeleton Posts */}
+            {[...Array(3)].map((_, i) => (
+              <article
+                key={i}
+                className="border-b border-border/10 bg-background animate-pulse"
+              >
+                {/* Post Header Skeleton */}
+                <div className="flex items-center gap-3 p-4">
+                  <div className="w-10 h-10 rounded-full bg-muted/30"></div>
+                  <div className="flex-1">
+                    <div className="w-24 h-4 bg-muted/30 rounded mb-1"></div>
+                    <div className="w-16 h-3 bg-muted/20 rounded"></div>
+                  </div>
+                  <div className="w-6 h-6 bg-muted/20 rounded"></div>
+                </div>
+
+                {/* Post Image Skeleton */}
+                <div className="w-full h-80 bg-muted/20"></div>
+
+                {/* Post Actions Skeleton */}
+                <div className="p-4">
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="w-6 h-6 bg-muted/20 rounded"></div>
+                    <div className="w-6 h-6 bg-muted/20 rounded"></div>
+                    <div className="w-6 h-6 bg-muted/20 rounded"></div>
+                    <div className="ml-auto w-6 h-6 bg-muted/20 rounded"></div>
+                  </div>
+                  <div className="w-20 h-4 bg-muted/30 rounded mb-2"></div>
+                  <div className="w-full h-4 bg-muted/20 rounded mb-1"></div>
+                  <div className="w-3/4 h-4 bg-muted/20 rounded"></div>
+                </div>
+              </article>
+            ))}
           </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
@@ -378,7 +424,7 @@ export default function InstagramNewsFeed({
                 ابدأ متابعة الحلاقين
               </h3>
               <p className="text-muted-foreground">
-                اكتشف حلاق��ن جدد وتابع أعمالهم لترى منشوراتهم هنا
+                اكتشف حلاقين جدد وتابع أعمالهم لترى منشوراتهم هنا
               </p>
             </div>
 
