@@ -479,7 +479,7 @@ export default function UserProfile({
         </Card>
 
         {/* Content Tabs */}
-        {profileUser.role === "barber" && (
+        {(profileUser.role === "barber" || profileUser.service_category) && (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="posts">المنشورات</TabsTrigger>
