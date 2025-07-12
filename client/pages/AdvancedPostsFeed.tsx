@@ -57,6 +57,28 @@ export default function AdvancedPostsFeed({
   const lastScrollY = useRef(0);
   const isLoadingMore = useRef(false);
 
+  // Function to remove duplicate posts
+  const removeDuplicatePosts = useCallback((posts: CachedPost[]) => {
+    const seenIds = new Set<string>();
+    const uniquePosts = posts.filter((post) => {
+      const key = `${post.id}-${post.created_at}`;
+      if (seenIds.has(key)) {
+        console.warn("🚨 Duplicate post detected:", post.id);
+        return false;
+      }
+      seenIds.add(key);
+      return true;
+    });
+
+    if (uniquePosts.length !== posts.length) {
+      console.log(
+        `🧹 Removed ${posts.length - uniquePosts.length} duplicate posts`,
+      );
+    }
+
+    return uniquePosts;
+  }, []);
+
   // Initialize posts on mount
   useEffect(() => {
     initializePosts();
