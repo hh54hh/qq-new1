@@ -244,31 +244,31 @@ class FollowingPostsCacheManager {
       // Smart caching: Keep only the most recent posts and minimize data
       let postsToSave = [...posts];
 
-      // Always trim to reasonable size (reduce from 50 to 8 posts max)
+      // Ultra-conservative: Only 3 posts maximum to avoid quota issues
       postsToSave.sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
-      postsToSave = postsToSave.slice(0, 8); // Keep only 8 most recent
+      postsToSave = postsToSave.slice(0, 3); // Keep only 3 most recent
 
-      // Minimize data size by removing unnecessary fields
+      // Ultra-minimize data size
       const optimizedPosts = postsToSave.map((post) => ({
         id: post.id,
         user_id: post.user_id,
         image_url: post.image_url,
-        caption: post.caption?.substring(0, 200) || "", // Limit caption length
+        caption: post.caption?.substring(0, 80) || "", // Very short caption
         likes: post.likes,
         created_at: post.created_at,
-        cached_at: post.cached_at,
-        is_liked: post.is_liked,
+        cached_at: new Date().toISOString(),
+        is_liked: post.is_liked || false,
         user: post.user
           ? {
               id: post.user.id,
-              name: post.user.name,
+              name: post.user.name?.substring(0, 20) || "",
               avatar_url: post.user.avatar_url,
               role: post.user.role,
             }
-          : undefined,
+          : null,
       }));
 
       const cacheData: FollowingPostsCache = {
