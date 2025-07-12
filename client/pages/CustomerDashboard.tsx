@@ -868,7 +868,7 @@ export default function CustomerDashboard({
       const followersData = followersResponse.follows || [];
       const followingData = followingResponse.follows || [];
 
-      // تحميل بيانات المستخدمين الكاملة للمتابعين والمتابعين
+      // تحم��ل بيانات المستخدمين الكاملة للمتابعين والمتابعين
       const [enrichedFollowers, enrichedFollowing] = await Promise.all([
         enrichFollowData(followersData, "follower_id"),
         enrichFollowData(followingData, "followed_id"),
@@ -1861,7 +1861,7 @@ export default function CustomerDashboard({
                 </p>
                 {barbersFromCache && (
                   <div className="text-xs text-muted-foreground">
-                    📱 البيانات المحفوظة متاحة
+                    📱 البيانات المحفوظة متا��ة
                   </div>
                 )}
               </CardContent>
@@ -1947,7 +1947,7 @@ export default function CustomerDashboard({
                 اقتراحات مميزة
               </h3>
               <Badge variant="outline" className="text-xs">
-                جديد
+                ج��يد
               </Badge>
             </div>
 
@@ -2512,17 +2512,6 @@ export default function CustomerDashboard({
       console.log("📰 Rendering homepage tab with InstagramNewsFeed");
       return (
         <div>
-          {/* Debug button in development */}
-          {import.meta.env.DEV && (
-            <div className="p-2 bg-yellow-100 border-b">
-              <button
-                onClick={() => (window.location.href = "/test-newsfeed")}
-                className="text-xs bg-yellow-500 text-white px-2 py-1 rounded"
-              >
-                🧪 اختبار InstagramNewsFeed
-              </button>
-            </div>
-          )}
           <InstagramNewsFeed
             user={user}
             onUserClick={(selectedUser) => {
