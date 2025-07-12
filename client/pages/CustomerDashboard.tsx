@@ -50,6 +50,8 @@ import MessagesPage from "./MessagesPage";
 import AdvancedSearchPage from "./AdvancedSearchPage";
 import HomePageSimple from "./HomePageSimple";
 import InstagramNewsFeed from "./InstagramNewsFeed";
+import AdvancedPostsFeed from "./AdvancedPostsFeed";
+import CreatePostDialog from "../components/CreatePostDialog";
 import ExplorePageWithTabs from "./ExplorePageWithTabs";
 
 import LocationBar from "@/components/LocationBar";
@@ -1004,7 +1006,7 @@ export default function CustomerDashboard({
         store.removeFollow(followToRemove.id);
       }
 
-      // تحديث القائمة المحلية
+      // ��حديث القائمة المحلية
       setProfileFollowing((prev) =>
         prev.filter((f) => f.followed_id !== userId),
       );
@@ -2511,25 +2513,34 @@ export default function CustomerDashboard({
     case "homepage":
       console.log("📰 Rendering homepage tab with InstagramNewsFeed");
       return (
-        <div>
-          {/* Debug button in development */}
-          {import.meta.env.DEV && (
-            <div className="p-2 bg-yellow-100 border-b">
-              <button
-                onClick={() => (window.location.href = "/test-newsfeed")}
-                className="text-xs bg-yellow-500 text-white px-2 py-1 rounded"
-              >
-                🧪 اختبار InstagramNewsFeed
-              </button>
-            </div>
-          )}
-          <InstagramNewsFeed
+        <div className="relative">
+          <AdvancedPostsFeed
             user={user}
             onUserClick={(selectedUser) => {
               setSelectedProfile(selectedUser);
               setShowProfile(true);
             }}
           />
+
+          {/* Floating Create Post Button (for barbers) */}
+          {user.role === "barber" && (
+            <div className="fixed bottom-20 right-4 z-50">
+              <CreatePostDialog
+                user={user}
+                onPostCreated={(postId, synced) => {
+                  console.log(`✅ Post created: ${postId}, synced: ${synced}`);
+                  // Could show toast notification here
+                }}
+              >
+                <Button
+                  size="lg"
+                  className="w-14 h-14 rounded-full shadow-lg bg-primary hover:bg-primary/90"
+                >
+                  <Plus className="h-6 w-6" />
+                </Button>
+              </CreatePostDialog>
+            </div>
+          )}
         </div>
       );
     case "home":

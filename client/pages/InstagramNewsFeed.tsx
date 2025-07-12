@@ -31,73 +31,178 @@ export default function InstagramNewsFeed({
   console.log("👤 User data:", user);
 
   const [posts, setPosts] = useState<CachedFollowingPost[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [lastTabClickTime, setLastTabClickTime] = useState(0);
+  const [lastAppFocus, setLastAppFocus] = useState(Date.now());
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const [isFollowingAnyone, setIsFollowingAnyone] = useState<boolean | null>(
+    null,
+  );
   const cache = useRef(getFollowingPostsCache(user.id));
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load posts on mount
+  // Load posts on mount - only once
   useEffect(() => {
-    loadPosts();
+    loadPostsInitial();
 
     // Subscribe to cache updates
     const unsubscribe = cache.current.onRefresh(() => {
       loadPosts();
     });
 
-    // Preload cache in background
+    // Only preload if no cache exists
     cache.current.preloadOnLogin();
 
     return unsubscribe;
   }, [user.id]);
 
-  // Listen for manual refresh events
+  // Listen for manual refresh events, tab clicks, and network changes
   useEffect(() => {
     const handleManualRefresh = () => {
       handleRefresh();
     };
 
-    window.addEventListener("manualPostsRefresh", handleManualRefresh);
-    return () =>
-      window.removeEventListener("manualPostsRefresh", handleManualRefresh);
-  }, []);
+    // Listen for double tab click on homepage
+    const handleTabChange = (e: CustomEvent) => {
+      if (e.detail === "homepage") {
+        const now = Date.now();
+        if (now - lastTabClickTime < 1000) {
+          // Double click within 1 second
+          console.log("🔄 Double tab click detected, refreshing posts...");
+          handleRefresh();
+        }
+        setLastTabClickTime(now);
+      }
+    };
 
-  const loadPosts = async () => {
-    console.log("📥 Loading posts...");
+    // Listen for app focus/blur to detect 30 second absence
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const now = Date.now();
+        const awayTime = now - lastAppFocus;
+        console.log(
+          `👁️ App became visible, was away for ${Math.round(awayTime / 1000)} seconds`,
+        );
+
+        if (awayTime > 30000) {
+          // 30 seconds
+          console.log("🔄 App returned after 30+ seconds, refreshing posts...");
+          handleRefresh();
+        }
+        setLastAppFocus(now);
+      } else {
+        const now = Date.now();
+        console.log("👁️ App became hidden");
+        setLastAppFocus(now);
+      }
+    };
+
+    // Listen for network status changes
+    const handleOnline = () => {
+      console.log("🌐 Network came back online, refreshing posts...");
+      // Small delay to ensure network is stable
+      setTimeout(() => {
+        handleRefresh();
+      }, 2000);
+    };
+
+    const handleOffline = () => {
+      console.log("📵 Network went offline, using cached posts");
+    };
+
+    window.addEventListener("manualPostsRefresh", handleManualRefresh);
+    window.addEventListener("tabChange", handleTabChange as EventListener);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("manualPostsRefresh", handleManualRefresh);
+      window.removeEventListener("tabChange", handleTabChange as EventListener);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [lastTabClickTime, lastAppFocus]);
+
+  // Initial load - loads cached posts first, then refreshes if needed
+  const loadPostsInitial = async () => {
+    console.log("📥 Initial posts load...");
     try {
+      // First, load cached posts immediately for fast display
       const cachedPosts = await cache.current.getPostsUltraFast();
       console.log("⚡ Cached posts loaded:", cachedPosts.length);
       setPosts(cachedPosts);
 
-      if (cachedPosts.length === 0) {
-        console.log("🔄 No cached posts, fetching from API...");
-        setLoading(true);
+      // Check if we need to refresh (few posts or old cache)
+      const shouldRefresh = cachedPosts.length < 5 || navigator.onLine;
+
+      if (shouldRefresh && navigator.onLine) {
+        console.log("🔄 Refreshing posts in background...");
         try {
-          const freshPosts = await cache.current.refreshFromAPI();
-          console.log("✅ Fresh posts loaded:", freshPosts.length);
-          setPosts(freshPosts);
+          // Refresh in background to get latest posts
+          setTimeout(async () => {
+            try {
+              const freshPosts = await cache.current.refreshFromAPI();
+              console.log(
+                "✅ Background refresh completed:",
+                freshPosts.length,
+                "posts",
+              );
+              setPosts(freshPosts);
+            } catch (refreshError) {
+              console.warn("⚠️ Background refresh failed:", refreshError);
+            }
+          }, 500); // Small delay to show cached posts first
         } catch (error) {
-          console.error("❌ Error refreshing from API:", error);
-          setError(
-            error instanceof Error ? error.message : "خطأ في تحميل المنشورات",
-          );
-          setPosts([]);
+          console.warn("⚠️ Background refresh setup failed:", error);
+        }
+      }
+
+      // If no cached posts, check if user follows anyone (for better UX)
+      if (cachedPosts.length === 0) {
+        console.log("💭 No cached posts found, checking following status...");
+        try {
+          const { default: apiClient } = await import("../lib/api");
+          const followingResponse = await apiClient.getFollows("following");
+          setIsFollowingAnyone(followingResponse.total > 0);
+          console.log(`👥 User follows ${followingResponse.total} people`);
+        } catch (error) {
+          console.error("❌ Error checking following status:", error);
+          setIsFollowingAnyone(null);
         }
       }
     } catch (error) {
-      console.error("❌ Error loading posts:", error);
+      console.error("❌ Error loading cached posts:", error);
       setPosts([]);
     } finally {
-      console.log("🏁 Loading complete, posts count:", posts.length);
-      setLoading(false);
+      setHasInitialized(true);
+    }
+  };
+
+  // Regular load for manual refreshes
+  const loadPosts = async () => {
+    console.log("📥 Loading posts (from cache)...");
+    try {
+      const cachedPosts = await cache.current.getPostsUltraFast();
+      console.log("⚡ Cached posts loaded:", cachedPosts.length);
+      setPosts(cachedPosts);
+    } catch (error) {
+      console.error("❌ Error loading posts:", error);
+      setPosts([]);
     }
   };
 
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
+      // Check if user follows anyone first
+      const { default: apiClient } = await import("../lib/api");
+      const followingResponse = await apiClient.getFollows("following");
+      setIsFollowingAnyone(followingResponse.total > 0);
+
       const freshPosts = await cache.current.forceRefresh();
       setPosts(freshPosts);
     } catch (error) {
@@ -160,27 +265,36 @@ export default function InstagramNewsFeed({
     return `${Math.floor(diffInSeconds / 604800)} أ`;
   };
 
-  // Pull to refresh functionality
+  // Enhanced Pull to refresh functionality
   const handlePullToRefresh = useCallback((e: React.TouchEvent) => {
+    // Only allow pull to refresh if at top of page
+    if (scrollRef.current && scrollRef.current.scrollTop > 0) {
+      return;
+    }
+
     const startY = e.touches[0].clientY;
+    let hasMoved = false;
 
     const handleTouchMove = (moveEvent: TouchEvent) => {
       const currentY = moveEvent.touches[0].clientY;
       const pullDistance = currentY - startY;
 
-      if (pullDistance > 100 && scrollRef.current?.scrollTop === 0) {
+      // Only trigger if pulled down more than 100px from top
+      if (pullDistance > 100 && !hasMoved) {
+        hasMoved = true;
+        console.log("🔽 Pull to refresh triggered");
         handleRefresh();
         document.removeEventListener("touchmove", handleTouchMove);
       }
     };
 
-    document.addEventListener("touchmove", handleTouchMove);
-
-    const cleanup = () => {
+    const handleTouchEnd = () => {
       document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
     };
 
-    setTimeout(cleanup, 1000);
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleTouchEnd);
   }, []);
 
   // عرض رسالة الخطأ
@@ -203,27 +317,8 @@ export default function InstagramNewsFeed({
     );
   }
 
-  if (loading && posts.length === 0) {
-    return (
-      <div
-        className="min-h-screen"
-        style={{ backgroundColor: "#0a0a0a", color: "#ffffff" }}
-      >
-        {/* Loading indicator */}
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-white text-lg">جاري تحميل المنشورات...</p>
-            <p className="text-gray-400 text-sm mt-2">يرجى الانتظار</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   console.log("🎨 Rendering InstagramNewsFeed with:", {
     postsCount: posts.length,
-    loading,
     refreshing,
     userId: user?.id,
   });
@@ -238,17 +333,6 @@ export default function InstagramNewsFeed({
       }}
       onTouchStart={handlePullToRefresh}
     >
-      {/* Debug Info in Dev Mode */}
-      {import.meta.env.DEV && (
-        <div
-          className="p-2 bg-blue-100 text-blue-800 text-xs border-b"
-          style={{ backgroundColor: "#dbeafe", color: "#1e40af" }}
-        >
-          🔍 Debug: Posts={posts.length}, Loading={loading ? "YES" : "NO"},
-          User={user?.name}, Error={error || "none"}
-        </div>
-      )}
-
       {/* Stories Section */}
       <div className="sticky top-0 z-10 border-b border-border/20 bg-background/95 backdrop-blur-sm">
         <div className="flex gap-4 p-4 overflow-x-auto scrollbar-hide">
@@ -311,130 +395,134 @@ export default function InstagramNewsFeed({
 
       {/* Posts Feed */}
       <div className="pb-20">
-        {loading && posts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-            <p className="text-foreground">جاري تحميل المنشورات...</p>
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
-            <h3 className="text-lg font-medium text-foreground mb-2">
-              لا توجد منشورات
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              لا يوجد منشورات من الأشخاص الذين تتابعهم، أو لم تتابع أحداً بعد
-            </p>
-            <Button
-              onClick={() => {
-                // Navigate to explore tab
-                const event = new CustomEvent("tabChange", {
-                  detail: "search",
-                });
-                window.dispatchEvent(event);
-              }}
-              className="bg-primary text-primary-foreground"
-            >
-              استكشف الحلاقين
-            </Button>
-          </div>
-        ) : (
-          posts.map((post) => (
-            <article
-              key={post.id}
-              className="border-b border-border/10 bg-background"
-            >
-              {/* Post Header */}
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-3">
-                  <Avatar
-                    className="w-10 h-10 cursor-pointer"
-                    onClick={() => post.user && onUserClick?.(post.user)}
-                  >
-                    <AvatarImage src={post.user?.avatar_url} />
-                    <AvatarFallback>
-                      {post.user?.name?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p
-                      className="font-medium text-sm text-foreground cursor-pointer"
+        {
+          posts.length > 0 ? (
+            // ALWAYS show posts if we have them - render the actual posts
+            posts.map((post) => (
+              <article
+                key={post.id}
+                className="border-b border-border/10 bg-background"
+              >
+                {/* Post Header */}
+                <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      className="w-10 h-10 cursor-pointer"
                       onClick={() => post.user && onUserClick?.(post.user)}
                     >
-                      {post.user?.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatTime(post.created_at)}
-                    </p>
+                      <AvatarImage src={post.user?.avatar_url} />
+                      <AvatarFallback>
+                        {post.user?.name?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p
+                        className="font-medium text-sm text-foreground cursor-pointer"
+                        onClick={() => post.user && onUserClick?.(post.user)}
+                      >
+                        {post.user?.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatTime(post.created_at)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-5 h-5" />
-                </Button>
-              </div>
-
-              {/* Post Image - الصورة بحرية العرض */}
-              <div className="relative bg-black">
-                <img
-                  src={post.image_url}
-                  alt={post.caption || "منشور"}
-                  className="w-full h-auto max-h-[70vh] object-contain"
-                  style={{ aspectRatio: "auto" }}
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Post Actions */}
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="p-0 h-auto"
-                      onClick={() => handleLike(post.id)}
-                    >
-                      <Heart
-                        className={cn(
-                          "w-6 h-6 transition-colors",
-                          likedPosts.has(post.id) || post.is_liked
-                            ? "fill-red-500 text-red-500"
-                            : "text-foreground",
-                        )}
-                      />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="p-0 h-auto">
-                      <MessageCircle className="w-6 h-6" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="p-0 h-auto">
-                      <Send className="w-6 h-6" />
-                    </Button>
-                  </div>
-                  <Button variant="ghost" size="sm" className="p-0 h-auto">
-                    <Bookmark className="w-6 h-6" />
+                  <Button variant="ghost" size="sm">
+                    <MoreHorizontal className="w-5 h-5" />
                   </Button>
                 </div>
 
-                {/* Likes Count */}
-                <p className="text-sm font-medium text-foreground mb-2">
-                  {post.likes + (likedPosts.has(post.id) ? 1 : 0)} إعجاب
-                </p>
+                {/* Post Image */}
+                <div className="relative bg-black">
+                  <img
+                    src={post.image_url}
+                    alt={post.caption || "منشور"}
+                    className="w-full h-auto max-h-[70vh] object-contain"
+                    style={{ aspectRatio: "auto" }}
+                    loading="lazy"
+                  />
+                </div>
 
-                {/* Caption */}
-                {post.caption && (
-                  <div className="text-sm text-foreground">
-                    <span className="font-medium">{post.user?.name}</span>{" "}
-                    <span>{post.caption}</span>
+                {/* Post Actions */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-0 h-auto"
+                        onClick={() => handleLike(post.id)}
+                      >
+                        <Heart
+                          className={cn(
+                            "w-6 h-6 transition-colors",
+                            likedPosts.has(post.id) || post.is_liked
+                              ? "fill-red-500 text-red-500"
+                              : "text-foreground",
+                          )}
+                        />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="p-0 h-auto">
+                        <MessageCircle className="w-6 h-6" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="p-0 h-auto">
+                        <Send className="w-6 h-6" />
+                      </Button>
+                    </div>
+                    <Button variant="ghost" size="sm" className="p-0 h-auto">
+                      <Bookmark className="w-6 h-6" />
+                    </Button>
                   </div>
-                )}
 
-                {/* Comments */}
-                <button className="text-sm text-muted-foreground mt-2">
-                  عرض جميع التعليقات
-                </button>
+                  {/* Likes Count */}
+                  <p className="text-sm font-medium text-foreground mb-2">
+                    {post.likes + (likedPosts.has(post.id) ? 1 : 0)} إعجاب
+                  </p>
+
+                  {/* Caption */}
+                  {post.caption && (
+                    <div className="text-sm text-foreground">
+                      <span className="font-medium">{post.user?.name}</span>{" "}
+                      <span>{post.caption}</span>
+                    </div>
+                  )}
+
+                  {/* Comments */}
+                  <button className="text-sm text-muted-foreground mt-2">
+                    عرض جميع التعليقات
+                  </button>
+                </div>
+              </article>
+            ))
+          ) : // NEVER show empty state unless user doesn't follow anyone
+          isFollowingAnyone === false && hasInitialized ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
+              <div className="mb-6">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
+                  <span className="text-3xl">👥</span>
+                </div>
+                <h3 className="text-xl font-medium text-foreground mb-2">
+                  ابدأ متابعة الحلاقين
+                </h3>
+                <p className="text-muted-foreground">
+                  اكتشف حلاقين جدد وتابع أعمالهم لترى منشوراتهم هنا
+                </p>
               </div>
-            </article>
-          ))
-        )}
+
+              <Button
+                onClick={() => {
+                  const event = new CustomEvent("tabChange", {
+                    detail: "search",
+                  });
+                  window.dispatchEvent(event);
+                }}
+                className="bg-primary text-primary-foreground px-8 py-3 text-lg"
+              >
+                🔍 اكتشف الحلاقين
+              </Button>
+            </div>
+          ) : null // Don't show anything else - just wait for posts to load in background
+        }
       </div>
     </div>
   );
