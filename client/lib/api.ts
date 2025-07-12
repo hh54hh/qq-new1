@@ -276,7 +276,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م�� جميع الحقول";
+                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م��� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -302,7 +302,7 @@ class ApiClient {
               break;
             case 404:
               errorMessage =
-                "خ��مة API ��ير متوف����ة - مشكلة في ��عدادات الخادم";
+                "����مة API ��ير متوف���ة - مشكلة في ��عدادات الخادم";
               errorType = "API_NOT_FOUND_ERROR";
               suggestion =
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
@@ -396,7 +396,7 @@ class ApiClient {
           timestamp: new Date().toISOString(),
         });
 
-        let networkErrorMessage = "خطأ في ��لاتصال بالخادم";
+        let networkErrorMessage = "خطأ في الاتصال بالخادم";
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
 
         if (error.message.includes("Failed to fetch")) {
@@ -746,7 +746,10 @@ class ApiClient {
   }
 
   async getFollowingPosts(): Promise<GetPostsResponse> {
-    return this.request<GetPostsResponse>("/posts/following");
+    console.log("🔗 Calling getFollowingPosts API...");
+    const result = await this.request<GetPostsResponse>("/posts/following");
+    console.log("🔗 getFollowingPosts result:", result);
+    return result;
   }
 
   async createPost(postData: {
