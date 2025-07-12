@@ -53,6 +53,9 @@ import InstagramNewsFeed from "./InstagramNewsFeed";
 import AdvancedPostsFeed from "./AdvancedPostsFeed";
 import CreatePostDialog from "../components/CreatePostDialog";
 import ExplorePageWithTabs from "./ExplorePageWithTabs";
+import ServicesPage from "./ServicesPage";
+import ServiceProvidersPage from "./ServiceProvidersPage";
+import { ServiceCategory } from "@shared/service-categories";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -84,6 +87,9 @@ export default function CustomerDashboard({
   const [showFollowedBarbers, setShowFollowedBarbers] = useState(false);
   const [showNearbyBarbers, setShowNearbyBarbers] = useState(false);
   const [showAllBookings, setShowAllBookings] = useState(false);
+  const [showServices, setShowServices] = useState(false);
+  const [selectedServiceCategory, setSelectedServiceCategory] =
+    useState<ServiceCategory | null>(null);
 
   const [allBarbers, setAllBarbers] = useState<CachedBarber[]>([]);
   const [filteredBarbers, setFilteredBarbers] = useState<CachedBarber[]>([]);
@@ -466,7 +472,7 @@ export default function CustomerDashboard({
         id: "friend_req_2",
         type: "friend_request" as const,
         title: "طلب ص��اقة جديد",
-        message: "محمد العلي ي��يد متابعتك",
+        message: "محمد ا��علي ي��يد متابعتك",
         data: {
           senderId: "barber_2",
           senderName: "محمد العلي",
@@ -1589,7 +1595,7 @@ export default function CustomerDashboard({
                 <div className="flex items-center gap-2">
                   <div className="animate-spin h-3 w-3 border border-primary border-t-transparent rounded-full"></div>
                   <span className="text-sm text-primary">
-                    جاري ��حديد الموقع...
+                    جار�� ��حديد الموقع...
                   </span>
                 </div>
               ) : userLocation ? (
@@ -2446,7 +2452,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">ح����وز��ت</p>
+                <p className="text-sm text-muted-foreground">ح�����وز��ت</p>
               </div>
               <div
                 className="cursor-pointer"
