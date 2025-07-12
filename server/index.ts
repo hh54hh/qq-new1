@@ -381,6 +381,8 @@ function createAppWithRoutes(app: express.Application) {
   // Posts routes - both paths
   app.get("/api/posts", getPosts);
   app.get("/posts", getPosts);
+  app.get("/api/posts/following", getFollowingPosts);
+  app.get("/posts/following", getFollowingPosts);
   app.post("/api/posts", createPost);
   app.post("/posts", createPost);
 
