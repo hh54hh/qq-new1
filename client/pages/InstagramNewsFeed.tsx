@@ -95,9 +95,10 @@ export default function InstagramNewsFeed({
     }
   };
 
-  const handleLike = (postId: string) => {
+  const handleLike = async (postId: string) => {
     const isLiked = likedPosts.has(postId);
 
+    // Optimistic update
     if (isLiked) {
       setLikedPosts((prev) => {
         const newSet = new Set(prev);
@@ -108,8 +109,31 @@ export default function InstagramNewsFeed({
       setLikedPosts((prev) => new Set([...prev, postId]));
     }
 
-    // Update cache
+    // Update cache immediately
     cache.current.updatePostLike(postId, !isLiked);
+
+    // Send to API in background
+    try {
+      const apiClient = (await import("../lib/api")).default;
+      if (isLiked) {
+        await apiClient.unlikePost(postId);
+      } else {
+        await apiClient.likePost(postId);
+      }
+    } catch (error) {
+      console.error("Error updating like:", error);
+      // Revert optimistic update on error
+      if (isLiked) {
+        setLikedPosts((prev) => new Set([...prev, postId]));
+      } else {
+        setLikedPosts((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(postId);
+          return newSet;
+        });
+      }
+      cache.current.updatePostLike(postId, isLiked); // Revert cache
+    }
   };
 
   const formatTime = (dateString: string) => {
