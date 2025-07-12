@@ -289,14 +289,30 @@ class FollowingPostsCacheManager {
       const dataSize = new Blob([dataToStore]).size;
       console.log(`📊 Cache data size: ${Math.round(dataSize / 1024)}KB`);
 
+      // Be very conservative - if data is > 30KB, don't even try
+      if (dataSize > 30000) {
+        console.warn(
+          "⚠️ Data too large (>30KB), skipping cache to avoid quota error",
+        );
+        return;
+      }
+
       // Check if we have enough space
       if (!this.hasEnoughSpace(dataSize)) {
         console.log("⚠️ Not enough space, cleaning up first...");
         this.clearAllOldCaches();
+
+        // After cleanup, check again
+        if (!this.hasEnoughSpace(dataSize)) {
+          console.warn(
+            "⚠️ Still not enough space after cleanup, skipping cache",
+          );
+          return;
+        }
       }
 
       localStorage.setItem(this.cacheKey, dataToStore);
-      console.log("💾 Following posts cached:", optimizedPosts.length, "posts");
+      console.log("✅ Successfully cached", optimizedPosts.length, "posts");
     } catch (error) {
       if (error.name === "QuotaExceededError") {
         console.warn("🚨 localStorage quota exceeded, cleaning up...");
@@ -473,7 +489,7 @@ class FollowingPostsCacheManager {
         );
       } else {
         localStorage.removeItem(this.cacheKey);
-        console.log("🗑�� Cache completely cleared");
+        console.log("🗑️ Cache completely cleared");
       }
     } catch (error) {
       localStorage.removeItem(this.cacheKey);
