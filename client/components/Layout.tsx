@@ -35,12 +35,6 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    id: "homepage",
-    label: "الرئيسية",
-    icon: Newspaper,
-    roles: ["customer"],
-  },
-  {
     id: "home",
     label: "حلاقتي",
     icon: Home,
