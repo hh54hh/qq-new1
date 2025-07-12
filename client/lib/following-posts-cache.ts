@@ -257,12 +257,12 @@ class FollowingPostsCacheManager {
       );
       postsToSave = postsToSave.slice(0, 8); // Keep 8 most recent posts
 
-      // Ultra-minimize data size
+      // Smart optimization: keep essential data but remove unnecessary fields
       const optimizedPosts = postsToSave.map((post) => ({
         id: post.id,
         user_id: post.user_id,
         image_url: post.image_url,
-        caption: post.caption?.substring(0, 80) || "", // Very short caption
+        caption: post.caption?.substring(0, 150) || "", // Reasonable caption length
         likes: post.likes,
         created_at: post.created_at,
         cached_at: new Date().toISOString(),
@@ -270,7 +270,7 @@ class FollowingPostsCacheManager {
         user: post.user
           ? {
               id: post.user.id,
-              name: post.user.name?.substring(0, 20) || "",
+              name: post.user.name || "",
               avatar_url: post.user.avatar_url,
               role: post.user.role,
             }
