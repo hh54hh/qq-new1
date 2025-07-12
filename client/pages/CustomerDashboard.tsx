@@ -453,7 +453,7 @@ export default function CustomerDashboard({
       return;
     }
 
-    // إضافة طلب��ت صداقة تجريبية للإشعارات (مرة واحدة فقط)
+    // إضافة طلب��ت صداقة تجريبية للإشعارات (مرة واحدة ��قط)
     const friendRequests = [
       {
         id: "friend_req_1",
@@ -864,7 +864,7 @@ export default function CustomerDashboard({
 
   const loadProfileData = async () => {
     try {
-      // ت��ميل الإحصا��يات
+      // ت��ميل الإ��صا��يات
       const bookingsData = await apiClient.getBookings();
 
       // تحميل المتابعين والمتابعين
@@ -899,7 +899,7 @@ export default function CustomerDashboard({
     }
   };
 
-  // دالة مساعدة لإثراء بيانات المتابعة بمعلومات المستخدمين
+  // دالة مساعدة لإثراء بيانات المتابعة بمعلومات ال��ستخدمين
   const enrichFollowData = async (followData: any[], userIdField: string) => {
     if (!followData.length) return followData;
 
@@ -1099,7 +1099,7 @@ export default function CustomerDashboard({
       case "accepted":
         return "��ق��و��";
       case "rejected":
-        return "مرفوض";
+        return "م��فوض";
       case "cancelled":
         return "ملغي";
       default:
@@ -1574,6 +1574,21 @@ export default function CustomerDashboard({
       />
     );
   }
+
+  const handleServiceCategorySelect = (category: ServiceCategory) => {
+    setSelectedServiceCategory(category);
+    setShowServices(false); // Hide services page and show providers
+  };
+
+  const handleBackToServices = () => {
+    setSelectedServiceCategory(null);
+    setShowServices(true);
+  };
+
+  const handleBackToHome = () => {
+    setShowServices(false);
+    setSelectedServiceCategory(null);
+  };
 
   const renderHome = () => {
     const followedBarbers = filteredBarbers.filter(
@@ -2143,7 +2158,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
+              ? "جر�� البحث ��كلمة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حاليا��"}
           </p>
         </div>
