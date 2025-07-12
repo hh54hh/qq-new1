@@ -146,7 +146,7 @@ class FollowingPostsCacheManager {
       try {
         await this.refreshFromAPI();
       } catch (error) {
-        console.warn("��️ Background refresh failed:", error);
+        console.warn("⚠️ Background refresh failed:", error);
       }
     }, 100); // Small delay to not block UI
   }
@@ -178,17 +178,34 @@ class FollowingPostsCacheManager {
     }
   }
 
-  // Save posts to cache
+  // Save posts to cache with smart trimming
   private savePosts(posts: CachedFollowingPost[]): void {
     try {
+      // Smart caching: Keep only the most recent posts
+      let postsToSave = [...posts];
+
+      // If we have too many posts, trim to keep newest ones
+      if (postsToSave.length > this.maxPostsToStore) {
+        // Sort by created_at to ensure newest are first
+        postsToSave.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        );
+        // Keep only the most recent posts
+        postsToSave = postsToSave.slice(0, this.minPostsToKeep);
+        console.log(
+          `🗂️ Trimmed cache from ${posts.length} to ${postsToSave.length} posts (keeping newest)`,
+        );
+      }
+
       const cacheData: FollowingPostsCache = {
-        posts,
+        posts: postsToSave,
         lastUpdated: new Date().toISOString(),
         userId: this.userId,
       };
 
       localStorage.setItem(this.cacheKey, JSON.stringify(cacheData));
-      console.log("💾 Following posts cached:", posts.length, "posts");
+      console.log("💾 Following posts cached:", postsToSave.length, "posts");
     } catch (error) {
       console.error("❌ Cache save error:", error);
     }
