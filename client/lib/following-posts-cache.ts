@@ -110,7 +110,7 @@ class FollowingPostsCacheManager {
         return cached.posts;
       }
 
-      console.log("📭 No cached posts found");
+      console.log("📭 No cached posts found - will need initial load");
       return [];
     } catch (error) {
       console.error("❌ Ultra-fast cache error:", error);
