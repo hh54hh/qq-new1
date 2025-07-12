@@ -127,13 +127,39 @@ export default function InstagramNewsFeed({
     };
   }, [lastTabClickTime, lastAppFocus]);
 
-  // Initial load - only loads cached posts, no API calls
+  // Initial load - loads cached posts first, then refreshes if needed
   const loadPostsInitial = async () => {
-    console.log("📥 Initial posts load (cache only)...");
+    console.log("📥 Initial posts load...");
     try {
+      // First, load cached posts immediately for fast display
       const cachedPosts = await cache.current.getPostsUltraFast();
       console.log("⚡ Cached posts loaded:", cachedPosts.length);
       setPosts(cachedPosts);
+
+      // Check if we need to refresh (few posts or old cache)
+      const shouldRefresh = cachedPosts.length < 5 || navigator.onLine;
+
+      if (shouldRefresh && navigator.onLine) {
+        console.log("🔄 Refreshing posts in background...");
+        try {
+          // Refresh in background to get latest posts
+          setTimeout(async () => {
+            try {
+              const freshPosts = await cache.current.refreshFromAPI();
+              console.log(
+                "✅ Background refresh completed:",
+                freshPosts.length,
+                "posts",
+              );
+              setPosts(freshPosts);
+            } catch (refreshError) {
+              console.warn("⚠️ Background refresh failed:", refreshError);
+            }
+          }, 500); // Small delay to show cached posts first
+        } catch (error) {
+          console.warn("⚠️ Background refresh setup failed:", error);
+        }
+      }
 
       // If no cached posts, check if user follows anyone (for better UX)
       if (cachedPosts.length === 0) {
