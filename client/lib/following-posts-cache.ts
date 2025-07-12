@@ -27,6 +27,36 @@ class FollowingPostsCacheManager {
     this.cacheKey = `following_posts_cache_${userId}`;
 
     console.log("🗄️ FollowingPostsCache initialized for user:", userId);
+
+    // Check localStorage usage on init
+    this.checkStorageUsage();
+  }
+
+  // Check localStorage usage and clean if needed
+  private checkStorageUsage(): void {
+    try {
+      let totalSize = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          const value = localStorage.getItem(key);
+          if (value) {
+            totalSize += new Blob([value]).size;
+          }
+        }
+      }
+
+      const totalSizeMB = totalSize / (1024 * 1024);
+      console.log(`📊 Total localStorage usage: ${totalSizeMB.toFixed(2)}MB`);
+
+      // If usage is high (>3MB), proactively clean
+      if (totalSizeMB > 3) {
+        console.log("🧹 localStorage usage high, cleaning up...");
+        this.clearAllOldCaches();
+      }
+    } catch (error) {
+      console.error("❌ Storage check error:", error);
+    }
   }
 
   // Get cached posts ultra-fast (<50ms)
