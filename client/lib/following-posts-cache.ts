@@ -118,19 +118,39 @@ class FollowingPostsCacheManager {
     }
   }
 
-  // Preload posts when user logs in - only if no cache exists
+  // Preload posts when user logs in
   async preloadOnLogin(): Promise<void> {
     console.log("🚀 Checking if preload needed for user:", this.userId);
 
     try {
-      // Check if we have any cache (even expired)
       const cached = this.getCachedPosts();
+
       if (cached && cached.posts.length > 0) {
-        console.log("✅ Cache found, skipping preload (manual refresh only)");
+        // Check if cache is very old (> 30 minutes) or has very few posts
+        const cacheAge = Date.now() - new Date(cached.lastUpdated).getTime();
+        const thirtyMinutes = 30 * 60 * 1000;
+
+        if (cacheAge > thirtyMinutes || cached.posts.length < 3) {
+          console.log(
+            "🔄 Cache exists but is old or has few posts, refreshing in background...",
+          );
+          // Refresh in background to get latest posts
+          setTimeout(() => {
+            this.refreshFromAPI().catch((error) => {
+              console.warn("Background refresh failed:", error);
+            });
+          }, 1000); // Small delay to not block UI
+        } else {
+          console.log(
+            "✅ Fresh cache found with",
+            cached.posts.length,
+            "posts",
+          );
+        }
         return;
       }
 
-      // Only preload if no cache exists at all
+      // No cache exists - load initial data
       console.log("🔄 No cache found, initial load...");
       await this.refreshFromAPI();
     } catch (error) {
