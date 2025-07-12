@@ -8,7 +8,7 @@ import {
   SearchBarbersRequest,
   CreateBookingRequest,
 } from "../../shared/api";
-import { db, getCurrentUserId } from "../../shared/supabase";
+import { db, getCurrentUserId, supabase } from "../../shared/supabase";
 
 // Barbers endpoints
 export const getBarbers: RequestHandler = async (req, res) => {
