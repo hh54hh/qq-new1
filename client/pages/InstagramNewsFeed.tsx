@@ -114,7 +114,7 @@ export default function InstagramNewsFeed({
 
     // Send to API in background
     try {
-      const apiClient = (await import("../lib/api")).default;
+      const { default: apiClient } = await import("../lib/api");
       if (isLiked) {
         await apiClient.unlikePost(postId);
       } else {
@@ -276,7 +276,7 @@ export default function InstagramNewsFeed({
         {posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <h3 className="text-lg font-medium text-foreground mb-2">
-              لا توجد منشورات حتى الآن
+              لا توجد منشورات حتى ��لآن
             </h3>
             <p className="text-muted-foreground mb-4">
               ابدأ بمتابعة الحلاقين لرؤية منشوراتهم هنا
