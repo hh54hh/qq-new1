@@ -214,12 +214,27 @@ export default function InstagramNewsFeed({
     );
   }
 
+  console.log("🎨 Rendering InstagramNewsFeed with:", {
+    postsCount: posts.length,
+    loading,
+    refreshing,
+    userId: user?.id,
+  });
+
   return (
     <div
       ref={scrollRef}
       className="min-h-screen bg-background overflow-y-auto"
       onTouchStart={handlePullToRefresh}
     >
+      {/* Debug Info in Dev Mode */}
+      {import.meta.env.DEV && (
+        <div className="p-2 bg-blue-100 text-blue-800 text-xs border-b">
+          🔍 Debug: Posts={posts.length}, Loading={loading ? "YES" : "NO"},
+          User={user?.name}
+        </div>
+      )}
+
       {/* Stories Section */}
       <div className="sticky top-0 z-10 border-b border-border/20 bg-background/95 backdrop-blur-sm">
         <div className="flex gap-4 p-4 overflow-x-auto scrollbar-hide">
