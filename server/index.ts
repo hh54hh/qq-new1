@@ -390,6 +390,8 @@ function createAppWithRoutes(app: express.Application) {
   // Follows routes - both paths
   app.get("/api/follows", getFollows);
   app.get("/follows", getFollows);
+  app.get("/api/debug/follows", debugFollows);
+  app.get("/debug/follows", debugFollows);
   app.post("/api/follows", createFollow);
   app.post("/follows", createFollow);
   app.delete("/api/follows/:id", deleteFollow);
