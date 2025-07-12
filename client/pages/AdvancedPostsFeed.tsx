@@ -131,7 +131,7 @@ export default function AdvancedPostsFeed({
       case "posts_updated":
         // Refresh first page to get latest posts
         postsManager.getPosts(1).then((result) => {
-          setPosts(result.posts);
+          setPosts(removeDuplicatePosts(result.posts));
           setHasMore(true);
           setPage(1);
         });
