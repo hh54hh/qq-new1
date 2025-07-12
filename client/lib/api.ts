@@ -276,7 +276,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة�� ي��جى الت��قق م�� جميع الحقول";
+                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م�� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -403,7 +403,7 @@ class ApiClient {
           networkErrorMessage = "فشل في الاتصال بالخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
-          networkErrorMessage = "خطأ في ا����شبكة";
+          networkErrorMessage = "خطأ في ا������شبكة";
           suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
         } else if (error.message.includes("timeout")) {
           networkErrorMessage = "ا��تهت مهلة ��لاتصال";
@@ -757,6 +757,32 @@ class ApiClient {
     return this.request<Post>("/posts", {
       method: "POST",
       body: JSON.stringify(postData),
+    });
+  }
+
+  async likePost(postId: string): Promise<void> {
+    return this.request<void>(`/posts/${postId}/like`, {
+      method: "POST",
+    });
+  }
+
+  async unlikePost(postId: string): Promise<void> {
+    return this.request<void>(`/posts/${postId}/like`, {
+      method: "DELETE",
+    });
+  }
+
+  async getPostComments(postId: string): Promise<{ comments: any[] }> {
+    return this.request<{ comments: any[] }>(`/posts/${postId}/comments`);
+  }
+
+  async createPostComment(
+    postId: string,
+    comment: string,
+  ): Promise<{ comment: any }> {
+    return this.request<{ comment: any }>(`/posts/${postId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ comment }),
     });
   }
 
