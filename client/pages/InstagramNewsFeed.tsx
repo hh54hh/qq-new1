@@ -599,7 +599,68 @@ export default function InstagramNewsFeed({
                 </button>
               </div>
             </article>
-          ))
+                    ))
+        ) : (
+          // Only show empty state if user truly doesn't follow anyone AND we're initialized
+          isFollowingAnyone === false && hasInitialized ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
+              <div className="mb-6">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
+                  <span className="text-3xl">👥</span>
+                </div>
+                <h3 className="text-xl font-medium text-foreground mb-2">
+                  ابدأ متابعة الحلاقين
+                </h3>
+                <p className="text-muted-foreground">
+                  اكتشف حلاقين جدد وتابع أعمالهم لترى منشوراتهم هنا
+                </p>
+              </div>
+
+              <Button
+                onClick={() => {
+                  // Navigate to explore tab
+                  const event = new CustomEvent("tabChange", {
+                    detail: "search",
+                  });
+                  window.dispatchEvent(event);
+                }}
+                className="bg-primary text-primary-foreground px-8 py-3 text-lg"
+              >
+                🔍 اكتشف الحلاقين
+              </Button>
+            </div>
+          ) : (
+            // Show skeleton while loading initial content (only on very first load)
+            !hasInitialized && (
+              <div className="space-y-4">
+                {/* Skeleton Posts - only on first load */}
+                {[...Array(3)].map((_, i) => (
+                  <article key={i} className="border-b border-border/10 bg-background animate-pulse">
+                    <div className="flex items-center gap-3 p-4">
+                      <div className="w-10 h-10 rounded-full bg-muted/30"></div>
+                      <div className="flex-1">
+                        <div className="w-24 h-4 bg-muted/30 rounded mb-1"></div>
+                        <div className="w-16 h-3 bg-muted/20 rounded"></div>
+                      </div>
+                      <div className="w-6 h-6 bg-muted/20 rounded"></div>
+                    </div>
+                    <div className="w-full h-80 bg-muted/20"></div>
+                    <div className="p-4">
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="w-6 h-6 bg-muted/20 rounded"></div>
+                        <div className="w-6 h-6 bg-muted/20 rounded"></div>
+                        <div className="w-6 h-6 bg-muted/20 rounded"></div>
+                        <div className="ml-auto w-6 h-6 bg-muted/20 rounded"></div>
+                      </div>
+                      <div className="w-20 h-4 bg-muted/30 rounded mb-2"></div>
+                      <div className="w-full h-4 bg-muted/20 rounded mb-1"></div>
+                      <div className="w-3/4 h-4 bg-muted/20 rounded"></div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )
+          )
         )}
       </div>
     </div>
