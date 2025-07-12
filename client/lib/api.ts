@@ -223,7 +223,7 @@ class ApiClient {
     let timeoutId: NodeJS.Timeout | null = null;
 
     try {
-      // استخدام signal المُمرر أو إنشاء جديد مع timeout
+      // استخدام signal المُمرر أو إنشا�� جديد مع timeout
       if (!options.signal) {
         controller = new AbortController();
         timeoutId = setTimeout(() => {
@@ -448,13 +448,24 @@ class ApiClient {
       }
 
       // Handle unexpected errors
+      console.error("❌ Unexpected API error:", {
+        error: error instanceof Error ? error.message : String(error),
+        type: typeof error,
+        name: error instanceof Error ? error.name : "unknown",
+        stack: error instanceof Error ? error.stack : undefined,
+        endpoint,
+        url,
+      });
+
       const errorMessage =
         error instanceof Error
           ? error.message
           : typeof error === "object"
             ? JSON.stringify(error)
             : String(error);
-      console.error("❌ Unexpected API error:", {
+      console.error("❌ Processed error message:", errorMessage);
+
+      console.error("❌ Additional error details:", {
         message: errorMessage,
         errorDetails: error?.message || error?.toString() || "Unknown error",
         errorType: error?.name || "Unknown",
@@ -537,7 +548,7 @@ class ApiClient {
           console.error(`❌ فشلت إعادة المحاولة لـ ${endpoint}`);
           if (fallbackData !== undefined) {
             console.log(
-              `🔄 استخدام البيانات الاحتياطية بعد فشل إعادة المحاول��`,
+              `🔄 استخدام البيانات الاحتياط��ة بعد فشل إعادة المحاول��`,
             );
             return fallbackData;
           }
@@ -1292,7 +1303,7 @@ export { ApiClient };
 // Example: import apiClient from './api';
 // Only import { ApiClient } if you need the class itself
 
-// دالة تشخيص س��يعة ��اختبار API
+// دالة تشخيص س����يعة ��اختبار API
 export const diagnoseAPI = async () => {
   console.log("🔧 تشخيص API:", {
     baseUrl: apiClient["baseUrl"],
