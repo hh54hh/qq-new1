@@ -79,7 +79,8 @@ export default function ServiceProvidersPage({
       const ultraCache = await getUltraFastBarberCache(user.id);
 
       // Get providers from cache
-      const cachedProviders = await ultraCache.getBarbers();
+      const cacheResult = await ultraCache.getInstantBarbers();
+      const cachedProviders = cacheResult.barbers;
       console.log(
         `✅ ULTRA-FAST: Loaded ${cachedProviders.length} ${category} providers from cache`,
       );
@@ -99,12 +100,13 @@ export default function ServiceProvidersPage({
         setFilteredProviders(categoryProviders);
         setProvidersFromCache(true);
 
-        // Background refresh
+        // Background refresh using preload
         setTimeout(async () => {
           try {
             console.log(`🔄 Background refresh for ${category} providers...`);
-            await ultraCache.refresh();
-            const refreshedProviders = await ultraCache.getBarbers();
+            await ultraCache.preloadOnLogin();
+            const refreshResult = await ultraCache.getInstantBarbers();
+            const refreshedProviders = refreshResult.barbers;
             const refreshedCategoryProviders =
               category === "barber"
                 ? refreshedProviders
@@ -125,10 +127,11 @@ export default function ServiceProvidersPage({
           }
         }, 1000);
       } else {
-        // No cache, force refresh
+        // No cache, force refresh using preload
         console.log(`📱 No cache found for ${category}, forcing refresh...`);
-        await ultraCache.refresh();
-        const freshProviders = await ultraCache.getBarbers();
+        await ultraCache.preloadOnLogin();
+        const freshResult = await ultraCache.getInstantBarbers();
+        const freshProviders = freshResult.barbers;
         const freshCategoryProviders =
           category === "barber"
             ? freshProviders
@@ -432,7 +435,7 @@ export default function ServiceProvidersPage({
               <p className="text-muted-foreground text-sm">
                 {searchQuery
                   ? `لم نجد أي ${categoryConfig.nameAr} يطابق "${searchQuery}"`
-                  : `سنقوم بإضا��ة ${categoryConfig.nameAr}ين في هذه المنطقة قريباً`}
+                  : `سنقوم بإضافة ${categoryConfig.nameAr}��ن في هذه المنطقة قريباً`}
               </p>
               {searchQuery && (
                 <Button
