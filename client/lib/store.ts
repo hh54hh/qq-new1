@@ -299,11 +299,6 @@ export const appStore = new AppStore();
 
 // React Hook for using the store
 export function useAppStore(): [AppState, typeof appStore] {
-  // Add safety check for React context
-  if (typeof useState !== "function") {
-    throw new Error("useAppStore must be called within a React component");
-  }
-
   const [state, setState] = useState(appStore.getState());
 
   useEffect(() => {
