@@ -80,7 +80,9 @@ export default function InstagramNewsFeed({
           setPosts(freshPosts);
         } catch (error) {
           console.error("❌ Error refreshing from API:", error);
-          // If API fails, keep empty posts array
+          setError(
+            error instanceof Error ? error.message : "خطأ في تحميل المنشورات",
+          );
           setPosts([]);
         }
       }
@@ -305,7 +307,7 @@ export default function InstagramNewsFeed({
         {loading && posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-            <p className="text-foreground">جاري تحميل المنشورات...</p>
+            <p className="text-foreground">جاري تح��يل المنشورات...</p>
           </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
