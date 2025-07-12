@@ -200,27 +200,36 @@ export default function InstagramNewsFeed({
     return `${Math.floor(diffInSeconds / 604800)} أ`;
   };
 
-  // Pull to refresh functionality
+  // Enhanced Pull to refresh functionality
   const handlePullToRefresh = useCallback((e: React.TouchEvent) => {
+    // Only allow pull to refresh if at top of page
+    if (scrollRef.current && scrollRef.current.scrollTop > 0) {
+      return;
+    }
+
     const startY = e.touches[0].clientY;
+    let hasMoved = false;
 
     const handleTouchMove = (moveEvent: TouchEvent) => {
       const currentY = moveEvent.touches[0].clientY;
       const pullDistance = currentY - startY;
 
-      if (pullDistance > 100 && scrollRef.current?.scrollTop === 0) {
+      // Only trigger if pulled down more than 100px from top
+      if (pullDistance > 100 && !hasMoved) {
+        hasMoved = true;
+        console.log("🔽 Pull to refresh triggered");
         handleRefresh();
         document.removeEventListener("touchmove", handleTouchMove);
       }
     };
 
-    document.addEventListener("touchmove", handleTouchMove);
-
-    const cleanup = () => {
+    const handleTouchEnd = () => {
       document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
     };
 
-    setTimeout(cleanup, 1000);
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleTouchEnd);
   }, []);
 
   // عرض رسالة الخطأ
