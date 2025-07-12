@@ -320,6 +320,64 @@ export const getPosts: RequestHandler = async (req, res) => {
   }
 };
 
+// DEBUG: Get detailed follows info
+export const debugFollows: RequestHandler = async (req, res) => {
+  try {
+    const userId = getCurrentUserId(req.headers.authorization);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    console.log("🔍 DEBUG: Getting detailed follows data for user:", userId);
+
+    // Get following
+    const following = await db.follows.getByUser(userId, "following");
+
+    // Get followers
+    const followers = await db.follows.getByUser(userId, "followers");
+
+    // Get raw data from database
+    const { data: rawFollows, error } = await supabase
+      .from("follows")
+      .select("*")
+      .or(`follower_id.eq.${userId},followed_id.eq.${userId}`)
+      .order("created_at", { ascending: false });
+
+    const result = {
+      userId,
+      following: {
+        count: following?.length || 0,
+        users:
+          following?.map((f) => ({
+            id: f.followed_id,
+            name: f.user?.name,
+            email: f.user?.email,
+            createdAt: f.created_at,
+          })) || [],
+      },
+      followers: {
+        count: followers?.length || 0,
+        users:
+          followers?.map((f) => ({
+            id: f.follower_id,
+            name: f.user?.name,
+            email: f.user?.email,
+            createdAt: f.created_at,
+          })) || [],
+      },
+      rawFollows: rawFollows || [],
+      error: error?.message || null,
+    };
+
+    console.log("🔍 DEBUG follows result:", JSON.stringify(result, null, 2));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Debug follows error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Get posts from followed users only (for news feed)
 export const getFollowingPosts: RequestHandler = async (req, res) => {
   try {
