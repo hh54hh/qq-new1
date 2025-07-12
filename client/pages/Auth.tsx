@@ -129,7 +129,7 @@ export default function Auth({ onAuth }: AuthProps) {
             break;
           case "INVALID_PASSWORD":
             errorMessage = "كلمة المرور غير صحيحة";
-            errorDetails = "تأكد من كتابة كلمة ال��رور الصحيحة";
+            errorDetails = "تأكد من كتابة كلمة المرور الصحيحة";
             break;
           case "ACCOUNT_BLOCKED":
             errorMessage = "تم حظر الحساب";
@@ -173,7 +173,7 @@ export default function Auth({ onAuth }: AuthProps) {
     }
 
     if (registerData.name.trim().length < 2) {
-      setError("ال��سم يجب أن يحتوي على حرفين على الأقل");
+      setError("ال��سم يجب أن يحت��ي على حرفين على الأقل");
       return;
     }
 
@@ -244,7 +244,7 @@ export default function Auth({ onAuth }: AuthProps) {
             errorDetails = "يجب أن يحتوي الاسم على حرفين على الأقل";
             break;
           case "NAME_TOO_LONG":
-            errorMessage = "الاسم طو��ل جداً";
+            errorMessage = "الاسم طو���� جداً";
             errorDetails = "يجب أن يكون الاسم أقل من 50 حرف";
             break;
           case "INVALID_EMAIL_FORMAT":
@@ -336,9 +336,9 @@ export default function Auth({ onAuth }: AuthProps) {
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-golden-600 rounded-2xl flex items-center justify-center mb-4">
               <Scissors className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground">حلاقة</h1>
+            <h1 className="text-3xl font-bold text-foreground">خدماتي</h1>
             <p className="text-muted-foreground mt-2">
-              نظام إدارة صالونات الحلاقة
+              نظام إدارة الخدمات المتعددة
             </p>
           </div>
 
@@ -581,7 +581,7 @@ export default function Auth({ onAuth }: AuthProps) {
                             className="text-right"
                           />
                           <p className="text-xs text-muted-foreground">
-                            للحصول على مفتاح التفعيل، تواصل مع الإدارة على
+                            للحصول على مفتاح التفعيل، تواصل م�� الإدارة على
                             WhatsApp: 07800657822
                           </p>
                         </div>
