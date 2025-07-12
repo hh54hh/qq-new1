@@ -327,6 +327,37 @@ class OfflineStorageManager {
     });
   }
 
+  // Health check method
+  async isDatabaseHealthy(): Promise<boolean> {
+    if (!this.db) {
+      return false;
+    }
+
+    try {
+      // Check if all expected stores exist
+      for (const storeName of this.options.stores) {
+        if (!this.db.objectStoreNames.contains(storeName)) {
+          console.warn(`⚠️ Missing object store: ${storeName}`);
+          return false;
+        }
+      }
+
+      // Try a simple read operation
+      const testStore = this.options.stores[0];
+      const transaction = this.db.transaction([testStore], "readonly");
+      const store = transaction.objectStore(testStore);
+
+      return new Promise((resolve) => {
+        const countRequest = store.count();
+        countRequest.onsuccess = () => resolve(true);
+        countRequest.onerror = () => resolve(false);
+      });
+    } catch (error) {
+      console.error("Database health check failed:", error);
+      return false;
+    }
+  }
+
   async getStorageInfo(): Promise<{
     totalSize: number;
     storesSizes: Record<string, number>;
