@@ -398,9 +398,38 @@ class FollowingPostsCacheManager {
     return cacheAge < this.maxCacheAge;
   }
 
-  // Clear cache
+  // Clear cache - but keep minimum posts if possible
   private clearCache(): void {
-    localStorage.removeItem(this.cacheKey);
+    try {
+      const cached = this.getCachedPosts();
+      if (cached && cached.posts.length >= this.minPostsToKeep) {
+        // Keep the last 5 posts even when "clearing"
+        const postsToKeep = cached.posts
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          )
+          .slice(0, this.minPostsToKeep);
+
+        const backupCache = {
+          posts: postsToKeep,
+          lastUpdated: new Date().toISOString(),
+          userId: this.userId,
+        };
+
+        localStorage.setItem(this.cacheKey, JSON.stringify(backupCache));
+        console.log(
+          `🛡️ Cache cleared but kept ${this.minPostsToKeep} recent posts`,
+        );
+      } else {
+        localStorage.removeItem(this.cacheKey);
+        console.log("🗑️ Cache completely cleared");
+      }
+    } catch (error) {
+      localStorage.removeItem(this.cacheKey);
+      console.error("❌ Error in smart cache clear:", error);
+    }
   }
 
   // Subscribe to refresh events
