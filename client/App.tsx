@@ -283,11 +283,19 @@ const AppContent = () => {
         onShowNotifications={() => (window.location.href = "/notifications")}
       >
         {state.user.role === "customer" ? (
-          <CustomerDashboard
-            user={state.user}
-            activeTab={activeTab}
-            onLogout={handleLogout}
-          />
+          (() => {
+            console.log(
+              "🎯 Rendering CustomerDashboard with activeTab:",
+              activeTab,
+            );
+            return (
+              <CustomerDashboard
+                user={state.user}
+                activeTab={activeTab}
+                onLogout={handleLogout}
+              />
+            );
+          })()
         ) : state.user.role === "barber" ? (
           <BarberDashboard
             user={state.user}
