@@ -152,10 +152,11 @@ class AppStore {
         const savedUser = localStorage.getItem("barbershop_user");
         const savedToken = localStorage.getItem("barbershop_token");
 
-        console.log("Initializing auth from localStorage:", {
+        console.log("🔐 Initializing auth from localStorage:", {
           hasSavedUser: !!savedUser,
           hasSavedToken: !!savedToken,
-          tokenPrefix: savedToken?.substring(0, 10) + "...",
+          tokenPrefix: savedToken?.substring(0, 15) + "...",
+          userEmail: savedUser ? JSON.parse(savedUser).email : null,
         });
 
         if (savedUser && savedToken) {
