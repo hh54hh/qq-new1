@@ -255,5 +255,4 @@ export function clearAllFollowingPostsCaches() {
   followingPostsCacheInstances.clear();
 }
 
-export type { CachedFollowingPost };
 export { FollowingPostsCacheManager };
