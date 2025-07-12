@@ -289,11 +289,47 @@ class FollowingPostsCacheManager {
       const dataSize = new Blob([dataToStore]).size;
       console.log(`📊 Cache data size: ${Math.round(dataSize / 1024)}KB`);
 
-      // Be very conservative - if data is > 30KB, don't even try
-      if (dataSize > 30000) {
-        console.warn(
-          "⚠️ Data too large (>30KB), skipping cache to avoid quota error",
+      // Allow reasonable size for 8 posts - if data is > 100KB, then trim more
+      if (dataSize > 100000) {
+        console.warn("⚠️ Data too large (>100KB), trying with fewer posts...");
+        // Try again with fewer posts
+        const fewerPosts = postsToSave.slice(0, 5);
+        const trimmedData = {
+          posts: fewerPosts.map((post) => ({
+            id: post.id,
+            user_id: post.user_id,
+            image_url: post.image_url,
+            caption: post.caption?.substring(0, 100) || "",
+            likes: post.likes,
+            created_at: post.created_at,
+            cached_at: new Date().toISOString(),
+            is_liked: post.is_liked || false,
+            user: post.user
+              ? {
+                  id: post.user.id,
+                  name: post.user.name || "",
+                  avatar_url: post.user.avatar_url,
+                  role: post.user.role,
+                }
+              : null,
+          })),
+          lastUpdated: new Date().toISOString(),
+          userId: this.userId,
+        };
+
+        const trimmedDataString = JSON.stringify(trimmedData);
+        const trimmedSize = new Blob([trimmedDataString]).size;
+
+        if (trimmedSize > 100000) {
+          console.warn("⚠️ Even trimmed data too large, skipping cache");
+          return;
+        }
+
+        console.log(
+          `📊 Using trimmed data: ${fewerPosts.length} posts (${Math.round(trimmedSize / 1024)}KB)`,
         );
+        localStorage.setItem(this.cacheKey, trimmedDataString);
+        console.log("✅ Successfully cached trimmed posts");
         return;
       }
 
