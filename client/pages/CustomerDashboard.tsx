@@ -190,7 +190,7 @@ export default function CustomerDashboard({
         const followingResponse = await apiClient.getFollows("following");
         const follows = followingResponse.follows || [];
 
-        // تحديث store بب��انات المتابعة
+        // تحدي�� store بب��انات المتابعة
         store.setFollows(follows);
 
         console.log(`✅ Initialized ${follows.length} follows in store`);
@@ -453,7 +453,7 @@ export default function CustomerDashboard({
       return;
     }
 
-    // إضافة طلب��ت صداقة تجريبية للإشعارات (مرة واحدة ��قط)
+    // إضافة طلب��ت صداقة تجريبية للإشعارات (مرة واحدة فقط)
     const friendRequests = [
       {
         id: "friend_req_1",
@@ -864,7 +864,7 @@ export default function CustomerDashboard({
 
   const loadProfileData = async () => {
     try {
-      // ت��ميل الإ��صا��يات
+      // ت��ميل الإحصا��يات
       const bookingsData = await apiClient.getBookings();
 
       // تحميل المتابعين والمتابعين
@@ -876,7 +876,7 @@ export default function CustomerDashboard({
       const followersData = followersResponse.follows || [];
       const followingData = followingResponse.follows || [];
 
-      // تحميل بيانات المستخدمين الكاملة للمتابعين والمتابعين
+      // ت��ميل بيانات المستخدمين الكاملة للمتابعين والمتابعين
       const [enrichedFollowers, enrichedFollowing] = await Promise.all([
         enrichFollowData(followersData, "follower_id"),
         enrichFollowData(followingData, "followed_id"),
@@ -899,7 +899,7 @@ export default function CustomerDashboard({
     }
   };
 
-  // دالة مساعدة لإثراء بيانات المتابعة بمعلومات ال��ستخدمين
+  // دالة مساعدة لإثراء بيانات المتابعة بمعلومات المستخدمين
   const enrichFollowData = async (followData: any[], userIdField: string) => {
     if (!followData.length) return followData;
 
@@ -1099,7 +1099,7 @@ export default function CustomerDashboard({
       case "accepted":
         return "��ق��و��";
       case "rejected":
-        return "م��فوض";
+        return "مرفوض";
       case "cancelled":
         return "ملغي";
       default:
@@ -1591,6 +1591,36 @@ export default function CustomerDashboard({
   };
 
   const renderHome = () => {
+    // Show Services page instead of old barber list
+    return (
+      <ServicesPage
+        user={user}
+        onCategorySelect={handleServiceCategorySelect}
+        onBack={handleBackToHome}
+      />
+    );
+  };
+
+  // Show service providers for selected category
+  if (selectedServiceCategory) {
+    return (
+      <ServiceProvidersPage
+        user={user}
+        category={selectedServiceCategory}
+        onBack={handleBackToServices}
+        onProviderSelect={(provider) => {
+          setSelectedProfile(provider);
+          setShowProfile(true);
+        }}
+        onBookingRequest={(provider) => {
+          setSelectedBarber(provider);
+          setShowBookingPage(true);
+        }}
+      />
+    );
+  }
+
+  const renderOldHome = () => {
     const followedBarbers = filteredBarbers.filter(
       (barber) => barber.isFollowed,
     );
@@ -2158,7 +2188,7 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جر�� البحث ��كلمة أخرى من المنشورات ال����يزة"
+              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حاليا��"}
           </p>
         </div>
