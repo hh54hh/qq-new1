@@ -183,6 +183,26 @@ export default function InstagramNewsFeed({
     setTimeout(cleanup, 1000);
   }, []);
 
+  // عرض رسالة الخطأ
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <h2 className="text-xl font-bold text-foreground mb-4">حدث خطأ</h2>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <Button
+            onClick={() => {
+              setError(null);
+              loadPosts();
+            }}
+          >
+            إعادة المحاولة
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading && posts.length === 0) {
     return (
       <div className="min-h-screen bg-background">
@@ -307,7 +327,7 @@ export default function InstagramNewsFeed({
         {loading && posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
-            <p className="text-foreground">جاري تح��يل المنشورات...</p>
+            <p className="text-foreground">جاري تحميل المنشورات...</p>
           </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
