@@ -155,6 +155,11 @@ export default function InstagramNewsFeed({
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
+      // Check if user follows anyone first
+      const { default: apiClient } = await import("../lib/api");
+      const followingResponse = await apiClient.getFollows("following");
+      setIsFollowingAnyone(followingResponse.total > 0);
+
       const freshPosts = await cache.current.forceRefresh();
       setPosts(freshPosts);
     } catch (error) {
