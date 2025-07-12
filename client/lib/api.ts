@@ -308,7 +308,7 @@ class ApiClient {
                 "يبدو أن هناك مشكلة في إعدادات الخادم. اتصل بالدعم ��لفني على: 07800657822";
               break;
             case 409:
-              errorMessage = "ا��بي��نات موجودة بالفعل في النظام";
+              errorMessage = "ا��بي��نات موجودة بالفعل ف�� النظام";
               errorType = "CONFLICT_ERROR";
               break;
             case 429:
@@ -505,7 +505,7 @@ class ApiClient {
         return {} as unknown as T;
       }
 
-      // إذا كان يمكن إعادة ال��حاولة، جرب مرة واحدة أخرى
+      // إذا كان يم��ن إعادة ال��حاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
           console.log(`�� إعادة المحاولة لـ ${endpoint}`);
@@ -987,27 +987,9 @@ class ApiClient {
     return this.request<{ users: User[] }>("/admin/users");
   }
 
-    async getUserLikes(): Promise<{ liked_posts: string[] }> {
+      async getUserLikes(): Promise<{ liked_posts: string[] }> {
     return this.request<{ liked_posts: string[] }>("/posts/likes/user");
   }
-    try {
-      return await this.request<any>(`/posts/${postId}/comments`, {
-        method: "POST",
-        body: JSON.stringify({ comment }),
-      });
-    } catch (error) {
-      console.warn("Comment creation failed:", error);
-      // إنشاء تعليق مؤقت للعرض
-      return {
-        id: Date.now().toString(),
-        user: {
-          id: "current",
-          name: "أنت",
-          avatar_url: null,
-        },
-        comment,
-        created_at: new Date().toISOString(),
-      };
     }
   }
 
