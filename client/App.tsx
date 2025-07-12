@@ -275,6 +275,7 @@ const AppContent = () => {
         user={state.user}
         activeTab={activeTab}
         onTabChange={(tab) => {
+          console.log("📱 Tab changed to:", tab);
           setActiveTab(tab);
         }}
         onLogout={handleLogout}
