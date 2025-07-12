@@ -352,8 +352,13 @@ export default function AdvancedPostsFeed({
     }
 
     try {
-      // Update through posts manager
-      await postsManager.toggleLike(postId, !isLiked);
+      // Update via API
+      const { default: apiClient } = await import("../lib/api");
+      if (isLiked) {
+        await apiClient.unlikePost(postId);
+      } else {
+        await apiClient.likePost(postId);
+      }
     } catch (error) {
       console.error("Error updating like:", error);
       // Revert optimistic update
