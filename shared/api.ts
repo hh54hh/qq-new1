@@ -2,6 +2,9 @@ export interface DemoResponse {
   message: string;
 }
 
+// Import service categories
+import { ServiceCategory } from "./service-categories";
+
 // User roles
 export type UserRole = "customer" | "barber" | "admin";
 
@@ -28,6 +31,7 @@ export interface User {
   level: number;
   points: number;
   is_verified: boolean;
+  service_category?: ServiceCategory; // New field for service providers
   location?: {
     lat: number;
     lng: number;
@@ -54,7 +58,8 @@ export interface RegisterRequest {
   email: string;
   password: string;
   role: UserRole;
-  activation_key?: string; // Required for barbers
+  service_category?: ServiceCategory; // Required for service providers
+  activation_key?: string; // Required for barbers (legacy)
 }
 
 export interface AuthResponse {
