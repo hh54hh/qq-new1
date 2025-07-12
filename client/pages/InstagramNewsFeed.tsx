@@ -205,33 +205,17 @@ export default function InstagramNewsFeed({
 
   if (loading && posts.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        {/* Stories Placeholder */}
-        <div className="border-b border-border/20 bg-background">
-          <div className="flex gap-4 p-4 overflow-x-auto scrollbar-hide">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="flex flex-col items-center gap-1 min-w-[70px]"
-              >
-                <div className="w-16 h-16 rounded-full bg-muted animate-pulse" />
-                <div className="w-12 h-3 bg-muted rounded animate-pulse" />
-              </div>
-            ))}
+      <div
+        className="min-h-screen"
+        style={{ backgroundColor: "#0a0a0a", color: "#ffffff" }}
+      >
+        {/* Loading indicator */}
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-white text-lg">جاري تحميل المنشورات...</p>
+            <p className="text-gray-400 text-sm mt-2">يرجى الانتظار</p>
           </div>
-        </div>
-
-        {/* Loading Posts */}
-        <div className="space-y-4 p-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
-                <div className="w-24 h-4 bg-muted rounded animate-pulse" />
-              </div>
-              <div className="w-full h-80 bg-muted rounded-lg animate-pulse" />
-            </div>
-          ))}
         </div>
       </div>
     );
