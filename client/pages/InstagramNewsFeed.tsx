@@ -360,9 +360,9 @@ export default function InstagramNewsFeed({
         </div>
       )}
 
-      {/* Posts Feed */}
+            {/* Posts Feed */}
       <div className="pb-20">
-                {posts.length > 0 ? (
+        {posts.length > 0 ? (
           // ALWAYS show posts if we have them - render the actual posts
           posts.map((post) => (
             <article
