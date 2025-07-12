@@ -17,7 +17,7 @@ interface FollowingPostsCache {
 class FollowingPostsCacheManager {
   private userId: string;
   private cacheKey: string;
-  private maxCacheAge = 5 * 60 * 1000; // 5 minutes cache
+  private maxCacheAge = 30 * 60 * 1000; // 30 minutes cache - longer to prevent auto refresh
   private refreshCallbacks: Array<() => void> = [];
 
   constructor(userId: string) {
@@ -47,9 +47,11 @@ class FollowingPostsCacheManager {
         return cached.posts;
       }
 
-      console.log("🔄 No valid cache, triggering background refresh");
-      // Return empty array for ultra-fast response, trigger background refresh
-      this.refreshInBackground();
+      console.log(
+        "🔄 No valid cache, but NOT auto-refreshing (manual refresh only)",
+      );
+      // Return empty array but don't trigger automatic refresh
+      // User needs to manually refresh
       return [];
     } catch (error) {
       console.error("❌ Ultra-fast cache error:", error);
@@ -57,18 +59,20 @@ class FollowingPostsCacheManager {
     }
   }
 
-  // Preload posts when user logs in
+  // Preload posts when user logs in - only if no cache exists
   async preloadOnLogin(): Promise<void> {
-    console.log("🚀 Preloading following posts for user:", this.userId);
+    console.log("🚀 Checking if preload needed for user:", this.userId);
 
     try {
-      // Check if we have valid cache first
+      // Check if we have any cache (even expired)
       const cached = this.getCachedPosts();
-      if (cached && this.isCacheValid(cached)) {
-        console.log("✅ Valid cache found, skipping preload");
+      if (cached && cached.posts.length > 0) {
+        console.log("✅ Cache found, skipping preload (manual refresh only)");
         return;
       }
 
+      // Only preload if no cache exists at all
+      console.log("🔄 No cache found, initial load...");
       await this.refreshFromAPI();
     } catch (error) {
       console.error("❌ Preload error:", error);
