@@ -367,34 +367,36 @@ class FollowingPostsCacheManager {
       // NUCLEAR OPTION: Clear almost everything except auth
       this.nuclearCleanup();
 
-      // Try to save ultra-minimal data (just 1 post with bare minimum fields)
+      // Try to save emergency data (3 posts for better offline support)
       if (posts.length > 0) {
-        const ultraMinimalPost = posts.sort(
-          (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-        )[0];
+        const emergencyPosts = posts
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          )
+          .slice(0, 3) // Keep 3 posts for offline experience
+          .map((post) => ({
+            id: post.id,
+            user_id: post.user_id,
+            image_url: post.image_url,
+            caption: post.caption?.substring(0, 80) || "",
+            likes: post.likes || 0,
+            created_at: post.created_at,
+            cached_at: new Date().toISOString(),
+            is_liked: false,
+            user: post.user
+              ? {
+                  id: post.user.id,
+                  name: post.user.name?.substring(0, 30) || "",
+                  avatar_url: post.user.avatar_url,
+                  role: post.user.role,
+                }
+              : null,
+          }));
 
         const essentialData = {
-          posts: [
-            {
-              id: ultraMinimalPost.id,
-              user_id: ultraMinimalPost.user_id,
-              image_url: ultraMinimalPost.image_url,
-              caption: ultraMinimalPost.caption?.substring(0, 50) || "",
-              likes: ultraMinimalPost.likes || 0,
-              created_at: ultraMinimalPost.created_at,
-              cached_at: new Date().toISOString(),
-              is_liked: false,
-              user: ultraMinimalPost.user
-                ? {
-                    id: ultraMinimalPost.user.id,
-                    name: ultraMinimalPost.user.name?.substring(0, 20) || "",
-                    avatar_url: ultraMinimalPost.user.avatar_url,
-                    role: ultraMinimalPost.user.role,
-                  }
-                : null,
-            },
-          ],
+          posts: emergencyPosts,
           lastUpdated: new Date().toISOString(),
           userId: this.userId,
         };
