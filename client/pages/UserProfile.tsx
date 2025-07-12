@@ -461,8 +461,9 @@ export default function UserProfile({
                   </Button>
                 </div>
 
-                {/* الصف الثاني: حجز موعد (للحلاقين فقط) */}
-                {profileUser.role === "barber" && (
+                {/* الصف الثاني: حجز موعد (لمقدمي الخدمات) */}
+                {(profileUser.role === "barber" ||
+                  profileUser.service_category) && (
                   <Button
                     variant="outline"
                     onClick={onBooking}
