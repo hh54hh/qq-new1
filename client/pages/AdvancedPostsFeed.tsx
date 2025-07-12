@@ -321,16 +321,16 @@ export default function AdvancedPostsFeed({
   const saveCurrentScrollPosition = () => {
     if (scrollRef.current) {
       const scrollTop = scrollRef.current.scrollTop;
-      postsManager.saveScrollPosition(scrollTop);
+      localStorage.setItem(`posts_scroll_${user.id}`, scrollTop.toString());
     }
   };
 
   const restoreScrollPosition = () => {
     setTimeout(() => {
       if (scrollRef.current) {
-        const savedPosition = postsManager.getScrollPosition();
-        if (savedPosition > 0) {
-          scrollRef.current.scrollTop = savedPosition;
+        const savedPosition = localStorage.getItem(`posts_scroll_${user.id}`);
+        if (savedPosition && parseInt(savedPosition) > 0) {
+          scrollRef.current.scrollTop = parseInt(savedPosition);
         }
       }
     }, 100);
