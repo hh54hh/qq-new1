@@ -119,9 +119,11 @@ export default function AdvancedPostsFeed({
     switch (event) {
       case "posts_loaded":
         if (data.posts) {
-          setPosts((prev) =>
-            data.page === 1 ? data.posts : [...prev, ...data.posts],
-          );
+          setPosts((prev) => {
+            const newPosts =
+              data.page === 1 ? data.posts : [...prev, ...data.posts];
+            return removeDuplicatePosts(newPosts);
+          });
           setHasMore(data.hasMore);
         }
         break;
