@@ -35,63 +35,103 @@ export default function InstagramNewsFeed({
   const [refreshing, setRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [lastTabClickTime, setLastTabClickTime] = useState(0);
+  const [lastAppFocus, setLastAppFocus] = useState(Date.now());
   const cache = useRef(getFollowingPostsCache(user.id));
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load posts on mount
+  // Load posts on mount - only once
   useEffect(() => {
-    loadPosts();
+    loadPostsInitial();
 
     // Subscribe to cache updates
     const unsubscribe = cache.current.onRefresh(() => {
       loadPosts();
     });
 
-    // Preload cache in background
+    // Only preload if no cache exists
     cache.current.preloadOnLogin();
 
     return unsubscribe;
   }, [user.id]);
 
-  // Listen for manual refresh events
+  // Listen for manual refresh events and tab clicks
   useEffect(() => {
     const handleManualRefresh = () => {
       handleRefresh();
     };
 
-    window.addEventListener("manualPostsRefresh", handleManualRefresh);
-    return () =>
-      window.removeEventListener("manualPostsRefresh", handleManualRefresh);
-  }, []);
+    // Listen for double tab click on homepage
+    const handleTabChange = (e: CustomEvent) => {
+      if (e.detail === "homepage") {
+        const now = Date.now();
+        if (now - lastTabClickTime < 1000) {
+          // Double click within 1 second
+          console.log("🔄 Double tab click detected, refreshing posts...");
+          handleRefresh();
+        }
+        setLastTabClickTime(now);
+      }
+    };
 
-  const loadPosts = async () => {
-    console.log("📥 Loading posts...");
+    // Listen for app focus/blur to detect 30 second absence
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const now = Date.now();
+        if (now - lastAppFocus > 30000) {
+          // 30 seconds
+          console.log("🔄 App returned after 30+ seconds, refreshing posts...");
+          handleRefresh();
+        }
+        setLastAppFocus(now);
+      } else {
+        setLastAppFocus(Date.now());
+      }
+    };
+
+    window.addEventListener("manualPostsRefresh", handleManualRefresh);
+    window.addEventListener("tabChange", handleTabChange as EventListener);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("manualPostsRefresh", handleManualRefresh);
+      window.removeEventListener("tabChange", handleTabChange as EventListener);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [lastTabClickTime, lastAppFocus]);
+
+  // Initial load - only loads cached posts, no API calls
+  const loadPostsInitial = async () => {
+    console.log("📥 Initial posts load (cache only)...");
     try {
       const cachedPosts = await cache.current.getPostsUltraFast();
       console.log("⚡ Cached posts loaded:", cachedPosts.length);
       setPosts(cachedPosts);
 
+      // If no cached posts, still show empty state (no automatic API call)
       if (cachedPosts.length === 0) {
-        console.log("🔄 No cached posts, fetching from API...");
-        setLoading(true);
-        try {
-          const freshPosts = await cache.current.refreshFromAPI();
-          console.log("✅ Fresh posts loaded:", freshPosts.length);
-          setPosts(freshPosts);
-        } catch (error) {
-          console.error("❌ Error refreshing from API:", error);
-          setError(
-            error instanceof Error ? error.message : "خطأ في تحميل المنشورات",
-          );
-          setPosts([]);
-        }
+        console.log(
+          "💭 No cached posts found, showing empty state (manual refresh required)",
+        );
       }
+    } catch (error) {
+      console.error("❌ Error loading cached posts:", error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Regular load for manual refreshes
+  const loadPosts = async () => {
+    console.log("📥 Loading posts (from cache)...");
+    try {
+      const cachedPosts = await cache.current.getPostsUltraFast();
+      console.log("⚡ Cached posts loaded:", cachedPosts.length);
+      setPosts(cachedPosts);
     } catch (error) {
       console.error("❌ Error loading posts:", error);
       setPosts([]);
-    } finally {
-      console.log("🏁 Loading complete, posts count:", posts.length);
-      setLoading(false);
     }
   };
 
