@@ -224,7 +224,11 @@ export default function InstagramNewsFeed({
   return (
     <div
       ref={scrollRef}
-      className="min-h-screen bg-background overflow-y-auto"
+      className="min-h-screen bg-background text-foreground overflow-y-auto"
+      style={{
+        backgroundColor: "hsl(var(--background))",
+        color: "hsl(var(--foreground))",
+      }}
       onTouchStart={handlePullToRefresh}
     >
       {/* Debug Info in Dev Mode */}
@@ -300,7 +304,7 @@ export default function InstagramNewsFeed({
         {posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <h3 className="text-lg font-medium text-foreground mb-2">
-              لا توجد منشورات حتى الآن
+              لا توجد منش��رات حتى الآن
             </h3>
             <p className="text-muted-foreground mb-4">
               ابدأ بمتابعة الحلاقين لرؤية منشوراتهم هنا
