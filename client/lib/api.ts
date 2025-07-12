@@ -276,7 +276,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م�� جميع الحقول";
+                "البيانات المد��لة غير صحيحة�� ي��جى الت��قق م�� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -743,6 +743,10 @@ class ApiClient {
   async getPosts(userId?: string): Promise<GetPostsResponse> {
     const params = userId ? `?user_id=${userId}` : "";
     return this.request<GetPostsResponse>(`/posts${params}`);
+  }
+
+  async getFollowingPosts(): Promise<GetPostsResponse> {
+    return this.request<GetPostsResponse>("/posts/following");
   }
 
   async createPost(postData: {
