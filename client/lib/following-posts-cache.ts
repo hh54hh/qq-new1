@@ -240,6 +240,12 @@ class FollowingPostsCacheManager {
 
   // Save posts to cache with smart trimming and quota management
   private savePosts(posts: CachedFollowingPost[]): void {
+    // Don't try to save if no posts or localStorage might be full
+    if (!posts || posts.length === 0) {
+      console.log("📭 No posts to save, skipping cache");
+      return;
+    }
+
     try {
       // Smart caching: Keep only the most recent posts and minimize data
       let postsToSave = [...posts];
@@ -467,7 +473,7 @@ class FollowingPostsCacheManager {
         );
       } else {
         localStorage.removeItem(this.cacheKey);
-        console.log("🗑️ Cache completely cleared");
+        console.log("🗑�� Cache completely cleared");
       }
     } catch (error) {
       localStorage.removeItem(this.cacheKey);
