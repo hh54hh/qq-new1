@@ -31,12 +31,13 @@ export default function InstagramNewsFeed({
   console.log("👤 User data:", user);
 
   const [posts, setPosts] = useState<CachedFollowingPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Don't show loading by default
   const [refreshing, setRefreshing] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [lastTabClickTime, setLastTabClickTime] = useState(0);
   const [lastAppFocus, setLastAppFocus] = useState(Date.now());
+  const [hasInitialized, setHasInitialized] = useState(false);
   const cache = useRef(getFollowingPostsCache(user.id));
   const scrollRef = useRef<HTMLDivElement>(null);
 
