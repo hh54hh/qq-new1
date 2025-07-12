@@ -87,14 +87,17 @@ export default function ServiceProvidersPage({
 
       if (cachedProviders.length > 0) {
         // Filter by category if needed (for now, only barbers are available)
-        const categoryProviders =
-          category === "barber"
-            ? cachedProviders
-            : cachedProviders.filter(
-                (provider) =>
-                  provider.service_category === category ||
-                  (category === "barber" && provider.role === "barber"),
-              );
+        const categoryProviders = cachedProviders.filter((provider) => {
+          // For barber category, show all barbers (legacy and new)
+          if (category === "barber") {
+            return (
+              provider.role === "barber" ||
+              provider.service_category === "barber"
+            );
+          }
+          // For other categories, only show providers with matching service_category
+          return provider.service_category === category;
+        });
 
         setAllProviders(categoryProviders);
         setFilteredProviders(categoryProviders);
@@ -107,14 +110,17 @@ export default function ServiceProvidersPage({
             await ultraCache.preloadOnLogin();
             const refreshResult = await ultraCache.getInstantBarbers();
             const refreshedProviders = refreshResult.barbers;
-            const refreshedCategoryProviders =
-              category === "barber"
-                ? refreshedProviders
-                : refreshedProviders.filter(
-                    (provider) =>
-                      provider.service_category === category ||
-                      (category === "barber" && provider.role === "barber"),
+            const refreshedCategoryProviders = refreshedProviders.filter(
+              (provider) => {
+                if (category === "barber") {
+                  return (
+                    provider.role === "barber" ||
+                    provider.service_category === "barber"
                   );
+                }
+                return provider.service_category === category;
+              },
+            );
 
             setAllProviders(refreshedCategoryProviders);
             setFilteredProviders(refreshedCategoryProviders);
@@ -132,14 +138,15 @@ export default function ServiceProvidersPage({
         await ultraCache.preloadOnLogin();
         const freshResult = await ultraCache.getInstantBarbers();
         const freshProviders = freshResult.barbers;
-        const freshCategoryProviders =
-          category === "barber"
-            ? freshProviders
-            : freshProviders.filter(
-                (provider) =>
-                  provider.service_category === category ||
-                  (category === "barber" && provider.role === "barber"),
-              );
+        const freshCategoryProviders = freshProviders.filter((provider) => {
+          if (category === "barber") {
+            return (
+              provider.role === "barber" ||
+              provider.service_category === "barber"
+            );
+          }
+          return provider.service_category === category;
+        });
 
         setAllProviders(freshCategoryProviders);
         setFilteredProviders(freshCategoryProviders);
@@ -321,7 +328,7 @@ export default function ServiceProvidersPage({
         {/* Results Count */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {filteredProviders.length} من {categoryConfig.nameAr}
+            {filteredProviders.length} م�� {categoryConfig.nameAr}
             {filteredProviders.length !== 1 ? "ين" : ""}
             {searchQuery && ` • نتائج البحث عن "${searchQuery}"`}
           </p>
@@ -435,7 +442,7 @@ export default function ServiceProvidersPage({
               <p className="text-muted-foreground text-sm">
                 {searchQuery
                   ? `لم نجد أي ${categoryConfig.nameAr} يطابق "${searchQuery}"`
-                  : `سنقوم بإضافة ${categoryConfig.nameAr}��ن في هذه المنطقة قريباً`}
+                  : `سنقوم بإضافة ${categoryConfig.nameAr}ين في هذه المنطقة قريباً`}
               </p>
               {searchQuery && (
                 <Button
