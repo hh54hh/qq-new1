@@ -24,12 +24,13 @@ class OfflineStorageManager {
   constructor(options?: Partial<StorageOptions>) {
     this.options = {
       dbName: "BarberAppOfflineDB",
-      version: 2,
+      version: 3,
       stores: [
         "bookings",
         "messages",
         "users",
         "barbershops",
+        "barbers", // Added missing barbers store
         "services",
         "notifications",
         "posts",
@@ -49,6 +50,10 @@ class OfflineStorageManager {
         reject(new Error("IndexedDB not supported"));
         return;
       }
+
+      console.log(
+        `🔧 Initializing IndexedDB: ${this.options.dbName} v${this.options.version}`,
+      );
 
       const request = indexedDB.open(this.options.dbName, this.options.version);
 
@@ -289,20 +294,68 @@ class OfflineStorageManager {
       throw new Error("Database not initialized");
     }
 
+    // Check if the object store exists
+    if (!this.db.objectStoreNames.contains(storeName)) {
+      console.warn(
+        `⚠️ Object store '${storeName}' does not exist, skipping clear operation`,
+      );
+      return;
+    }
+
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([storeName], "readwrite");
-      const store = transaction.objectStore(storeName);
-      const request = store.clear();
+      try {
+        const transaction = this.db!.transaction([storeName], "readwrite");
+        const store = transaction.objectStore(storeName);
+        const request = store.clear();
 
-      request.onsuccess = () => {
-        console.log(`🧹 Cleared store: ${storeName}`);
-        resolve();
-      };
+        request.onsuccess = () => {
+          console.log(`🧹 Cleared store: ${storeName}`);
+          resolve();
+        };
 
-      request.onerror = () => {
-        reject(new Error(`Failed to clear store: ${storeName}`));
-      };
+        request.onerror = () => {
+          reject(new Error(`Failed to clear store: ${storeName}`));
+        };
+
+        transaction.onerror = () => {
+          reject(new Error(`Transaction failed for store: ${storeName}`));
+        };
+      } catch (error) {
+        console.error(`❌ Error accessing store '${storeName}':`, error);
+        reject(error);
+      }
     });
+  }
+
+  // Health check method
+  async isDatabaseHealthy(): Promise<boolean> {
+    if (!this.db) {
+      return false;
+    }
+
+    try {
+      // Check if all expected stores exist
+      for (const storeName of this.options.stores) {
+        if (!this.db.objectStoreNames.contains(storeName)) {
+          console.warn(`⚠️ Missing object store: ${storeName}`);
+          return false;
+        }
+      }
+
+      // Try a simple read operation
+      const testStore = this.options.stores[0];
+      const transaction = this.db.transaction([testStore], "readonly");
+      const store = transaction.objectStore(testStore);
+
+      return new Promise((resolve) => {
+        const countRequest = store.count();
+        countRequest.onsuccess = () => resolve(true);
+        countRequest.onerror = () => resolve(false);
+      });
+    } catch (error) {
+      console.error("Database health check failed:", error);
+      return false;
+    }
   }
 
   async getStorageInfo(): Promise<{

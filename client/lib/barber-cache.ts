@@ -205,6 +205,13 @@ class BarberCacheManager {
         return;
       }
 
+      // Check database health before sync
+      const isHealthy = await this.storage.isDatabaseHealthy();
+      if (!isHealthy) {
+        console.warn("⚠️ Database unhealthy, skipping background sync");
+        return;
+      }
+
       console.log("🔄 Syncing barbers in background...");
 
       // Get fresh data from API with timeout
@@ -329,6 +336,13 @@ class BarberCacheManager {
 
   private async replaceBarbers(barbers: CachedBarber[]): Promise<void> {
     try {
+      // Check database health before operations
+      const isHealthy = await this.storage.isDatabaseHealthy();
+      if (!isHealthy) {
+        console.warn("⚠️ Database unhealthy, skipping barber replacement");
+        return;
+      }
+
       // Clear old barbers
       await this.storage.clearStore("barbers");
 
@@ -340,6 +354,10 @@ class BarberCacheManager {
       for (const barber of topBarbers) {
         await this.storage.saveData("barbers", barber, barber.id, "barber");
       }
+
+      console.log(
+        `✅ Successfully replaced ${topBarbers.length} barbers in cache`,
+      );
     } catch (error) {
       console.error("Failed to replace barbers:", error);
     }

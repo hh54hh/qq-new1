@@ -1,4 +1,3 @@
-// Advanced Posts Feed - Professional Facebook-like Experience
 import React, {
   useState,
   useEffect,
@@ -15,8 +14,6 @@ import {
   Bookmark,
   MoreHorizontal,
   Plus,
-  Wifi,
-  WifiOff,
   RefreshCw,
   ArrowUp,
 } from "lucide-react";
@@ -97,76 +94,94 @@ export default function AdvancedPostsFeed({
 
   // Initialize posts
   const initializePosts = async () => {
-    console.log("📥 Initializing posts...");
+    console.log("📥 Initializing posts for user:", user.id);
+    console.log("📥 PostsManager:", postsManager);
     try {
       const result = await postsManager.getPosts(1);
-      setPosts(removeDuplicatePosts(result.posts));
+      console.log("📥 PostsManager.getPosts(1) result:", result);
+      console.log("📥 Raw posts from manager:", result.posts);
+
+      const uniquePosts = removeDuplicatePosts(result.posts);
+      console.log("📥 Unique posts after deduplication:", uniquePosts);
+
+      setPosts(uniquePosts);
       setHasMore(result.hasMore);
       setNewPostsCount(result.newPostsCount);
 
       console.log(
         `✅ Initialized with ${result.posts.length} posts (cache: ${result.isFromCache})`,
       );
+      console.log("✅ Posts state should now be:", uniquePosts);
     } catch (error) {
       console.error("❌ Error initializing posts:", error);
     }
   };
 
   // Handle posts manager events
-  const handlePostsEvent = useCallback((event: string, data?: any) => {
-    console.log(`📡 Posts event: ${event}`, data);
+  const handlePostsEvent = useCallback(
+    (event: string, data?: any) => {
+      console.log(`📡 Posts event: ${event}`, data);
 
-    switch (event) {
-      case "posts_loaded":
-        if (data.posts) {
-          setPosts((prev) => {
-            const newPosts =
-              data.page === 1 ? data.posts : [...prev, ...data.posts];
-            return removeDuplicatePosts(newPosts);
+      switch (event) {
+        case "posts_loaded":
+          if (data.posts) {
+            setPosts((prev) => {
+              const newPosts =
+                data.page === 1 ? data.posts : [...prev, ...data.posts];
+              return removeDuplicatePosts(newPosts);
+            });
+            setHasMore(data.hasMore);
+          }
+          break;
+
+        case "posts_updated":
+          // Refresh first page to get latest posts
+          postsManager.getPosts(1).then((result) => {
+            setPosts(removeDuplicatePosts(result.posts));
+            setHasMore(true);
+            setPage(1);
           });
-          setHasMore(data.hasMore);
-        }
-        break;
+          break;
 
-      case "posts_updated":
-        // Refresh first page to get latest posts
-        postsManager.getPosts(1).then((result) => {
-          setPosts(removeDuplicatePosts(result.posts));
-          setHasMore(true);
-          setPage(1);
-        });
-        break;
+        case "new_posts_available":
+          setNewPostsCount(data.count);
+          setShowNewPostsBar(true);
+          break;
 
-      case "new_posts_available":
-        setNewPostsCount(data.count);
-        setShowNewPostsBar(true);
-        break;
+        case "post_added":
+          // Add new post to top of feed
+          initializePosts();
+          break;
+      }
+    },
+    [postsManager, removeDuplicatePosts],
+  );
 
-      case "post_added":
-        // Add new post to top of feed
-        initializePosts();
-        break;
+  // Network state management
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      console.log("🌐 Back online, refreshing posts...");
+      handleRefresh();
+    };
 
-      case "network_status":
-        setIsOnline(data.online);
-        break;
+    const handleOffline = () => {
+      setIsOnline(false);
+      console.log("📵 Gone offline");
+    };
 
-      case "post_synced":
-        // Update post status
-        setPosts((prev) =>
-          prev.map((post) =>
-            post.id === data.localId || post.local_id === data.localId
-              ? { ...post, id: data.serverId, sync_status: "synced" }
-              : post,
-          ),
-        );
-        break;
-    }
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
   }, []);
 
   // Load more posts (infinite scroll)
-  const loadMorePosts = useCallback(async () => {
-    if (!hasMore || isLoadingMore.current) return;
+  const loadMorePosts = async () => {
+    if (isLoadingMore.current || !hasMore) return;
 
     isLoadingMore.current = true;
     setLoading(true);
@@ -179,120 +194,149 @@ export default function AdvancedPostsFeed({
         setPosts((prev) => removeDuplicatePosts([...prev, ...result.posts]));
         setPage(nextPage);
         setHasMore(result.hasMore);
+
+        console.log(`📄 Loaded page ${nextPage}: ${result.posts.length} posts`);
       } else {
         setHasMore(false);
       }
-
-      console.log(`📄 Loaded page ${nextPage}: ${result.posts.length} posts`);
     } catch (error) {
       console.error("❌ Error loading more posts:", error);
     } finally {
       setLoading(false);
       isLoadingMore.current = false;
     }
-  }, [page, hasMore]);
+  };
 
-  // Infinite scroll handler
-  const handleScroll = useCallback(() => {
-    const container = scrollRef.current;
-    if (!container) return;
-
-    const scrollY = container.scrollTop;
-    const scrollHeight = container.scrollHeight;
-    const clientHeight = container.clientHeight;
-
-    // Save scroll position
-    setScrollPosition(scrollY);
-
-    // Load more when near bottom
-    if (
-      scrollHeight - scrollY - clientHeight < 1000 &&
-      hasMore &&
-      !loading &&
-      !isLoadingMore.current
-    ) {
-      loadMorePosts();
-    }
-
-    lastScrollY.current = scrollY;
-  }, [hasMore, loading, loadMorePosts]);
-
-  // Pull to refresh
-  const handlePullToRefresh = useCallback(async (e: React.TouchEvent) => {
-    const container = scrollRef.current;
-    if (!container || container.scrollTop > 0) return;
-
-    const startY = e.touches[0].clientY;
-    let hasPulled = false;
-
-    const handleTouchMove = (moveEvent: TouchEvent) => {
-      const currentY = moveEvent.touches[0].clientY;
-      const pullDistance = currentY - startY;
-
-      if (pullDistance > 80 && !hasPulled) {
-        hasPulled = true;
-        handleRefresh();
-        document.removeEventListener("touchmove", handleTouchMove);
-      }
-    };
-
-    const handleTouchEnd = () => {
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("touchend", handleTouchEnd);
-    };
-
-    document.addEventListener("touchmove", handleTouchMove);
-    document.addEventListener("touchend", handleTouchEnd);
-  }, []);
-
-  // Refresh posts
+  // Handle manual refresh
   const handleRefresh = async () => {
+    console.log("🔄 Manual refresh triggered");
     setRefreshing(true);
+    setShowNewPostsBar(false);
+
     try {
-      const result = await postsManager.refreshPosts();
+      const result = await postsManager.getPosts(1, true); // Force refresh
       setPosts(removeDuplicatePosts(result.posts));
-      setHasMore(result.hasMore);
       setPage(1);
+      setHasMore(true);
       setNewPostsCount(0);
-      setShowNewPostsBar(false);
-      console.log("🔄 Posts refreshed");
+
+      console.log("✅ Manual refresh completed");
+
+      // Scroll to top
+      if (scrollRef.current) {
+        scrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
     } catch (error) {
-      console.error("❌ Error refreshing posts:", error);
+      console.error("❌ Refresh failed:", error);
     } finally {
       setRefreshing(false);
     }
   };
 
-  // Show new posts
-  const showNewPosts = () => {
-    setShowNewPostsBar(false);
-    setNewPostsCount(0);
-    scrollToTop();
-    handleRefresh();
-  };
+  // Handle scroll for infinite loading and scroll position tracking
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const element = e.currentTarget;
+      const scrollTop = element.scrollTop;
+      const scrollHeight = element.scrollHeight;
+      const clientHeight = element.clientHeight;
 
-  // Scroll to top
-  const scrollToTop = () => {
-    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  };
+      // Track scroll position
+      setScrollPosition(scrollTop);
 
-  // Save/restore scroll position
+      // Load more when near bottom (200px threshold)
+      if (
+        scrollHeight - scrollTop - clientHeight < 200 &&
+        hasMore &&
+        !loading &&
+        !isLoadingMore.current
+      ) {
+        loadMorePosts();
+      }
+
+      lastScrollY.current = scrollTop;
+    },
+    [hasMore, loading, loadMorePosts],
+  );
+
+  // Pull to refresh functionality
+  const handlePullToRefresh = useCallback(
+    (e: React.TouchEvent) => {
+      // Only allow pull to refresh if at top of page
+      if (scrollRef.current && scrollRef.current.scrollTop > 0) {
+        return;
+      }
+
+      const startY = e.touches[0].clientY;
+      let hasMoved = false;
+
+      const handleTouchMove = (moveEvent: TouchEvent) => {
+        const currentY = moveEvent.touches[0].clientY;
+        const pullDistance = currentY - startY;
+
+        // Only trigger if pulled down more than 100px from top
+        if (pullDistance > 100 && !hasMoved) {
+          hasMoved = true;
+          console.log("🔽 Pull to refresh triggered");
+          handleRefresh();
+          document.removeEventListener("touchmove", handleTouchMove);
+        }
+      };
+
+      const handleTouchEnd = () => {
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+      };
+
+      document.addEventListener("touchmove", handleTouchMove);
+      document.addEventListener("touchend", handleTouchEnd);
+    },
+    [handleRefresh],
+  );
+
+  // Double tap on home tab to refresh
+  useEffect(() => {
+    let lastTapTime = 0;
+
+    const handleTabChange = (e: CustomEvent) => {
+      if (e.detail === "homepage") {
+        const now = Date.now();
+        if (now - lastTapTime < 500) {
+          // Double tap within 500ms
+          console.log("👆 Double tap on home tab detected, refreshing...");
+          handleRefresh();
+        }
+        lastTapTime = now;
+      }
+    };
+
+    window.addEventListener("tabChange", handleTabChange as EventListener);
+
+    return () => {
+      window.removeEventListener("tabChange", handleTabChange as EventListener);
+    };
+  }, [handleRefresh]);
+
+  // Scroll position management
   const saveCurrentScrollPosition = () => {
-    if (scrollPosition > 0) {
-      postsManager.saveScrollPosition(scrollPosition);
+    if (scrollRef.current) {
+      const scrollTop = scrollRef.current.scrollTop;
+      localStorage.setItem(`posts_scroll_${user.id}`, scrollTop.toString());
     }
   };
 
-  const restoreScrollPosition = async () => {
-    const savedPosition = await postsManager.getScrollPosition();
-    if (savedPosition > 0) {
-      setTimeout(() => {
-        scrollRef.current?.scrollTo({ top: savedPosition });
-      }, 100);
-    }
+  const restoreScrollPosition = () => {
+    setTimeout(() => {
+      if (scrollRef.current) {
+        const savedPosition = localStorage.getItem(`posts_scroll_${user.id}`);
+        if (savedPosition && parseInt(savedPosition) > 0) {
+          scrollRef.current.scrollTop = parseInt(savedPosition);
+        }
+      }
+    }, 100);
   };
 
-  // Handle like
+  // Like post functionality
   const handleLike = async (postId: string) => {
     const isLiked = likedPosts.has(postId);
 
@@ -307,17 +351,8 @@ export default function AdvancedPostsFeed({
       setLikedPosts((prev) => new Set([...prev, postId]));
     }
 
-    // Update posts
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === postId
-          ? { ...post, likes: post.likes + (isLiked ? -1 : 1) }
-          : post,
-      ),
-    );
-
-    // API call (works offline with queue)
     try {
+      // Update via API
       const { default: apiClient } = await import("../lib/api");
       if (isLiked) {
         await apiClient.unlikePost(postId);
@@ -325,11 +360,21 @@ export default function AdvancedPostsFeed({
         await apiClient.likePost(postId);
       }
     } catch (error) {
-      console.warn("⚠️ Like sync failed (will retry later):", error);
+      console.error("Error updating like:", error);
+      // Revert optimistic update
+      if (isLiked) {
+        setLikedPosts((prev) => new Set([...prev, postId]));
+      } else {
+        setLikedPosts((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(postId);
+          return newSet;
+        });
+      }
     }
   };
 
-  // Format time
+  // Time formatting function
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -342,55 +387,24 @@ export default function AdvancedPostsFeed({
     return `${Math.floor(diffInSeconds / 604800)} أ`;
   };
 
-  console.log("🎨 Rendering AdvancedPostsFeed:", {
-    postsCount: posts.length,
-    hasMore,
-    isOnline,
-    newPostsCount,
-  });
-
   return (
     <div className="min-h-screen bg-background text-foreground relative">
-      {/* Network Status Bar */}
-      <div
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 p-2 text-center text-sm transition-all duration-300",
-          isOnline
-            ? "bg-green-500/20 text-green-700 translate-y-0"
-            : "bg-red-500/20 text-red-700 translate-y-0",
-          "backdrop-blur-sm",
-        )}
-      >
-        <div className="flex items-center justify-center gap-2">
-          {isOnline ? (
-            <>
-              <Wifi className="h-4 w-4" />
-              <span>متصل</span>
-            </>
-          ) : (
-            <>
-              <WifiOff className="h-4 w-4" />
-              <span>غير متصل - تعمل من الذاكرة المحلية</span>
-            </>
-          )}
-        </div>
-      </div>
-
       {/* New Posts Bar */}
       {showNewPostsBar && (
-        <div className="fixed top-12 left-4 right-4 z-40">
+        <div className="fixed top-4 left-4 right-4 z-40">
           <Button
-            onClick={showNewPosts}
+            onClick={handleRefresh}
             className="w-full bg-primary text-primary-foreground shadow-lg"
+            disabled={refreshing}
           >
-            <ArrowUp className="h-4 w-4 mr-2" />
-            عرض {newPostsCount} منشور جديد
+            <ArrowUp className="w-4 h-4 mr-2" />
+            {newPostsCount} منشور جديد - انقر للتحديث
           </Button>
         </div>
       )}
 
       {/* Stories Section */}
-      <div className="sticky top-12 z-30 border-b border-border/20 bg-background/95 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 border-b border-border/20 bg-background/95 backdrop-blur-sm">
         <div className="flex gap-4 p-4 overflow-x-auto scrollbar-hide">
           {/* Your Story */}
           <div className="flex flex-col items-center gap-1 min-w-[70px]">
@@ -501,6 +515,7 @@ export default function AdvancedPostsFeed({
                   src={post.image_url}
                   alt={post.caption || "منشور"}
                   className="w-full h-auto max-h-[70vh] object-contain"
+                  style={{ aspectRatio: "auto" }}
                   loading="lazy"
                 />
               </div>
@@ -538,7 +553,7 @@ export default function AdvancedPostsFeed({
 
                 {/* Likes Count */}
                 <p className="text-sm font-medium text-foreground mb-2">
-                  {post.likes} إعجاب
+                  {post.likes + (likedPosts.has(post.id) ? 1 : 0)} إعجاب
                 </p>
 
                 {/* Caption */}
@@ -559,22 +574,56 @@ export default function AdvancedPostsFeed({
             </article>
           ))
         ) : (
-          // Empty state
+          /* No posts state */
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/20 flex items-center justify-center">
-              <Heart className="w-8 h-8 text-muted-foreground" />
+            <div className="mb-6">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
+                <span className="text-3xl">📝</span>
+              </div>
+              <h3 className="text-xl font-medium text-foreground mb-2">
+                لا توجد منشورات بعد
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                تابع بعض الحلاقين لترى منشوراتهم هنا
+              </p>
             </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">
-              لا توجد منشورات بعد
-            </h3>
-            <p className="text-muted-foreground">
-              ابدأ بم��ابعة الحلاقين لرؤية منشوراتهم هنا
-            </p>
+
+            <Button
+              onClick={() => {
+                // Navigate to search/explore
+                const event = new CustomEvent("tabChange", {
+                  detail: "search",
+                });
+                window.dispatchEvent(event);
+              }}
+              className="bg-primary text-primary-foreground px-8 py-3"
+            >
+              🔍 اكتشف الحلاقين
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleRefresh()}
+              className="mt-3"
+              disabled={refreshing}
+            >
+              {refreshing ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  جاري التحديث...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  تحديث
+                </>
+              )}
+            </Button>
           </div>
         )}
 
-        {/* Loading more indicator */}
-        {loading && hasMore && (
+        {/* Loading More Indicator */}
+        {loading && (
           <div className="flex justify-center py-6">
             <div className="flex items-center gap-2 text-muted-foreground">
               <RefreshCw className="h-4 w-4 animate-spin" />

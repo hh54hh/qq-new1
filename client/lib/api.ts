@@ -62,7 +62,7 @@ class ApiClient {
         return window.location.origin + "/.netlify/functions/api";
       }
 
-      // لجميع البيئات ال��خ��ى (fly.dev وغيرها) استخدم /api العادي
+      // لجم��ع البيئات ال��خ��ى (fly.dev وغيرها) استخدم /api العادي
       return window.location.origin + "/api";
     }
     // للخادم أو SSR
@@ -86,7 +86,7 @@ class ApiClient {
       return;
     }
 
-    // للبيئات الأخرى، اختبر ا������سارات المختلفة
+    // للبيئات الأخرى، اختبر ا��������سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -228,7 +228,9 @@ class ApiClient {
         controller = new AbortController();
         timeoutId = setTimeout(() => {
           console.warn(`⏰ انتهت مهلة الطلب (30 ثانية): ${endpoint}`);
-          controller?.abort();
+          if (controller && !controller.signal.aborted) {
+            controller.abort("Request timeout after 30 seconds");
+          }
         }, 30000);
       }
 
@@ -276,7 +278,7 @@ class ApiClient {
           switch (response.status) {
             case 400:
               errorMessage =
-                "البيانات المد��لة غير صحيحة�� يرجى الت��قق م��� جميع الحقول";
+                "البيان��ت المد��لة غير صحيحة�� يرجى الت��قق م��� جميع الحقول";
               errorType = "VALIDATION_ERROR";
               break;
             case 401:
@@ -375,38 +377,58 @@ class ApiClient {
 
       // Handle AbortError (timeout or cancellation)
       if (error instanceof Error && error.name === "AbortError") {
-        console.warn(`⏰ تم إ��غاء الطلب أو انتهت المهلة: ${endpoint}`);
+        console.warn(`⏰ تم إلغاء الطلب أو انتهت المهلة: ${endpoint}`);
+        console.warn("AbortError details:", {
+          message: error.message,
+          cause: error.cause,
+          stack: error.stack,
+        });
 
         const timeoutError = new Error(
           "انتهت مهلة الاتصال (30 ثانية)، يرجى المحاولة مرة أخرى",
         ) as any;
         timeoutError.errorType = "TIMEOUT_ERROR";
-        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة ����خرى";
+        timeoutError.suggestion = "تحقق من سرعة الإنترنت وحاول مرة أخرى";
         throw timeoutError;
       }
 
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        console.error("���� Network error details:", {
+        console.error(
+          "📶 Network error details:",
+          JSON.stringify(
+            {
+              message: error.message,
+              url: url,
+              endpoint: endpoint,
+              errorType: error.name,
+              isOnline: navigator.onLine,
+              timestamp: new Date().toISOString(),
+            },
+            null,
+            2,
+          ),
+        );
+
+        // Log error details in readable format
+        console.error("Network error occurred:", {
           message: error.message,
           url: url,
           endpoint: endpoint,
-          errorType: error.name,
           isOnline: navigator.onLine,
-          timestamp: new Date().toISOString(),
         });
 
         let networkErrorMessage = "خطأ في الاتصال بالخادم";
-        let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
+        let suggestion = "تحقق من الاتصال بالإنترنت وحاول مرة أخرى";
 
         if (error.message.includes("Failed to fetch")) {
           networkErrorMessage = "فشل في الاتصال بالخادم";
           suggestion = "تحقق من اتصال الإنترنت أو أن الخادم متاح";
         } else if (error.message.includes("NetworkError")) {
-          networkErrorMessage = "خطأ في ا������شبكة";
-          suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهات��";
+          networkErrorMessage = "خطأ في الشبكة";
+          suggestion = "تحقق من اتصال Wi-Fi أو بيانات الهاتف";
         } else if (error.message.includes("timeout")) {
-          networkErrorMessage = "ا��تهت مهلة ��لاتصال";
+          networkErrorMessage = "انتهت مهلة الاتصال";
           suggestion = "الاتصال بطيء، يرجى المحاولة مرة أخرى";
         }
 
@@ -505,7 +527,7 @@ class ApiClient {
         return {} as unknown as T;
       }
 
-      // إذا كان يم��ن إعادة ال��حاولة، جرب مرة واحدة أخرى
+      // إذا كان يم��ن إعادة ال����حاولة، جرب مرة واحدة أخرى
       if (apiError.canRetry) {
         try {
           console.log(`�� إعادة المحاولة لـ ${endpoint}`);
@@ -523,7 +545,7 @@ class ApiClient {
         }
       }
 
-      // إذا و����دت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
+      // إذا و����دت بيانات احتياطية، استخدمه�� بدلاً من رمي الخطأ
       if (fallbackData !== undefined) {
         console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
         return fallbackData;
@@ -1270,7 +1292,7 @@ export { ApiClient };
 // Example: import apiClient from './api';
 // Only import { ApiClient } if you need the class itself
 
-// دالة تشخيص سريعة ��اختبار API
+// دالة تشخيص س��يعة ��اختبار API
 export const diagnoseAPI = async () => {
   console.log("🔧 تشخيص API:", {
     baseUrl: apiClient["baseUrl"],
