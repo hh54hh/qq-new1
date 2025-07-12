@@ -25,6 +25,10 @@ import {
   FileImage,
 } from "lucide-react";
 import { User, Booking } from "@shared/api";
+import {
+  getUserDisplayRole,
+  getServiceCategoryIcon,
+} from "@shared/service-categories";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
@@ -267,7 +271,7 @@ export default function BarberDashboard({
           id: Date.now().toString(),
           type: "booking_accepted",
           title: "تم قبول الحجز",
-          message: `ت�� قبول حجز ${booking.user?.name || "العميل"}`,
+          message: `ت�� قبول حجز ${booking.user?.name || "ا��عميل"}`,
           data: booking,
           read: false,
           created_at: new Date().toISOString(),
@@ -778,7 +782,7 @@ export default function BarberDashboard({
                       id: Date.now().toString(),
                       type: "system",
                       title: "نوع ملف غير مدعوم",
-                      message: "يرجى اختيار صورة بصيغة JPG, PNG, GIF أو WebP",
+                      message: "يرجى اخت��ار صورة بصيغة JPG, PNG, GIF أو WebP",
                       data: null,
                       read: false,
                       created_at: new Date().toISOString(),
@@ -881,8 +885,14 @@ export default function BarberDashboard({
                 {user.email}
               </p>
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="outline" className="text-xs sm:text-sm">
-                  حلاق
+                <Badge
+                  variant="outline"
+                  className="text-xs sm:text-sm flex items-center gap-1"
+                >
+                  <span>
+                    {getServiceCategoryIcon(user.service_category || "barber")}
+                  </span>
+                  <span>{getUserDisplayRole(user)}</span>
                 </Badge>
                 <Badge className="bg-golden-500/10 text-golden-500 border-golden-500/20 text-xs sm:text-sm">
                   {getLevelIcon(user.level)} {getLevelLabel(user.level)}

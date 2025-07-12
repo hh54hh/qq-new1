@@ -42,7 +42,7 @@ const navItems: NavItem[] = [
   },
   {
     id: "home",
-    label: "حلاقتي",
+    label: "الخدمات",
     icon: Home,
     roles: ["customer"],
   },
@@ -145,7 +145,7 @@ export default function Layout({
             </div>
             <div className="flex flex-col">
               <h1 className="text-base sm:text-lg font-bold text-foreground">
-                حلاقة
+                خدماتي
               </h1>
               <LocationBar compact className="hidden sm:block" />
             </div>

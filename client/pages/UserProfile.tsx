@@ -18,6 +18,10 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { User } from "@shared/api";
+import {
+  getUserDisplayRole,
+  getServiceCategoryIcon,
+} from "@shared/service-categories";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import apiClient from "@/lib/api";
@@ -361,8 +365,15 @@ export default function UserProfile({
           </Button>
           <div className="flex-1">
             <h1 className="font-bold text-lg">{profileUser.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              {profileUser.role === "barber" ? "حلاق" : "عميل"}
+            <p className="text-sm text-muted-foreground flex items-center gap-1">
+              <span>
+                {profileUser.role === "barber"
+                  ? getServiceCategoryIcon(
+                      profileUser.service_category || "barber",
+                    )
+                  : "👤"}
+              </span>
+              <span>{getUserDisplayRole(profileUser)}</span>
             </p>
           </div>
         </div>
@@ -450,8 +461,9 @@ export default function UserProfile({
                   </Button>
                 </div>
 
-                {/* الصف الثاني: حجز موعد (للحلاقين فقط) */}
-                {profileUser.role === "barber" && (
+                {/* الصف الثاني: حجز موعد (لمقدمي الخدمات) */}
+                {(profileUser.role === "barber" ||
+                  profileUser.service_category) && (
                   <Button
                     variant="outline"
                     onClick={onBooking}
@@ -467,7 +479,7 @@ export default function UserProfile({
         </Card>
 
         {/* Content Tabs */}
-        {profileUser.role === "barber" && (
+        {(profileUser.role === "barber" || profileUser.service_category) && (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="posts">المنشورات</TabsTrigger>

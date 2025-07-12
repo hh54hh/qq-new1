@@ -383,7 +383,6 @@ class ApiClient {
         console.warn(`⏰ تم إلغاء الطلب أو انتهت المهلة: ${endpoint}`);
         console.warn("AbortError details:", {
           message: error.message,
-          cause: error.cause,
           stack: error.stack,
         });
 

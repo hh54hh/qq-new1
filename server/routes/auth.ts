@@ -116,13 +116,20 @@ export const handleLogin: RequestHandler = async (req, res) => {
 
 export const handleRegister: RequestHandler = async (req, res) => {
   try {
-    const { name, email, password, role, activation_key }: RegisterRequest =
-      req.body;
+    const {
+      name,
+      email,
+      password,
+      role,
+      service_category,
+      activation_key,
+    }: RegisterRequest = req.body;
 
     console.log("Registration attempt:", {
       name,
       email,
       role,
+      service_category,
       hasActivationKey: !!activation_key,
       timestamp: new Date().toISOString(),
     });
@@ -238,11 +245,22 @@ export const handleRegister: RequestHandler = async (req, res) => {
       });
     }
 
-    // For barbers, validate activation key
+    // For service providers, validate service category
     if (role === "barber") {
-      if (!activation_key || !activation_key.trim()) {
+      if (!service_category) {
         return res.status(400).json({
-          error: "مفتاح التفعيل مطلوب لإنشاء حساب حلاق",
+          error: "يرجى اختيار فئة الخدمة",
+          errorType: "MISSING_SERVICE_CATEGORY",
+        });
+      }
+
+      // Legacy activation key validation for barbers only
+      if (
+        service_category === "barber" &&
+        (!activation_key || !activation_key.trim())
+      ) {
+        return res.status(400).json({
+          error: "مفتاح التفعيل مطلوب للحلاقين",
           errorType: "MISSING_ACTIVATION_KEY",
           suggestion: "للحصول على مفتاح التفعيل، اتصل على: 07800657822",
         });
@@ -303,15 +321,16 @@ export const handleRegister: RequestHandler = async (req, res) => {
         email: email.toLowerCase().trim(),
         password_hash,
         role,
+        service_category: role === "barber" ? service_category : undefined,
         status: "active",
         level: 1,
         points: 0,
-        is_verified: role === "customer", // Barbers might need manual verification
+        is_verified: role === "customer", // Service providers might need manual verification
       });
     } catch (createError) {
       console.error("User creation error:", createError);
       return res.status(500).json({
-        error: "خطأ في إنشاء الحساب، يرجى المحاولة مرة أخرى",
+        error: "خطأ في إنشاء الحساب، يرجى المحا��لة مرة أخرى",
         errorType: "USER_CREATION_ERROR",
       });
     }
@@ -364,7 +383,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
         return res.status(409).json({
           error: "هذا البريد الإلكتروني مسجل مسبقاً في النظام",
           errorType: "DUPLICATE_EMAIL",
-          suggestion: "استخدم بريد إلكتروني آخر أو سجل الدخول بالبريد الموجود",
+          suggestion: "استخدم بريد إلكتر��ني آخر أو سجل الدخول بالبريد الموجود",
         });
       }
 
@@ -386,7 +405,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
         dbError.message?.includes("network")
       ) {
         return res.status(500).json({
-          error: "خطأ في الاتصال بقاعدة البيانات، يرجى المحاولة مرة أخرى",
+          error: "خطأ في الاتصال بقاعدة البيانات، ير��ى المحاولة مرة أخرى",
           errorType: "DATABASE_CONNECTION_ERROR",
         });
       }

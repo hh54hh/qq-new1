@@ -1,6 +1,8 @@
 // Database Schema Types for Supabase Integration
 // This file defines the exact structure expected by Supabase
 
+import { ServiceCategory } from "./service-categories";
+
 export interface Database {
   public: {
     Tables: {
@@ -13,6 +15,7 @@ export interface Database {
           avatar_url?: string;
           phone?: string;
           role: "customer" | "barber" | "admin";
+          service_category?: ServiceCategory;
           status: "active" | "pending" | "blocked";
           level: number;
           points: number;
@@ -33,6 +36,7 @@ export interface Database {
           avatar_url?: string;
           phone?: string;
           role: "customer" | "barber" | "admin";
+          service_category?: ServiceCategory;
           status?: "active" | "pending" | "blocked";
           level?: number;
           points?: number;
@@ -48,6 +52,7 @@ export interface Database {
         Update: {
           name?: string;
           email?: string;
+          service_category?: ServiceCategory;
           password_hash?: string;
           avatar_url?: string;
           phone?: string;

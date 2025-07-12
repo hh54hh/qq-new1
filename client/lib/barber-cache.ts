@@ -11,6 +11,7 @@ export interface CachedBarber {
   name: string;
   email: string;
   role: "barber";
+  service_category?: string; // New field for service categories
   status: string;
   level: number;
   points: number;

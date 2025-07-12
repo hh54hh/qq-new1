@@ -53,6 +53,9 @@ import InstagramNewsFeed from "./InstagramNewsFeed";
 import AdvancedPostsFeed from "./AdvancedPostsFeed";
 import CreatePostDialog from "../components/CreatePostDialog";
 import ExplorePageWithTabs from "./ExplorePageWithTabs";
+import ServicesPage from "./ServicesPage";
+import ServiceProvidersPage from "./ServiceProvidersPage";
+import { ServiceCategory } from "@shared/service-categories";
 
 import LocationBar from "@/components/LocationBar";
 import { useLocation } from "@/hooks/use-location";
@@ -84,6 +87,9 @@ export default function CustomerDashboard({
   const [showFollowedBarbers, setShowFollowedBarbers] = useState(false);
   const [showNearbyBarbers, setShowNearbyBarbers] = useState(false);
   const [showAllBookings, setShowAllBookings] = useState(false);
+  const [showServices, setShowServices] = useState(false);
+  const [selectedServiceCategory, setSelectedServiceCategory] =
+    useState<ServiceCategory | null>(null);
 
   const [allBarbers, setAllBarbers] = useState<CachedBarber[]>([]);
   const [filteredBarbers, setFilteredBarbers] = useState<CachedBarber[]>([]);
@@ -184,7 +190,7 @@ export default function CustomerDashboard({
         const followingResponse = await apiClient.getFollows("following");
         const follows = followingResponse.follows || [];
 
-        // تحديث store بب��انات المتابعة
+        // تحدي�� store بب��انات المتابعة
         store.setFollows(follows);
 
         console.log(`✅ Initialized ${follows.length} follows in store`);
@@ -466,7 +472,7 @@ export default function CustomerDashboard({
         id: "friend_req_2",
         type: "friend_request" as const,
         title: "طلب ص��اقة جديد",
-        message: "محمد العلي ي��يد متابعتك",
+        message: "محمد ا��علي ي��يد متابعتك",
         data: {
           senderId: "barber_2",
           senderName: "محمد العلي",
@@ -870,7 +876,7 @@ export default function CustomerDashboard({
       const followersData = followersResponse.follows || [];
       const followingData = followingResponse.follows || [];
 
-      // تحميل بيانات المستخدمين الكاملة للمتابعين والمتابعين
+      // ت��ميل بيانات المستخدمين الكاملة للمتابعين والمتابعين
       const [enrichedFollowers, enrichedFollowing] = await Promise.all([
         enrichFollowData(followersData, "follower_id"),
         enrichFollowData(followingData, "followed_id"),
@@ -1569,7 +1575,52 @@ export default function CustomerDashboard({
     );
   }
 
+  const handleServiceCategorySelect = (category: ServiceCategory) => {
+    setSelectedServiceCategory(category);
+    setShowServices(false); // Hide services page and show providers
+  };
+
+  const handleBackToServices = () => {
+    setSelectedServiceCategory(null);
+    setShowServices(true);
+  };
+
+  const handleBackToHome = () => {
+    setShowServices(false);
+    setSelectedServiceCategory(null);
+  };
+
   const renderHome = () => {
+    // Show Services page instead of old barber list
+    return (
+      <ServicesPage
+        user={user}
+        onCategorySelect={handleServiceCategorySelect}
+        onBack={handleBackToHome}
+      />
+    );
+  };
+
+  // Show service providers for selected category
+  if (selectedServiceCategory) {
+    return (
+      <ServiceProvidersPage
+        user={user}
+        category={selectedServiceCategory}
+        onBack={handleBackToServices}
+        onProviderSelect={(provider) => {
+          setSelectedProfile(provider);
+          setShowProfile(true);
+        }}
+        onBookingRequest={(provider) => {
+          setSelectedBarber(provider);
+          setShowBookingPage(true);
+        }}
+      />
+    );
+  }
+
+  const renderOldHome = () => {
     const followedBarbers = filteredBarbers.filter(
       (barber) => barber.isFollowed,
     );
@@ -1589,7 +1640,7 @@ export default function CustomerDashboard({
                 <div className="flex items-center gap-2">
                   <div className="animate-spin h-3 w-3 border border-primary border-t-transparent rounded-full"></div>
                   <span className="text-sm text-primary">
-                    جاري ��حديد الموقع...
+                    جار�� ��حديد الموقع...
                   </span>
                 </div>
               ) : userLocation ? (
@@ -2446,7 +2497,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">ح����وز��ت</p>
+                <p className="text-sm text-muted-foreground">ح�����وز��ت</p>
               </div>
               <div
                 className="cursor-pointer"

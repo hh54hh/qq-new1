@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Booking, Post, FriendRequest, Follow } from "@shared/api";
 import apiClient from "./api";
 
@@ -299,7 +299,10 @@ export const appStore = new AppStore();
 
 // React Hook for using the store
 export function useAppStore(): [AppState, typeof appStore] {
-  const [state, setState] = useState(appStore.getState());
+  const [state, setState] = useState(() => {
+    // Use a function to lazily evaluate the initial state
+    return appStore.getState();
+  });
 
   useEffect(() => {
     const unsubscribe = appStore.subscribe(setState);
@@ -309,5 +312,4 @@ export function useAppStore(): [AppState, typeof appStore] {
   return [state, appStore];
 }
 
-// Initialize auth on app start
-appStore.initializeAuth();
+// Note: Auth initialization is now handled in App component to avoid React hook issues

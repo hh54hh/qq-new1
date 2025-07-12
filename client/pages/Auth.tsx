@@ -20,6 +20,11 @@ import {
 } from "@/components/ui/select";
 import { Scissors, Sparkles, Crown } from "lucide-react";
 import { UserRole, LoginRequest, RegisterRequest } from "@shared/api";
+import {
+  ServiceCategory,
+  getAllServiceCategories,
+  getServiceCategoryConfig,
+} from "@shared/service-categories";
 import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/store";
 import LocationPermissionDialog from "@/components/LocationPermissionDialog";
@@ -50,7 +55,8 @@ export default function Auth({ onAuth }: AuthProps) {
     email: "",
     password: "",
     role: "customer",
-    activation_key: "",
+    service_category: undefined,
+    activation_key: "", // Keep for legacy barber support
   });
 
   const validateEmail = (email: string): boolean => {
@@ -99,7 +105,7 @@ export default function Auth({ onAuth }: AuthProps) {
         // استخدام الرسالة المخصصة من الخادم
         errorMessage = error.message;
 
-        // إضافة تفاصيل إضا��ية إذا كانت متوفرة
+        // إ��افة تفاصيل إضا��ية إذا كانت متوفرة
         const customError = error as any;
         if (customError.suggestion) {
           errorDetails = customError.suggestion;
@@ -167,7 +173,7 @@ export default function Auth({ onAuth }: AuthProps) {
     }
 
     if (registerData.name.trim().length < 2) {
-      setError("ال��سم يجب أن يحتوي على حرفين على الأقل");
+      setError("ال��سم يجب أن يحت��ي على حرفين على الأقل");
       return;
     }
 
@@ -182,11 +188,19 @@ export default function Auth({ onAuth }: AuthProps) {
       return;
     }
 
+    // Validate service category for service providers
+    if (registerData.role === "barber" && !registerData.service_category) {
+      setError("يرجى اختيار فئة الخدمة");
+      return;
+    }
+
+    // Legacy activation key validation for barbers only
     if (
       registerData.role === "barber" &&
+      registerData.service_category === "barber" &&
       !registerData.activation_key?.trim()
     ) {
-      setError("مفتاح التفعيل مطلوب لحسابات الحلاقين");
+      setError("مفتاح التفعيل مطلوب للحلاقين");
       return;
     }
 
@@ -230,7 +244,7 @@ export default function Auth({ onAuth }: AuthProps) {
             errorDetails = "يجب أن يحتوي الاسم على حرفين على الأقل";
             break;
           case "NAME_TOO_LONG":
-            errorMessage = "الاسم طو��ل جداً";
+            errorMessage = "الاسم طو���� جداً";
             errorDetails = "يجب أن يكون الاسم أقل من 50 حرف";
             break;
           case "INVALID_EMAIL_FORMAT":
@@ -246,7 +260,7 @@ export default function Auth({ onAuth }: AuthProps) {
             errorDetails = "يجب أن تحتوي على 6 أحرف على الأقل";
             break;
           case "MISSING_ACTIVATION_KEY":
-            errorMessage = "مفتاح التفعيل مطلوب للحلاقين";
+            errorMessage = "مفتاح التفعيل مطلوب للحلاقي��";
             errorDetails = "للحصول على مفتاح التفعيل اتصل: 07800657822";
             break;
           case "INVALID_ACTIVATION_KEY":
@@ -322,9 +336,9 @@ export default function Auth({ onAuth }: AuthProps) {
             <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-golden-600 rounded-2xl flex items-center justify-center mb-4">
               <Scissors className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-bold text-foreground">حلاقة</h1>
+            <h1 className="text-3xl font-bold text-foreground">خدماتي</h1>
             <p className="text-muted-foreground mt-2">
-              نظام إدارة صالونات الحلاقة
+              نظام إدارة الخدمات المتعددة
             </p>
           </div>
 
@@ -508,27 +522,70 @@ export default function Auth({ onAuth }: AuthProps) {
 
                     {registerData.role === "barber" && (
                       <div className="space-y-2">
-                        <Label htmlFor="activation-key">مفتاح التفعيل</Label>
-                        <Input
-                          id="activation-key"
-                          type="text"
-                          value={registerData.activation_key}
-                          onChange={(e) =>
+                        <Label htmlFor="service-category">فئة الخدمة</Label>
+                        <Select
+                          value={registerData.service_category || ""}
+                          onValueChange={(value: ServiceCategory) =>
                             setRegisterData((prev) => ({
                               ...prev,
-                              activation_key: e.target.value,
+                              service_category: value,
                             }))
                           }
-                          placeholder="أدخل مفتاح التفعيل المقدم من الإدارة"
-                          required
-                          className="text-right"
-                        />
+                        >
+                          <SelectTrigger className="text-right">
+                            <SelectValue placeholder="اختر فئة الخدمة" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getAllServiceCategories().map((category) => {
+                              const config = getServiceCategoryConfig(
+                                category.id,
+                              );
+                              return (
+                                <SelectItem
+                                  key={category.id}
+                                  value={category.id}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">
+                                      {config.icon}
+                                    </span>
+                                    <span>{config.nameAr}</span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
                         <p className="text-xs text-muted-foreground">
-                          للحصول على مفتاح التفعيل، تواصل مع الإدارة على
-                          WhatsApp: 07800657822
+                          اختر نوع الخدمة التي تقدمها
                         </p>
                       </div>
                     )}
+
+                    {registerData.role === "barber" &&
+                      registerData.service_category === "barber" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="activation-key">مفتاح التفعيل</Label>
+                          <Input
+                            id="activation-key"
+                            type="text"
+                            value={registerData.activation_key}
+                            onChange={(e) =>
+                              setRegisterData((prev) => ({
+                                ...prev,
+                                activation_key: e.target.value,
+                              }))
+                            }
+                            placeholder="أدخل مفتاح التفعيل المقدم من الإدارة"
+                            required
+                            className="text-right"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            للحصول على مفتاح التفعيل، تواصل م�� الإدارة على
+                            WhatsApp: 07800657822
+                          </p>
+                        </div>
+                      )}
 
                     {error && (
                       <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md border border-destructive/20">

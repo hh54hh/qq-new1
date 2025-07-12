@@ -420,7 +420,7 @@ export const debugFollows: RequestHandler = async (req, res) => {
             createdAt: f.created_at,
           })) || [],
       };
-      result.autoFixed = true;
+      (result as any).autoFixed = true;
     }
 
     res.json(result);
