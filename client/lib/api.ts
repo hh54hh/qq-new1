@@ -86,7 +86,7 @@ class ApiClient {
       return;
     }
 
-    // للبيئات الأخرى، اختبر ا������سارات المختلفة
+    // للبيئات الأخرى، اختبر ا��������سارات المختلفة
     const possiblePaths = ["/api", "/.netlify/functions/api"];
 
     for (const path of possiblePaths) {
@@ -388,15 +388,21 @@ class ApiClient {
       // Handle network errors with detailed messages
       if (error instanceof TypeError && error.message.includes("fetch")) {
         console.error("���� Network error details:", {
-                    message: error.message,
+          message: error.message,
           url: url,
           endpoint: endpoint,
           errorType: error.name,
           isOnline: navigator.onLine,
           timestamp: new Date().toISOString(),
-        };
+        });
 
-        console.error("🌐 Network error details (fixed):", JSON.stringify(errorDetails, null, 2));
+        // Log error details in readable format
+        console.error("Network error occurred:", {
+          message: error.message,
+          url: url,
+          endpoint: endpoint,
+          isOnline: navigator.onLine,
+        });
 
         let networkErrorMessage = "خطأ في الاتصال بالخادم";
         let suggestion = "��حقق من الاتصال بالإنترنت وحاول مرة أخرى";
@@ -525,7 +531,7 @@ class ApiClient {
         }
       }
 
-      // إذا و����دت بيانات احتياطية، استخدمها بدلاً من رمي الخطأ
+      // إذا و����دت بيانات احتياطية، استخدمه�� بدلاً من رمي الخطأ
       if (fallbackData !== undefined) {
         console.log(`🔄 استخدام البيانات الاحتياطية لـ ${endpoint}`);
         return fallbackData;
