@@ -281,7 +281,7 @@ export default function InstagramNewsFeed({
     );
   }
 
-  // NEVER show loading screen - always show content or cached posts
+    // NEVER show loading screen - always show content or cached posts
 
   console.log("🎨 Rendering InstagramNewsFeed with:", {
     postsCount: posts.length,
