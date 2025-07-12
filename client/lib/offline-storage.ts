@@ -51,6 +51,10 @@ class OfflineStorageManager {
         return;
       }
 
+      console.log(
+        `🔧 Initializing IndexedDB: ${this.options.dbName} v${this.options.version}`,
+      );
+
       const request = indexedDB.open(this.options.dbName, this.options.version);
 
       request.onerror = () => {
