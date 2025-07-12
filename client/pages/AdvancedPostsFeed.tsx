@@ -533,7 +533,7 @@ export default function AdvancedPostsFeed({
                       <Heart
                         className={cn(
                           "w-6 h-6 transition-colors",
-                          likedPosts.has(post.id) || post.is_liked
+                          likedPosts.has(post.id)
                             ? "fill-red-500 text-red-500"
                             : "text-foreground",
                         )}
