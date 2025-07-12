@@ -451,6 +451,17 @@ export default function AdvancedPostsFeed({
         onScroll={handleScroll}
         onTouchStart={handlePullToRefresh}
       >
+        {/* DEBUG: Show posts status */}
+        <div className="p-4 bg-red-100 text-red-800 text-sm">
+          DEBUG: Posts length: {posts.length} | Loading: {loading} | Refreshing:{" "}
+          {refreshing} | HasMore: {hasMore}
+          {posts.length === 0 && (
+            <div>
+              No posts found. Check console for API calls and cache status.
+            </div>
+          )}
+        </div>
+
         {posts.length > 0 ? (
           posts.map((post, index) => (
             <article
