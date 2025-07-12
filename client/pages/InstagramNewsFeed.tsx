@@ -38,6 +38,9 @@ export default function InstagramNewsFeed({
   const [lastTabClickTime, setLastTabClickTime] = useState(0);
   const [lastAppFocus, setLastAppFocus] = useState(Date.now());
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [isFollowingAnyone, setIsFollowingAnyone] = useState<boolean | null>(
+    null,
+  );
   const cache = useRef(getFollowingPostsCache(user.id));
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -207,7 +210,7 @@ export default function InstagramNewsFeed({
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return "الآ��";
+    if (diffInSeconds < 60) return "الآن";
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} د`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} س`;
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} ي`;
