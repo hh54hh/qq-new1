@@ -31,6 +31,7 @@ import {
   getPosts,
   getFollowingPosts,
   createPost,
+  debugFollows,
   getFollows,
   createFollow,
   deleteFollow,
