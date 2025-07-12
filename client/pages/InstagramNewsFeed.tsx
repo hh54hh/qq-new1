@@ -423,32 +423,46 @@ export default function InstagramNewsFeed({
             ))}
           </div>
         ) : posts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
-            <div className="mb-6">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
-                <span className="text-3xl">👥</span>
+          // Show different messages based on following status
+          isFollowingAnyone === false ? (
+            // User doesn't follow anyone
+            <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
+              <div className="mb-6">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center">
+                  <span className="text-3xl">👥</span>
+                </div>
+                <h3 className="text-xl font-medium text-foreground mb-2">
+                  ابدأ متابعة الحلاقين
+                </h3>
+                <p className="text-muted-foreground">
+                  اكتشف حلاقين جدد وتابع أعمالهم لترى منشوراتهم هنا
+                </p>
               </div>
-              <h3 className="text-xl font-medium text-foreground mb-2">
-                ابدأ متابعة الحلاقين
-              </h3>
+
+              <Button
+                onClick={() => {
+                  // Navigate to explore tab
+                  const event = new CustomEvent("tabChange", {
+                    detail: "search",
+                  });
+                  window.dispatchEvent(event);
+                }}
+                className="bg-primary text-primary-foreground px-8 py-3 text-lg"
+              >
+                🔍 اكتشف الحلاقين
+              </Button>
+            </div>
+          ) : (
+            // User follows people but no posts available - show minimal empty state
+            <div className="flex flex-col items-center justify-center py-20 text-center bg-background">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/20 flex items-center justify-center">
+                <span className="text-2xl">📭</span>
+              </div>
               <p className="text-muted-foreground">
-                اكتشف حلاقين جدد وتابع أعمالهم لترى منشوراتهم هنا
+                لا توجد منشورات جديدة حالياً
               </p>
             </div>
-
-            <Button
-              onClick={() => {
-                // Navigate to explore tab
-                const event = new CustomEvent("tabChange", {
-                  detail: "search",
-                });
-                window.dispatchEvent(event);
-              }}
-              className="bg-primary text-primary-foreground px-8 py-3 text-lg"
-            >
-              🔍 اكتشف الحلاقين
-            </Button>
-          </div>
+          )
         ) : (
           posts.map((post) => (
             <article
@@ -541,7 +555,7 @@ export default function InstagramNewsFeed({
 
                 {/* Comments */}
                 <button className="text-sm text-muted-foreground mt-2">
-                  عرض جميع التعليقات
+                  عرض جميع التع��يقات
                 </button>
               </div>
             </article>
