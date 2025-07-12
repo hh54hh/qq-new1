@@ -102,7 +102,7 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
-        <h2 className="text-2xl font-bold text-red-600 mb-4">حدث خطأ</h2>
+        <h2 className="text-2xl font-bold text-red-600 mb-4">ح��ث خطأ</h2>
         <p className="text-gray-600 mb-6">
           عذراً، حدث خطأ غير متوقع في التطبيق
         </p>
@@ -180,10 +180,12 @@ const AppContent = () => {
       console.log("🔍 تم فتح صفحة ��لتشخيص الشامل");
     };
 
-    console.log("💡 نصائح مفيدة:");
+    console.log("��� نصائح مفيدة:");
     console.log("  - اكتب openDebug() في الكونسول لفت�� صفحة ��لتشخيص");
     console.log("  - ا��تب openDiagnostic() ف�� الكونسول لفتح التشخيص الشامل");
-  }, []);
+
+    return cleanup;
+  }, [state.user]);
 
   // Check if we need to show location dialog for existing customers
   useEffect(() => {
