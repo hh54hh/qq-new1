@@ -100,7 +100,7 @@ export default function AdvancedPostsFeed({
     console.log("📥 Initializing posts...");
     try {
       const result = await postsManager.getPosts(1);
-      setPosts(result.posts);
+      setPosts(removeDuplicatePosts(result.posts));
       setHasMore(result.hasMore);
       setNewPostsCount(result.newPostsCount);
 
