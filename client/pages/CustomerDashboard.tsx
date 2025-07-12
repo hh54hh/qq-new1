@@ -51,6 +51,7 @@ import AdvancedSearchPage from "./AdvancedSearchPage";
 import HomePageSimple from "./HomePageSimple";
 import InstagramNewsFeed from "./InstagramNewsFeed";
 import AdvancedPostsFeed from "./AdvancedPostsFeed";
+import CreatePostDialog from "../components/CreatePostDialog";
 import ExplorePageWithTabs from "./ExplorePageWithTabs";
 
 import LocationBar from "@/components/LocationBar";
@@ -2136,13 +2137,13 @@ export default function CustomerDashboard({
           </h3>
           <p className="text-muted-foreground">
             {exploreSearchQuery
-              ? "جر�� البحث بكلمة أخر�� من المنشورات ال����يزة"
+              ? "جر�� البحث بكلمة أخرى من المنشورات ال����يزة"
               : "لا توجد منشورات مميزة متا��ة حاليا��"}
           </p>
         </div>
       )}
 
-      {/* Modal ت��اصيل المنشور */}
+      {/* Modal تفاصيل المنشور */}
       <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
         <DialogContent className="max-w-md mx-auto">
           {selectedPost && (
@@ -2445,7 +2446,7 @@ export default function CustomerDashboard({
                 <p className="text-2xl font-bold text-primary">
                   {profileStats.bookings}
                 </p>
-                <p className="text-sm text-muted-foreground">ح����وز��ت</p>
+                <p className="text-sm text-muted-foreground">ح������وز��ت</p>
               </div>
               <div
                 className="cursor-pointer"
