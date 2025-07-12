@@ -371,7 +371,7 @@ const App = () => {
       console.log("🔧 تم فتح صفحة الت��خيص");
     };
 
-    // إضافة دا��ة عالمية لفتح صفحة التشخيص الشامل
+    // إضافة دالة عالمية لفتح صفحة التشخيص الشامل
     (window as any).openDiagnostic = () => {
       window.location.href = "/network-diagnostic";
       console.log("🔍 تم فتح صفحة التشخيص الشامل");
@@ -426,6 +426,16 @@ const App = () => {
             <Route path="/offline" element={<OfflinePage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/chat-optimized" element={<OptimizedChatPage />} />
+            <Route
+              path="/test-newsfeed"
+              element={
+                state.user ? (
+                  <TestNewsFeed user={state.user} />
+                ) : (
+                  <Navigate to="/auth" replace />
+                )
+              }
+            />
 
             {/* Authenticated routes */}
             <Route
