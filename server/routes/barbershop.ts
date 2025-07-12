@@ -331,81 +331,7 @@ export const getFollowingPosts: RequestHandler = async (req, res) => {
 
     console.log("Getting following posts for user:", userId);
 
-    // Validate UUID format or handle test users
-    const isTestUser =
-      userId.startsWith("test-user") ||
-      userId === "87855b36-76fd-4358-9a1f-8967a5ecdfdd";
-    if (isTestUser) {
-      // For test users, return sample posts to show the UI
-      console.log("Test user detected, returning sample posts");
-      const samplePosts = [
-        {
-          id: "sample-1",
-          user_id: "barber-1",
-          image_url: "https://picsum.photos/400/600?random=1",
-          caption: "أحدث قصة شعر عصرية ✂️ #حلاقة #تسريحة",
-          frame_style: "ذهبي",
-          likes: 24,
-          created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-          user: {
-            id: "barber-1",
-            name: "أحمد الحلاق",
-            email: "ahmed@barber.com",
-            avatar_url: "https://picsum.photos/100/100?random=10",
-            role: "barber",
-            status: "active",
-            level: 15,
-            points: 450,
-            is_verified: true,
-            created_at: new Date().toISOString(),
-          },
-        },
-        {
-          id: "sample-2",
-          user_id: "barber-2",
-          image_url: "https://picsum.photos/400/800?random=2",
-          caption: "قصة جديدة للعرسان 💎 احجز موعدك الآن",
-          frame_style: "فضي",
-          likes: 38,
-          created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), // 4 hours ago
-          user: {
-            id: "barber-2",
-            name: "محمد ستايل",
-            email: "mohammed@barber.com",
-            avatar_url: "https://picsum.photos/100/100?random=11",
-            role: "barber",
-            status: "active",
-            level: 25,
-            points: 780,
-            is_verified: true,
-            created_at: new Date().toISOString(),
-          },
-        },
-        {
-          id: "sample-3",
-          user_id: "barber-3",
-          image_url: "https://picsum.photos/400/500?random=3",
-          caption: "تسريحة كلاسيكية مع لمسة عصرية 🔥",
-          frame_style: "برونزي",
-          likes: 52,
-          created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
-          user: {
-            id: "barber-3",
-            name: "علي المبدع",
-            email: "ali@barber.com",
-            avatar_url: "https://picsum.photos/100/100?random=12",
-            role: "barber",
-            status: "active",
-            level: 30,
-            points: 920,
-            is_verified: true,
-            created_at: new Date().toISOString(),
-          },
-        },
-      ];
-
-      return res.json({ posts: samplePosts, total: samplePosts.length });
-    }
+    console.log("Getting real following posts for user:", userId);
 
     // Get user's following list
     const following = await db.follows.getByUser(userId, "following");
@@ -617,7 +543,7 @@ export const createFollow: RequestHandler = async (req, res) => {
       };
       return res.status(200).json(apiFollow);
     }
-    res.status(500).json({ error: "حدث خطأ ف�� ا��خادم" });
+    res.status(500).json({ error: "حدث خطأ في ا���خادم" });
   }
 };
 
