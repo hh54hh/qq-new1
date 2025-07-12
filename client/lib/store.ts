@@ -299,7 +299,10 @@ export const appStore = new AppStore();
 
 // React Hook for using the store
 export function useAppStore(): [AppState, typeof appStore] {
-  const [state, setState] = useState(appStore.getState());
+  const [state, setState] = useState(() => {
+    // Use a function to lazily evaluate the initial state
+    return appStore.getState();
+  });
 
   useEffect(() => {
     const unsubscribe = appStore.subscribe(setState);
